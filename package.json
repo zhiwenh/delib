@@ -1,0 +1,32 @@
+{
+  "name": "delib",
+  "version": "1.0.0",
+  "description": "A lightweight and non-restrictive library and CLI for Ethereum and IPFS that provides the core methods needed to build decentralized applications.",
+  "main": "index.js",
+  "bin": {
+    "dfs": "./bin/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "commander": "2.9.0",
+    "es6-promisify": "4.1.0",
+    "ether-pudding": "3.1.2",
+    "ipfs-api": "^9.0.0",
+    "multihashes": "0.2.2",
+    "nedb": "1.8.0",
+    "path": "^0.12.7",
+    "solc": "0.3.6",
+    "string-argv": "0.0.2",
+    "web3": "0.17.0-alpha",
+    "web3_ipc": "1.2.0"
+  },
+  "devDependencies": {
+    "tap-spec": "4.1.1",
+    "tape": "4.6.0",
+    "tapes": "4.1.0"
+  },
+  "author": "DeStore",
+  "license": "ISC"
+}
