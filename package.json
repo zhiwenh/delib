@@ -16,7 +16,7 @@
   },
   "main": "index.js",
   "bin": {
-    "dfs": "./bin/cli.js"
+    "delib": "./bin/cli.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
