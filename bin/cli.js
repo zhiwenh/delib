@@ -1,8 +1,11 @@
 'use strict';
 const program = require('commander');
+const prompt = require('prompt');
+const spawn = require('child_process').spawn;
+
 const spawnSync = require('child_process').spawnSync;
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const pathExists = require('path-exists').sync;
 
 const Ethereum = require('./../src/ethereum/ethereum.js');
@@ -23,6 +26,7 @@ program
   .action(() => {
     const configPath = path.join(process.cwd(), 'delib.js');
     const contractsFolderPath = path.join(process.cwd(), 'contracts');
+    // const genesisPath = path.join(process.cwd(), 'devgenesis.json')
     if (!pathExists(configPath)) {
       const defaultConfig = fs.readFileSync(path.join(__dirname, '/../src/config/default.js'));
       fs.writeFileSync(configPath, defaultConfig);
@@ -34,6 +38,12 @@ program
     } else {
       console.log('Contracts folder already created');
     }
+    // if (!pathExists(genesisPath)) {
+    //   const devGenesis = fs.readFileSync(path.join(__dirname, '/../src/config/devgenesis.json'));
+    //   fs.writeFileSync(genesisPath, devGenesis);
+    // } else {
+    //   console.log('Genesis file already initalized');
+    // }
   });
 
 /**
@@ -160,25 +170,31 @@ program
 program
   .command('devserver [args..]')
   .action(args => {
-    if (!pathExists(path.join(config.blockchain.path.dev, 'chaindata'))) {
-      console.log(config.blockchain.path.dev);
-      const initArgs = [
-        '--datadir', config.blockchain.path.dev,
-        'init', path.join(__dirname, '../', 'genesis.json')
-      ];
-      console.log(initArgs);
-      spawnSync('geth', initArgs, { stdio: 'inherit' });
+    const blockchainPath = path.join(config.blockchain.path.dev, 'chaindata');
+    if (pathExists(blockchainPath)) {
+      fs.removeSync(blockchainPath);
     }
+    console.log(path.join(__dirname, '../', 'genesis.json'));
+    console.log(config.blockchain.path.dev);
+    const initArgs = [
+      '--datadir', config.blockchain.path.dev,
+      'init', path.join(__dirname, '../', 'genesis.json')
+    ];
+    console.log(initArgs);
+    spawnSync('geth', initArgs, { stdio: 'inherit' });
+
 
     const startArgs = [
       '-identity', 'delib',
       '--datadir', config.blockchain.path.dev,
       '--rpc',
+      '--nodiscover',
+      '--verbosity', 3,
       '--preload', path.join(__dirname, './../src/devserver/startCmds.js'),
       'console',
     ];
 
-    spawnSync('geth', startArgs, { stdio: 'inherit'});
+    spawn('geth', startArgs, { stdio: 'inherit'});
   });
 
 program.parse(process.argv);

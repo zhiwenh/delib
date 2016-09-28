@@ -36,7 +36,8 @@ const config = findConfig(originalDirectory, 6);
 
 config.ipc = {};
 if (config.dev === true) {
-  config.ipc.host = path.join(config.blockchain.path.dev, 'geth.ipc');
+  config.blockchain.path.dev = path.join(config.projectRoot, config.blockchain.path.dev);
+  config.ipc.host = path.join(config.projectRoot, config.blockchain.path.dev, 'geth.ipc');
 } else {
   config.ipc.host = path.join(config.blockchain.path.production, 'geth.ipc');
 }

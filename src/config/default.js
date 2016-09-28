@@ -11,7 +11,7 @@ module.exports = {
   },
   blockchain: {
     path: {
-      dev: process.env.HOME + '/Library/Ethereum/delib/',
+      dev: './devblockchain/',
       production: process.env.HOME + '/Library/Ethereum/'
     },
     difficulty: null
