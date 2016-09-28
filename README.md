@@ -60,7 +60,6 @@ delib.ipfs;
 Coming Soon!
 
 ## API Reference
-<a name="Ethereum"></a>
 
 ### CLI
 * [cli](#Cli)
@@ -74,6 +73,8 @@ Coming Soon!
     * [create(password)](#Cli)
     * [unlock(index, password, time)](#Cli)
     * [.devserver](#Cli)
+
+    <a name="Ethereum"></a>
 
 ### Ethereum
 
