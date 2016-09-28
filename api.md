@@ -1,12 +1,3 @@
-# DeLib
-
-You must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) (OSX commands below, see link for more information or other platforms):
-
-```sh
-brew tap ethereum/ethereum
-brew install ethereum
-```
-
 ## Classes
 
 <dl>
@@ -271,3 +262,4 @@ Recursively calls up directories from this file to find delib.js configuration f
 | --- | --- | --- |
 | originalDirectory | <code>string</code> | The original directory. Pass in process.cwd() |
 | levels | <code>number</code> | The number of folders to go up |
+

@@ -17,7 +17,7 @@ program
   .version('1.0.0');
 
 /**
- * Initializes DeLib by creating a configuration file and the contracts folder
+ * Initializes DeLib by creating a configuration file and the contracts folder.
  */
 program
   .command('init')
@@ -38,8 +38,8 @@ program
   });
 
 /**
-  * Build a Solidity contract from contract directory specificied in Ethereum.config.contracts
-  */
+ * Build a Solidity contract from paths in delib configuration file. Default is './contracts/'
+ */
 program
   .command('build <file>')
   .action((file) => {
@@ -47,7 +47,7 @@ program
   });
 
 /**
- * Deploy a built contract located in path provided by Ethereum.config.built.
+ * Deploy a Solidity contract from paths in delib configuration file. Default is './contracts/'.
  */
 program
   .command('deploy <contractName> [args...]')
@@ -65,7 +65,7 @@ program
   });
 
 /**
- * Set the address of a particular contract when called with exec
+ * Set the address of a particular contract when called with exec.
  */
 program
   .command('set <contractName> <contractAddress>')
@@ -74,7 +74,7 @@ program
   });
 
 /**
- * Executes a deployed contract with specified method and provided arguments
+ * Executes a deployed contract with specified method and provided arguments.
  */
 program
   .command('exec <contractName> <method> [args...]')
@@ -94,6 +94,9 @@ program
       });
   });
 
+/**
+ * Show all the logs of a contract event.
+ */
 program
   .command('logs <contractName> <event>')
   .action((contractName, event) => {
@@ -120,7 +123,7 @@ program
   });
 
 /**
- * Create a new Ethereum account
+ * Create a new Ethereum account.
  */
 program
   .command('create <password>')
@@ -138,8 +141,8 @@ program
   });
 
 /**
-  * Unlocks an Ethereum account.
-  */
+ * Unlocks an Ethereum account.
+ */
 program
   .command('unlock <index> <password> <time>')
   .action((index, password, time) => {
@@ -154,16 +157,13 @@ program
       });
   });
 
-/**
- * Start a gethdev server
- */
 
-program
-  .command('gethdev [args..]')
-  .action(args => {
-    const childArgs = ['--dev'];
-
-
-  });
+// program
+//   .command('gethdev [args..]')
+//   .action(args => {
+//     const childArgs = ['--dev'];
+//
+//
+//   });
 
 program.parse(process.argv);
