@@ -1,7 +1,7 @@
 {
   "name": "delib",
-  "version": "1.0.0",
-  "description": "A lightweight and non-restrictive library and CLI for Ethereum and IPFS that provides the core methods needed to build decentralized applications.",
+  "version": "0.0.1",
+  "description": "A lightweight, non-restrictive library and CLI for Ethereum and IPFS that is easy to use and learn. It provides you the freedom to customize your decentralized application development process to suit your specific needs.",
   "main": "index.js",
   "bin": {
     "dfs": "./bin/cli.js"

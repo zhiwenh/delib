@@ -1,45 +1,85 @@
 # DeLib
 
+A lightweight, non-restrictive library and CLI for Ethereum and IPFS that is easy to use and learn. It provides you the freedom to customize your decentralized application development process to suit your specific needs.
+
+DeLib is still in alpha development and is bound to have bugs.
+
+#### Features
+
+A library that provides the core abstractions needed in writing code for Ethereum and IPFS. You can write your own deployment scripts.
+
+A CLI that allows you to easily compile, build, deploy Ethereum Solidity smart contracts. It then lets you execute specific contract methods allowing quick validation that your contract is working. It also lets you run an actual Ethereum blockchain hosted in your project's files so you can manage it.
+
+
+
+### Requirements
+
 You must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) (OSX commands below, see link for more information or other platforms):
 
 ```sh
 brew tap ethereum/ethereum
 brew install ethereum
 ```
+You must also [install ipfs](https://ipfs.io/docs/install/)
 
-## Classes
+### Installation
+Install globally to use the CLI
 
-<dl>
-<dt><a href="#Ethereum">Ethereum</a></dt>
-<dd></dd>
-<dt><a href="#IPFS">IPFS</a></dt>
-<dd></dd>
-</dl>
+```
+npm install -g delib
+```
 
-## Constants
+Also install it within your project directory
 
-<dl>
-<dt><a href="#path">path</a></dt>
-<dd><p>Model for setting deployed contract addresses in a plain text file and getting those addresses.</p>
-</dd>
-</dl>
+```
+npm install delib --save
+```
 
-## Functions
+### Usage
+In the command line of your project's root directory:
+```
+delib init
 
-<dl>
-<dt><a href="#findConfig">findConfig(originalDirectory, levels)</a> ⇒ <code>Object</code></dt>
-<dd><p>Recursively calls up directories from this file to find delib.js configuration file. If it doesn&#39;t find one it gets the default config file.</p>
-</dd>
-</dl>
+```
+This will create the delib.js configuration file and a contracts folder, which will contain the Solidity contracts ```.sol```, built contracts ```.sol.js```, and contract addresses saved in plain text.
 
+The library does not require the delib.js configuration file, but it makes things a lot easier. The configuration file lets you easily change the location of your contracts and is needed to change the transaction options from the default while using the CLI.
+
+Now in your scripts:
+```
+const delib = require('delib');
+
+/* To access Ethereum methods */
+delib.eth;
+
+/* To access IPFS methods */
+delib.ipfs;
+
+```
+
+## Examples
+Coming Soon!
+
+
+## API Reference
 <a name="Ethereum"></a>
 
-## Ethereum
-**Kind**: global class  
+### CLI
+* [cli](#Cli)
+    * [init](#Cli)
+    * [build(file)](#Cli)
+    * [deploy(contractName, args...)](#Cli)
+    * [set(contractName, contractAddress)](#Cli)
+    * [exec(contractName, method, args...)](#Cli)
+    * [logs(contractName, events)](#Cli)
+    * [balance(index)](#Cli)
+    * [create(password)](#Cli)
+    * [unlock(index, password, time)](#Cli)
+    * [.devserver](#Cli)
 
-* [Ethereum](#Ethereum)
-    * [new Ethereum()](#new_Ethereum_new)
-    * [._getBuiltContract(contractName)](#Ethereum+_getBuiltContract) ⇒ <code>Contract</code>
+### Ethereum
+
+* [delib.eth](#Ethereum)
     * [.buildContracts(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
     * [.init(rpcHost, rpcPort, contractOptions)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
@@ -56,27 +96,28 @@ brew install ethereum
     * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
     * [.getEventLogs(contractName, contractAddress, method, filter)](#Ethereum+getEventLogs) ⇒ <code>Promise</code>
 
-<a name="new_Ethereum_new"></a>
+### IPFS
 
-### new Ethereum()
-Create an Ethereum object. Will need to use Ethereum.init() to connect to the Web3 RPC provider and use the Ethereun object methods
+* [delib.ipfs](#IPFS)
+    * [.init(manualConfig)](#IPFS+init) ⇒ <code>[IPFS](#IPFS)</code>
+    * [.daemon()](#IPFS+daemon)
+    * [.addFiles(filePaths)](#IPFS+addFiles) ⇒ <code>Promise</code>
+    * [.download(hashAddress, writePath)](#IPFS+download) ⇒ <code>Promise</code>
+    * [.links(hashAddress)](#IPFS+links) ⇒ <code>Promise</code>
+    * [.pin(hashAddress)](#IPFS+pin) ⇒ <code>Promise</code>
+    * [.unpin(hashAddress)](#IPFS+unpin) ⇒ <code>Promise</code>
 
-<a name="Ethereum+_getBuiltContract"></a>
 
-### ethereum._getBuiltContract(contractName) ⇒ <code>Contract</code>
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
-**Returns**: <code>Contract</code> - The built contract  
+### CLI
+Better CLI API is coming soon!
 
-| Param | Type | Description |
-| --- | --- | --- |
-| contractName | <code>string</code> | Name of contract in the directory path provided in Ethereum.contract.build |
+### Ethereum
 
 <a name="Ethereum+buildContracts"></a>
 
-### ethereum.buildContracts(contractFiles, contractPath, buildPath)
+#### delib.eth.buildContracts(contractFiles, contractPath, buildPath)
 Builds Solidity contracts.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -86,10 +127,9 @@ Builds Solidity contracts.
 
 <a name="Ethereum+init"></a>
 
-### ethereum.init(rpcHost, rpcPort, contractOptions) ⇒ <code>Web3</code>
+#### delib.eth.init(rpcHost, rpcPort, contractOptions) ⇒ <code>Web3</code>
 Initializes a RPC connection with a local Ethereum node. The RPC provider is set in Ethereum.config.rpc.port. Need to call before using the Ethereum object. If RPC connection is already initalized and valid the RPC connection will be set to the current provider.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>Web3</code> - The Web3 object Ethereum uses set up to the RPC provider  
 
 | Param | Type | Description |
@@ -100,10 +140,9 @@ Initializes a RPC connection with a local Ethereum node. The RPC provider is set
 
 <a name="Ethereum+initIPC"></a>
 
-### ethereum.initIPC(ipcPath) ⇒ <code>Web3</code>
+#### delib.eth.initIPC(ipcPath) ⇒ <code>Web3</code>
 Initializes an IPC connection with a local Ethereum node. The IPC provider is set in Ethereum.config.ipc.host. Need to call before using the Ethereum object IPC methods.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>Web3</code> - The Web3 object Ethereum uses for its IPC connection.  
 
 | Param | Type | Description |
@@ -112,17 +151,15 @@ Initializes an IPC connection with a local Ethereum node. The IPC provider is se
 
 <a name="Ethereum+check"></a>
 
-### ethereum.check() ⇒ <code>bool</code>
+#### delib.eth.check() ⇒ <code>bool</code>
 Checks the connection to the RPC provider
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>bool</code> - The true or false status of the RPC connection  
 <a name="Ethereum+changeAccount"></a>
 
-### ethereum.changeAccount(index) ⇒ <code>string</code>
+#### delib.eth.changeAccount(index) ⇒ <code>string</code>
 Change the account address being used by the Ethereum object.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>string</code> - The account address now being used.  
 
 | Param | Type | Description |
@@ -131,10 +168,9 @@ Change the account address being used by the Ethereum object.
 
 <a name="Ethereum+createAccount"></a>
 
-### ethereum.createAccount(password) ⇒ <code>Promise</code>
+#### delib.eth.createAccount(password) ⇒ <code>Promise</code>
 Creates a new Ethereum account. The account will be located in your geth Ethereum directory in a JSON file encrpyted with the password provided. process.exit() needs to be called in Promise or the method will run indefinately. Don't use process.exit() if using method in Electron.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>Promise</code> - Promise return is a string with the newly created account's address.  
 
 | Param | Type | Description |
@@ -143,10 +179,9 @@ Creates a new Ethereum account. The account will be located in your geth Ethereu
 
 <a name="Ethereum+unlockAccount"></a>
 
-### ethereum.unlockAccount(address, password, timeLength) ⇒ <code>boolean</code>
+#### delib.eth.unlockAccount(address, password, timeLength) ⇒ <code>boolean</code>
 Unlocks an Ethereum account. process.exit() needs to be called in Promise or the method will run indefinately. Don't use process.exit() if using method in Electron.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>boolean</code> - Status if account was sucessfully unlocked.  
 
 | Param | Type | Description |
@@ -157,10 +192,9 @@ Unlocks an Ethereum account. process.exit() needs to be called in Promise or the
 
 <a name="Ethereum+getBalanceEther"></a>
 
-### ethereum.getBalanceEther(index) ⇒ <code>number</code>
+#### delib.eth.getBalanceEther(index) ⇒ <code>number</code>
 Get the Ether balance of an account in Ether denomination.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>number</code> - The amount of Ether contained in the account.  
 
 | Param | Type | Description |
@@ -169,10 +203,9 @@ Get the Ether balance of an account in Ether denomination.
 
 <a name="Ethereum+getBalanceWei"></a>
 
-### ethereum.getBalanceWei(index) ⇒ <code>number</code>
+#### delib.eth.getBalanceWei(index) ⇒ <code>number</code>
 Get the Ether balance of an account in Wei denomination. 1 Ether = 1,000,000,000,000,000,000 wei
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>number</code> - The amount of Ether in Wei contained in the account.  
 
 | Param | Type | Description |
@@ -181,10 +214,9 @@ Get the Ether balance of an account in Wei denomination. 1 Ether = 1,000,000,000
 
 <a name="Ethereum+toWei"></a>
 
-### ethereum.toWei(amount) ⇒ <code>number</code>
+#### delib.eth.toWei(amount) ⇒ <code>number</code>
 Convert an Ether amount to Wei
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>number</code> - Converted Wei amount.  
 
 | Param | Type | Description |
@@ -193,10 +225,9 @@ Convert an Ether amount to Wei
 
 <a name="Ethereum+toEther"></a>
 
-### ethereum.toEther(amount) ⇒ <code>number</code>
+#### delib.eth.toEther(amount) ⇒ <code>number</code>
 Convert a Wei amount to Ether.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>number</code> - Converted Ether amount.  
 
 | Param | Type | Description |
@@ -205,10 +236,9 @@ Convert a Wei amount to Ether.
 
 <a name="Ethereum+deploy"></a>
 
-### ethereum.deploy(contractName, args, options) ⇒ <code>Promise</code>
+#### delib.eth.deploy(contractName, args, options) ⇒ <code>Promise</code>
 Deploy a built contract.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>Promise</code> - The response is a Contract object of the deployed instance.  
 
 | Param | Type | Description |
@@ -219,10 +249,9 @@ Deploy a built contract.
 
 <a name="Ethereum+exec"></a>
 
-### ethereum.exec(contractName) ⇒ <code>Contract</code>
+#### delib.eth.exec(contractName) ⇒ <code>Contract</code>
 Calls a deployed contract. Will take the address provided in the config address
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>Contract</code> - Contract object that you can call methods with.  
 
 | Param | Type | Description |
@@ -231,10 +260,9 @@ Calls a deployed contract. Will take the address provided in the config address
 
 <a name="Ethereum+execAt"></a>
 
-### ethereum.execAt(contractName, contractAddress) ⇒ <code>Contract</code>
+#### delib.eth.execAt(contractName, contractAddress) ⇒ <code>Contract</code>
 Calls a deployed contract at a specific address.
 
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
 **Returns**: <code>Contract</code> - Contract object that you can call methods with.  
 
 | Param | Type | Description |
@@ -244,8 +272,7 @@ Calls a deployed contract at a specific address.
 
 <a name="Ethereum+getEventLogs"></a>
 
-### ethereum.getEventLogs(contractName, contractAddress, method, filter) ⇒ <code>Promise</code>
-**Kind**: instance method of <code>[Ethereum](#Ethereum)</code>  
+#### delib.eth.getEventLogs(contractName, contractAddress, method, filter) ⇒ <code>Promise</code>
 **Returns**: <code>Promise</code> - The response contains an array event logs.  
 
 | Param | Type | Description |
@@ -257,30 +284,14 @@ Calls a deployed contract at a specific address.
 
 <a name="IPFS"></a>
 
-## IPFS
-**Kind**: global class  
+### IPFS
 
-* [IPFS](#IPFS)
-    * [new IPFS()](#new_IPFS_new)
-    * [.init(manualConfig)](#IPFS+init) ⇒ <code>[IPFS](#IPFS)</code>
-    * [.daemon()](#IPFS+daemon)
-    * [.addFiles(filePaths)](#IPFS+addFiles) ⇒ <code>Promise</code>
-    * [.download(hashAddress, writePath)](#IPFS+download) ⇒ <code>Promise</code>
-    * [.links(hashAddress)](#IPFS+links) ⇒ <code>Promise</code>
-    * [.pin(hashAddress)](#IPFS+pin) ⇒ <code>Promise</code>
-    * [.unpin(hashAddress)](#IPFS+unpin) ⇒ <code>Promise</code>
-
-<a name="new_IPFS_new"></a>
-
-### new IPFS()
-Create a new IPFS object
 
 <a name="IPFS+init"></a>
 
-### ipfS.init(manualConfig) ⇒ <code>[IPFS](#IPFS)</code>
+#### delib.ipfs.init(manualConfig) ⇒ <code>[IPFS](#IPFS)</code>
 Initalize the connection to an IPFS node. If no network configuration is given the configuration will be taken from IPFS.config.
 
-**Kind**: instance method of <code>[IPFS](#IPFS)</code>  
 **Returns**: <code>[IPFS](#IPFS)</code> - IPFS object  
 
 | Param | Type | Description |
@@ -289,16 +300,14 @@ Initalize the connection to an IPFS node. If no network configuration is given t
 
 <a name="IPFS+daemon"></a>
 
-### ipfS.daemon()
+#### delib.ipfs.daemon()
 Open an IPFS daemon is a child process
 
-**Kind**: instance method of <code>[IPFS](#IPFS)</code>  
 <a name="IPFS+addFiles"></a>
 
-### ipfS.addFiles(filePaths) ⇒ <code>Promise</code>
+#### delib.ipfs.addFiles(filePaths) ⇒ <code>Promise</code>
 Add a single file or multiple files to the connected IPFS node.
 
-**Kind**: instance method of <code>[IPFS](#IPFS)</code>  
 **Returns**: <code>Promise</code> - Response of Promise is an array of objects with {path: string, hash: string, size: number, file: filePath}  
 
 | Param | Type | Description |
@@ -307,10 +316,9 @@ Add a single file or multiple files to the connected IPFS node.
 
 <a name="IPFS+download"></a>
 
-### ipfS.download(hashAddress, writePath) ⇒ <code>Promise</code>
+#### delib.ipfs.download(hashAddress, writePath) ⇒ <code>Promise</code>
 Retrieve a file based on his hash address from the IPFS network.
 
-**Kind**: instance method of <code>[IPFS](#IPFS)</code>  
 **Returns**: <code>Promise</code> - Response of Promise is an array of all file buffer chunks.  
 
 | Param | Type | Description |
@@ -320,10 +328,9 @@ Retrieve a file based on his hash address from the IPFS network.
 
 <a name="IPFS+links"></a>
 
-### ipfS.links(hashAddress) ⇒ <code>Promise</code>
+#### delib.ipfs.links(hashAddress) ⇒ <code>Promise</code>
 Take a hash address corresponding to a particular file and retrieve the Merkle Dag links of that file.
 
-**Kind**: instance method of <code>[IPFS](#IPFS)</code>  
 **Returns**: <code>Promise</code> - Response of Promise is an array of Objects with DAGLink info. {name: String, hashAddress: String, size: Number, hash: Buffer of hash address}  
 
 | Param | Type | Description |
@@ -332,10 +339,9 @@ Take a hash address corresponding to a particular file and retrieve the Merkle D
 
 <a name="IPFS+pin"></a>
 
-### ipfS.pin(hashAddress) ⇒ <code>Promise</code>
+#### delib.ipfs.pin(hashAddress) ⇒ <code>Promise</code>
 Pin a hash address to the connected to IPFS node.
 
-**Kind**: instance method of <code>[IPFS](#IPFS)</code>  
 **Returns**: <code>Promise</code> - Response of Promise is an array of the hash addresses of the pinned files.  
 
 | Param | Type | Description |
@@ -344,31 +350,11 @@ Pin a hash address to the connected to IPFS node.
 
 <a name="IPFS+unpin"></a>
 
-### ipfS.unpin(hashAddress) ⇒ <code>Promise</code>
+#### delib.ipfs.unpin(hashAddress) ⇒ <code>Promise</code>
 Unpin a hash address to the connected to IPFS node.
 
-**Kind**: instance method of <code>[IPFS](#IPFS)</code>  
 **Returns**: <code>Promise</code> - Response of Promise is an array of the hash addresses of the unpinned files.  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | hashAddress | <code>string</code> | Hash address of the file. |
-
-<a name="path"></a>
-
-## path
-Model for setting deployed contract addresses in a plain text file and getting those addresses.
-
-**Kind**: global constant  
-<a name="findConfig"></a>
-
-## findConfig(originalDirectory, levels) ⇒ <code>Object</code>
-Recursively calls up directories from this file to find delib.js configuration file. If it doesn't find one it gets the default config file.
-
-**Kind**: global function  
-**Returns**: <code>Object</code> - The configuration object.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| originalDirectory | <code>string</code> | The original directory. Pass in process.cwd() |
-| levels | <code>number</code> | The number of folders to go up |

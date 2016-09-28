@@ -1,14 +1,21 @@
 module.exports = {
+  /* Development mode status */
   dev: true,
+
+  /* Solidity, build, and address paths of contracts */
   contracts: {
     path: './contracts/',
     built: './contracts/',
     address: './contracts/'
   },
+
+  /* RPC connection options to geth node */
   rpc: {
     host: 'localhost',
     port: 8545,
   },
+
+  /* devsever location options */
   blockchain: {
     path: {
       dev: './devblockchain/',
@@ -16,11 +23,15 @@ module.exports = {
     },
     difficulty: null
   },
+
+  /* IPFS network provider options */
   ipfs: {
     host: 'localhost',
     port: 5001,
     protocol: 'http'
   },
+
+  /* Transaction options for CLI */
   cli: {
     options: {
       from: 0,

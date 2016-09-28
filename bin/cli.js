@@ -174,8 +174,8 @@ program
     if (pathExists(blockchainPath)) {
       fs.removeSync(blockchainPath);
     }
-    console.log(path.join(__dirname, '../', 'genesis.json'));
-    console.log(config.blockchain.path.dev);
+    // console.log(path.join(__dirname, '../', 'genesis.json'));
+    // console.log(config.blockchain.path.dev);
     const initArgs = [
       '--datadir', config.blockchain.path.dev,
       'init', path.join(__dirname, '../', 'genesis.json')
