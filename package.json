@@ -10,13 +10,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "commander": "2.9.0",
-    "es6-promisify": "4.1.0",
+    "commander": "^2.9.0",
+    "es6-promisify": "^4.1.0",
     "ether-pudding": "3.1.2",
     "ipfs-api": "^9.0.0",
-    "multihashes": "0.2.2",
-    "nedb": "1.8.0",
+    "multihashes": "^0.2.2",
+    "nedb": "^1.8.0",
     "path": "^0.12.7",
+    "path-exists": "^3.0.0",
     "solc": "0.3.6",
     "string-argv": "0.0.2",
     "web3": "0.17.0-alpha",

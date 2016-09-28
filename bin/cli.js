@@ -4,6 +4,7 @@ const childProcess = require('child_process');
 const path = require('path');
 const stringArgv = require('string-argv');
 const fs = require('fs');
+const pathExists = require('path-exists').sync;
 
 const Ethereum = require('./../src/ethereum/ethereum.js');
 const IPFS = require('./../src/ipfs/ipfs.js');
@@ -15,10 +16,25 @@ const config = require('./../src/config/config.js');
 program
   .version('1.0.0');
 
+/**
+ * Initializes DeLib by creating a configuration file and the contracts folder
+ */
 program
   .command('init')
   .action(() => {
-    
+    const configPath = path.join(process.cwd(), 'delib.js');
+    const contractsFolderPath = path.join(process.cwd(), 'contracts');
+    if (!pathExists(configPath)) {
+      const defaultConfig = fs.readFileSync(path.join(__dirname, '/../src/config/default.js'));
+      fs.writeFileSync(configPath, defaultConfig);
+    } else {
+      console.log('DeLib config already initalized');
+    }
+    if (!pathExists(contractsFolderPath)) {
+      fs.mkdirSync(contractsFolderPath);
+    } else {
+      console.log('Contracts folder already created');
+    }
   });
 
 /**
