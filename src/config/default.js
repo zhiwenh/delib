@@ -9,9 +9,12 @@ module.exports = {
     host: 'localhost',
     port: 8545,
   },
-  ipc: {
-    dev: process.env.HOME + '/Library/Ethereum/private/geth.ipc',
-    production: process.env.HOME + '/Library/Ethereum/geth.ipc'
+  blockchain: {
+    path: {
+      dev: process.env.HOME + '/Library/Ethereum/delib/',
+      production: process.env.HOME + '/Library/Ethereum/'
+    },
+    difficulty: null
   },
   ipfs: {
     host: 'localhost',

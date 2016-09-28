@@ -8,14 +8,18 @@ const fs = require('fs');
 const config = require('./../config/config.js');
 
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot);
-const PATH_WAY = path.join(__dirname, RELATIVE_PATH, config.contracts.address);
+const pathway = path.join(__dirname, RELATIVE_PATH, config.contracts.address);
+
+const ENDING = 'Address';
 
 module.exports = {
   set: (name ,address) => {
-    fs.writeFileSync(path.join(PATH_WAY, name), address);
+    name = name + ENDING;
+    fs.writeFileSync(path.join(pathway, name), address);
   },
   get: (name) => {
-    const address = fs.readFileSync(path.join(PATH_WAY, name), 'utf8');
+    name = name + ENDING;
+    const address = fs.readFileSync(path.join(pathway, name), 'utf8');
     return address.trim();
   }
 };

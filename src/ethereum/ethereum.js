@@ -1,8 +1,8 @@
 'use strict';
-const Web3 = require('web3');
 const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
+const prequire = require('parent-require');
 
 const init = require('./init.js');
 const initIPC = require('./initIPC.js');
@@ -96,12 +96,13 @@ class Ethereum {
    * @returns {Web3} The Web3 object Ethereum uses set up to the RPC provider
    */
   init(rpcHost, rpcPort, contractOptions) {
+    console.log(this._init);
     if (this._init === false) {
       this._web3 = init(rpcHost, rpcPort);
       this._init = true;
       if (this.check() === false) {
-        console.error(new Error('Not connected to RPC'));
-        this._init = false;
+        throw new Error('Not connected to RPC');
+        // this._init = false;
       } else {
         this.accounts = this._web3.eth.accounts;
         // rebinding this doesn't work
@@ -111,6 +112,7 @@ class Ethereum {
         this.contractOptions = contractOptions || this.contractOptions;
       }
     }
+    this.options.from = this.account;
     return this._web3;
   }
 

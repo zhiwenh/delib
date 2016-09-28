@@ -34,10 +34,11 @@ function findConfig(originalDirectory, levels) {
 const originalDirectory = process.cwd();
 const config = findConfig(originalDirectory, 6);
 
+config.ipc = {};
 if (config.dev === true) {
-  config.ipc.host = config.ipc.dev;
+  config.ipc.host = path.join(config.blockchain.path.dev, 'geth.ipc');
 } else {
-  config.ipc.host = config.ipc.production;
+  config.ipc.host = path.join(config.blockchain.path.production, 'geth.ipc');
 }
 
 module.exports = config;
