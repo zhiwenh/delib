@@ -39,7 +39,6 @@ npm install delib --save
 In the command line of your project's root directory:
 ```
 delib init
-
 ```
 This will create the delib.js configuration file and a contracts folder, which will contain the Solidity contracts ```.sol```, built contracts ```.sol.js```, and contract addresses saved in plain text.
 
