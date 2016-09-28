@@ -8,6 +8,9 @@ const multihashes = require('multihashes');
 const config = require('./../config/config.js');
 
 class IPFS {
+  /**
+   * Create a new IPFS object
+   */
   constructor() {
     this.connect = false;
     this.publicKey = null;

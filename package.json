@@ -8,8 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docs": "jsdoc2md src/**/*.js > api.md",
-    "docs2": "jsdoc2md bin/*.js > cli.md"
+    "docs": "jsdoc2md src/**/*.js > api.md"
   },
   "dependencies": {
     "commander": "^2.9.0",
