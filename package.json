@@ -2,6 +2,10 @@
   "name": "delib",
   "version": "0.0.1",
   "description": "A lightweight, non-restrictive library and CLI for Ethereum and IPFS that is easy to use and learn. It provides you the freedom to customize your decentralized application development process to suit your specific needs.",
+  "keywords": ["web3", "ethereum", "ipfs"],
+  "bugs": {
+    "url": "https://github.com/DeStore/delib/issues"
+  },
   "main": "index.js",
   "bin": {
     "dfs": "./bin/cli.js"
@@ -18,10 +22,8 @@
     "ipfs-api": "^9.0.0",
     "multihashes": "^0.2.2",
     "nedb": "^1.8.0",
-    "parent-require": "^1.0.0",
     "path": "^0.12.7",
     "path-exists": "^3.0.0",
-    "prompt": "^1.0.0",
     "solc": "0.3.6",
     "web3": "0.17.0-alpha",
     "web3_ipc": "1.2.0"

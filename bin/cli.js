@@ -1,6 +1,5 @@
 'use strict';
 const program = require('commander');
-const prompt = require('prompt');
 const spawn = require('child_process').spawn;
 
 const spawnSync = require('child_process').spawnSync;
@@ -30,11 +29,13 @@ program
     if (!pathExists(configPath)) {
       const defaultConfig = fs.readFileSync(path.join(__dirname, '/../src/config/default.js'));
       fs.writeFileSync(configPath, defaultConfig);
+      console.log('Created configuration file delib.js');
     } else {
       console.log('DeLib config already initalized');
     }
     if (!pathExists(contractsFolderPath)) {
       fs.mkdirSync(contractsFolderPath);
+      console.log('Created contract folder');
     } else {
       console.log('Contracts folder already created');
     }

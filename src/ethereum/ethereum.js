@@ -2,7 +2,6 @@
 const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
-const prequire = require('parent-require');
 
 const init = require('./init.js');
 const initIPC = require('./initIPC.js');
