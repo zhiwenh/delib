@@ -5,11 +5,11 @@ const path = require('path');
 const stringArgv = require('string-argv');
 const fs = require('fs');
 
-const Ethereum = require('./src/ethereum/ethereum.js');
-const IPFS = require('./src/ipfs/ipfs.js');
-const Contracts = require('./src/models/Contracts.js');
+const Ethereum = require('./../src/ethereum/ethereum.js');
+const IPFS = require('./../src/ipfs/ipfs.js');
+const Contracts = require('./../src/models/Contracts.js');
 
-const config = require('./src/config/config.js');
+const config = require('./../src/config/config.js');
 
 
 program
@@ -18,14 +18,7 @@ program
 program
   .command('init')
   .action(() => {
-    // create the file structure for this cli tool to run
-    /*
-    root
-      contracts
-        solidity
-        built
-
-    */
+    
   });
 
 /**
@@ -36,30 +29,6 @@ program
   .action((file) => {
     Ethereum.buildContracts(file);
   });
-
-/**
- * Set options for transactions called with CLI.
- */
-// program
-//   .command('options <fromIndex> <value> <gas> [extra...]')
-//   .action((fromIndex, value, gas, extra) => {
-//     Ethereum.init();
-//     const fromAccount = Ethereum.accounts[fromIndex];
-//     let gasValue = null;
-//     if (extra[0]) gasValue = extra[0];
-//
-//     Cli.setOptions(fromAccount, value, gas, gasValue)
-//       .then(status => {
-//         console.log(status);
-//         return Cli.getOptions();
-//       })
-//       .then(options => {
-//         console.log(options);
-//       })
-//       .catch(err => {
-//         console.error(err);
-//       });
-//   });
 
 /**
  * Deploy a built contract located in path provided by Ethereum.config.built.
@@ -180,5 +149,5 @@ program
 
 
   });
-  
+
 program.parse(process.argv);

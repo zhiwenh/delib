@@ -34,6 +34,13 @@ class Ethereum {
       value: 0,
       gas: 3000000
     };
+
+    // paths to the contracts, built, and addresses
+    this.contractOptions = {
+      path: null,
+      built: null,
+      address: null
+    };
   }
 
   /**
@@ -43,10 +50,14 @@ class Ethereum {
   _getBuiltContract(contractName) {
     this.init();
     let contract;
-    const filePath = path.join(RELATIVE_PATH, config.contracts.built, contractName + '.sol.js');
+    let contractPath;
+    if (this.contractOptions.path)
+      contractPath = path.join(RELATIVE_PATH, this.contractOptions.path, contractName + '.sol.js');
+    else
+      contractPath = path.join(RELATIVE_PATH, config.contracts.built, contractName + '.sol.js');
+    console.log(contractPath);
     try {
-
-      contract = require(filePath);
+      contract = require(contractPath);
     } catch (e) {
       throw new Error('Built contract "' + contractName + '" could not be found');
     }
@@ -60,29 +71,44 @@ class Ethereum {
    * @param {string} buildPath Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from config.built.
    */
   buildContracts(contractFiles, contractPath, buildPath) {
-    if (!contractPath) contractPath = path.join(__dirname, RELATIVE_PATH, config.contracts.path);
-    if (!buildPath) buildPath = path.join(__dirname, RELATIVE_PATH, config.contracts.built);
+    this.init();
+    if (!contractPath) {
+      if (this.contractOptions.path)
+        contractPath = path.join(__dirname, RELATIVE_PATH, this.contractOptions.path);
+      else
+        contractPath = path.join(__dirname, RELATIVE_PATH, config.contracts.path);
+    }
+    if (!buildPath) {
+      if (this.contractOptions.built)
+        buildPath = path.join(__dirname, RELATIVE_PATH, this.contractOptions.built);
+      else
+        buildPath = path.join(__dirname, RELATIVE_PATH, config.contracts.built);
+    }
     return buildContracts(contractFiles, contractPath, buildPath);
+
   }
 
   /**
    * Initializes a RPC connection with a local Ethereum node. The RPC provider is set in Ethereum.config.rpc.port. Need to call before using the Ethereum object. If RPC connection is already initalized and valid the RPC connection will be set to the current provider.
-   * @param {string} rpcHost The host URL path to the RPC connection. Optional. If not given the rpcHost path will be taken from Ethereum.config.rpc.host.
-   * @param {number} rpcPort The port number to the RPC connection. Optional. If not given the rpcPort path will be taken from Ethereum.config.rpc.port.
+   * @param {string} rpcHost - The host URL path to the RPC connection. Optional. If not given the rpcHost path will be taken from Ethereum.config.rpc.host.
+   * @param {number} rpcPort - The port number to the RPC connection. Optional. If not given the rpcPort path will be taken from Ethereum.config.rpc.port.
+   * @param {Object} contractOptions - Options to set up the contract paths. Takes in path, built, and address properties.
    * @returns {Web3} The Web3 object Ethereum uses set up to the RPC provider
    */
-  init(rpcHost, rpcPort) {
+  init(rpcHost, rpcPort, contractOptions) {
     if (this._init === false) {
       this._web3 = init(rpcHost, rpcPort);
       this._init = true;
       if (this.check() === false) {
-        throw new Error('Not connected to RPC');
+        console.error(new Error('Not connected to RPC'));
+        this._init = false;
       } else {
         this.accounts = this._web3.eth.accounts;
         // rebinding this doesn't work
         this._web3.eth.defaultAccount = this._web3.eth.accounts[0];
         this.account = this.accounts[0];
         this._provider = this._web3.currentProvider;
+        this.contractOptions = contractOptions || this.contractOptions;
       }
     }
     return this._web3;
@@ -116,7 +142,7 @@ class Ethereum {
    * @return {string} The account address now being used.
    */
   changeAccount(index) {
-    this.init();
+    this.initIPC();
     if (index < 0 || index >= this.accounts.length) {
       return this.account;
     } else {

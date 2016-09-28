@@ -3,10 +3,10 @@ const path = require('path');
 const fs = require('fs');
 
 /**
- * Recursively calls up directories from this file to find delib.js configuration file.
+ * Recursively calls up directories from this file to find delib.js configuration file. If it doesn't find one it gets the default config file.
  *@param {string} originalDirectory - The original directory. Pass in process.cwd()
  *@param {number} levels - The number of folders to go up
- *@return {Object} The configuration file if found.
+ *@return {Object} The configuration object.
  */
 function findConfig(originalDirectory, levels) {
   const directoryPath = process.cwd();
@@ -22,7 +22,10 @@ function findConfig(originalDirectory, levels) {
   }
   process.chdir('../');
   if (levels === 1) {
-    throw new Error('Unable to find DeLib configuration file delib.js');
+    const configContents = require('./default.js');
+    process.chdir(originalDirectory);
+    configContents.projectRoot = originalDirectory;
+    return configContents;
   }
   levels--;
   return findConfig(originalDirectory, levels);
@@ -30,5 +33,11 @@ function findConfig(originalDirectory, levels) {
 
 const originalDirectory = process.cwd();
 const config = findConfig(originalDirectory, 6);
+
+if (config.dev === true) {
+  config.ipc.host = config.ipc.dev;
+} else {
+  config.ipc.host = config.ipc.production;
+}
 
 module.exports = config;
