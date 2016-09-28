@@ -2,7 +2,7 @@
 
 A lightweight, non-restrictive library and CLI for Ethereum and IPFS that is easy to use and learn. It provides you the freedom to customize your decentralized application development process to suit your specific needs.
 
-DeLib is still in alpha development and is bound to have bugs.
+Disclaimer: DeLib is still in active alpha development and is bound to have bugs.
 
 #### Features
 
@@ -59,7 +59,6 @@ delib.ipfs;
 
 ## Examples
 Coming Soon!
-
 
 ## API Reference
 <a name="Ethereum"></a>
