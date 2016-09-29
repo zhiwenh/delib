@@ -12,7 +12,7 @@ const Ethereum = require('./../src/ethereum/ethereum.js');
 const IPFS = require('./../src/ipfs/ipfs.js');
 const Contracts = require('./../src/models/Contracts.js');
 
-
+const config = require('./../src/config/config.js');
 
 program
   .version('1.0.0');
@@ -63,7 +63,6 @@ program
   .command('deploy <contractName> [args...]')
   .action((contractName, args) => {
     Ethereum.init();
-    const config = require('./../src/config/config.js');
     Ethereum.options = config.cli.options;
     Ethereum.deploy(contractName, args)
       .then(instance => {
@@ -91,7 +90,6 @@ program
   .command('exec <contractName> <method> [args...]')
   .action((contractName, method, args) => {
     Ethereum.init();
-    const config = require('./../src/config/config.js');
     Ethereum.options = config.cli.options;
     const contractAddress = Contracts.get(contractName);
     const contract = Ethereum.execAt(contractName, contractAddress);
@@ -168,7 +166,6 @@ program
         process.exit();
       });
   });
-
 
 program
   .command('devserver [args..]')

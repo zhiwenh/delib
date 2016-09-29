@@ -32,14 +32,25 @@ function findConfig(originalDirectory, levels) {
 }
 
 const originalDirectory = process.cwd();
-const config = findConfig(originalDirectory, 6);
+const config = findConfig(originalDirectory, 4);
 
 config.ipc = {};
 if (config.dev === true) {
-  config.blockchain.path.dev = path.join(config.projectRoot, config.blockchain.path.dev);
+  try {
+    config.blockchain.path.dev = path.join(config.projectRoot, config.blockchain.path.dev);
+  } catch(e) {
+    const defaultConfig = require('./default');
+    config.blockchain = defaultConfig.blockchain;
+  }
   config.ipc.host = path.join(config.projectRoot, config.blockchain.path.dev, 'geth.ipc');
 } else {
-  config.ipc.host = path.join(config.blockchain.path.production, 'geth.ipc');
+  try {
+    config.ipc.host = path.join(config.blockchain.path.production, 'geth.ipc');
+  } catch(e) {
+    const defaultConfig = require('./default');
+    config.blockchain = defaultConfig.blockchain;
+  }
+  config.ipc.host = path.join(config.projectRoot, config.blockchain.path.production, 'geth.ipc');
 }
 
 module.exports = config;
