@@ -48,7 +48,7 @@ The library does not require the delib.js configuration file, but it makes thing
 The best server to use for development purposes is [testrpc](https://github.com/ethereumjs/testrpc).
 
 ```
-npm install -g testrpc
+npm install -g ethereumjs-testrpc
 ```
 Then
 
