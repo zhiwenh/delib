@@ -15,7 +15,7 @@ const Contracts = require('./../src/models/Contracts.js');
 const config = require('./../src/config/config.js');
 
 program
-  .version('1.0.0');
+  .version('0.2.1');
 
 /**
  * Initializes DeLib by creating a configuration file and the contracts folder.
@@ -66,7 +66,7 @@ program
     Ethereum.options = config.cli.options;
     Ethereum.deploy(contractName, args)
       .then(instance => {
-        console.log(instance.address);
+        console.log('Deployed address:', instance.address);
         Contracts.set(contractName, instance.address);
       })
       .catch(err => {
@@ -97,7 +97,7 @@ program
 
     contract[method].apply(this, args)
       .then(txRes => {
-        console.log(txRes);
+        console.log('Transaction response:', txRes);
       })
       .catch(err => {
         console.error(err);
@@ -114,6 +114,7 @@ program
     const contractAddress = Contracts.get(contractName);
     Ethereum.getEventLogs(contractName, contractAddress, event)
       .then(logs => {
+        console.log('Event logs:');
         console.log(logs);
       })
       .catch(err => {
@@ -180,7 +181,6 @@ program
       '--datadir', config.blockchain.path.dev,
       'init', path.join(__dirname, '../', 'genesis.json')
     ];
-    console.log(initArgs);
     spawnSync('geth', initArgs, { stdio: 'inherit' });
 
 

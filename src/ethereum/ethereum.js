@@ -54,7 +54,6 @@ class Ethereum {
       contractPath = path.join(RELATIVE_PATH, this.contractOptions.path, contractName + '.sol.js');
     else
       contractPath = path.join(RELATIVE_PATH, config.contracts.built, contractName + '.sol.js');
-    console.log(contractPath);
     try {
       contract = require(contractPath);
     } catch (e) {
@@ -95,7 +94,6 @@ class Ethereum {
    * @returns {Web3} The Web3 object Ethereum uses set up to the RPC provider
    */
   init(rpcHost, rpcPort, contractOptions) {
-    console.log(this._init);
     if (this._init === false) {
       this._web3 = init(rpcHost, rpcPort);
       this._init = true;
