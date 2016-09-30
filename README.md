@@ -36,6 +36,7 @@ npm install delib --save
 ```
 
 ### Usage
+#### CLI
 In the command line of your project's root directory:
 ```
 delib init
@@ -44,21 +45,131 @@ This will create the delib.js configuration file and a contracts folder, which w
 
 The library does not require the delib.js configuration file, but it makes things a lot easier. The configuration file lets you easily change the location of your contracts and is needed to change the transaction options from the default while using the CLI.
 
-Now in your scripts:
+The best server to use for development purposes is [testrpc](https://github.com/ethereumjs/testrpc).
+
+```
+npm install -g testrpc
+```
+Then
+
+```
+testrpc
+```
+
+Delib's configuration options by default connects to the default testrpc server.
+
+Delib also comes with it's own development server that aims to simulate the real Ethereum blockchain. It creates its own private blockchain.
+
+```
+delib devserver
+```
+
+This will create an Ethereum blockchain folder in your project's directory and start up the server (Ethereum node). It will automatically create you your first account.
+
+#### Scripts
+Now in your scripts.
 ```
 const delib = require('delib');
 
-/* To access Ethereum methods */
-delib.eth;
+delib.eth.init(); // Initialize connection to Ethereum node
 
-/* To access IPFS methods */
-delib.ipfs;
+delib.ipfs.init(); // Initialize connection to IPFS node
+```
+To build a Solidity ```.sol``` contract located in the directory labeled path in the options located in delib.js. The file is called Test.sol.
 
+```
+delib.eth.build('Test')
+```
+
+To deploy a contract located in directory labeled by built.
+
+```
+delib.eth.deploy('Test')
+  .then(instance => {
+    const address = instance.address;
+
+    return instance.testMethod();
+  })
+  .then(tx => {
+
+  })
+  .catch(err => {
+
+  })
+```
+The contract address is saved in your project files so later in your script or in another process you can:
+
+```
+delib.eth.exec('Test').testMethod()
+  .then(tx => {
+
+  })
+  .catch(err => {
+
+  })
+```
+
+To change your transaction options:
+
+```
+delib.eth.options = {
+  from: delib.eth.accounts[0],
+  value: 0,
+  gas: 100000
+}
 ```
 
 ## Examples
-Coming Soon!
 
+#### Deploy with script
+Example.sol
+
+```
+contract Example {
+  address owner;
+  string message;
+
+  function Example(string _message) {
+    owner = msg.sender;
+    message = _message;
+  }
+
+  function getOwner() constant returns (address) {
+    return owner;
+  }
+
+  function setMessage(string _message) public {
+    message = _message;
+  }
+
+  function getMessage() constant returns (string) {
+    return message;
+  }
+}
+```
+In script
+```
+const delib = require('delib');
+
+delib.eth.init();
+
+delib.eth.opions = {
+  from: delib.eth.account,
+  value: 0,
+  gas: 1000000
+}
+
+delib.eth.deploy('Example', ['hello'])
+  .then(instance => {
+    return instance.getMessage();
+  })
+  .then(message => {
+    console.log(message); // -> hello
+  })
+  .catch(err => {
+    console.log(err);
+  });
+```
 ## API Reference
 
 ### CLI
@@ -357,3 +468,7 @@ Unpin a hash address to the connected to IPFS node.
 | Param | Type | Description |
 | --- | --- | --- |
 | hashAddress | <code>string</code> | Hash address of the file. |
+
+
+### Future Features
+Method to estimate transaction gas cost
