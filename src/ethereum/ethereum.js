@@ -246,9 +246,6 @@ class Ethereum {
     contract.defaults(options);
     contract.setProvider(this._provider);
     const contractInstance = contract.new.apply(contract, args);
-    // const address = '0x200cd7a869642959b39cc7844cc6787d598ffc63';
-    //
-    // this.execAt2('DeStore', address, 'receiverAdd');
     return contractInstance;
   }
 
@@ -281,18 +278,6 @@ class Ethereum {
     const contractInstance = contract.at(contractAddress);
     return contractInstance;
   }
-
-  /**
-   *
-   * @return {Object} instance you can call watch(), get(), stopWatching()
-   */
-  // watchAt(contractName, contractAddress, method, filter) {
-  //   this.init();
-  //   const contractInstance = this.execAt(contractName, contractAddress);
-  //   let event = contractInstance[method];
-  //   event = event({}, filter);
-  //   return event;
-  // }
 
   /**
    * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
