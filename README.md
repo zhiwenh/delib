@@ -1,8 +1,8 @@
 # DeLib
 
-A lightweight, non-restrictive library and CLI for Ethereum and IPFS that is easy to use and learn. It provides you the freedom to customize your decentralized application development process to suit your specific needs.
+A non-restrictive framework (CLI/library) for Ethereum and IPFS. It lets you customize your decentralized application development process to suit your specific needs.
 
-Disclaimer: DeLib is still in active alpha development and is bound to have bugs.
+DISCLAIMER: DeLib is still in active alpha development and is bound to have bugs.
 
 #### Features
 
@@ -21,6 +21,8 @@ brew tap ethereum/ethereum
 brew install ethereum
 ```
 You must also [install ipfs](https://ipfs.io/docs/install/)
+
+Currently must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it by default as a peer dependency.
 
 ### Installation
 Install globally to use the CLI
@@ -121,8 +123,8 @@ delib.eth.options = {
 
 ## Examples
 
-#### Deploy with script
-Example.sol
+#### Example 1
+Contract file Example.sol
 
 ```
 contract Example {
@@ -147,13 +149,14 @@ contract Example {
   }
 }
 ```
-In script
+Deployment script
 ```
 const delib = require('delib');
 
 delib.eth.init();
 
-delib.eth.opions = {
+// transaction options
+delib.eth.options = {
   from: delib.eth.account,
   value: 0,
   gas: 1000000
@@ -170,6 +173,17 @@ delib.eth.deploy('Example', ['hello'])
     console.log(err);
   });
 ```
+Later with CLI
+
+```
+-> delib exec Example getMessage
+hello
+-> delib exec Example setMessage coffee
+Transaction response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a68592209b
+-> delib exec Example getMessage
+coffee
+```
+
 ## API Reference
 
 ### CLI

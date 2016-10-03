@@ -246,7 +246,18 @@ class Ethereum {
     contract.defaults(options);
     contract.setProvider(this._provider);
     const contractInstance = contract.new.apply(contract, args);
-    return contractInstance;
+
+    // saves the address in a file to be referenced later in exec
+    return promisify((callback) => {
+      contractInstance
+        .then(instance => {
+          Contracts.set(contractName, instance.address);
+          callback(null, instance);
+        })
+        .catch(err => {
+          callback(err, null);
+        });
+    })();
   }
 
   /**
