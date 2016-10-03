@@ -1,7 +1,7 @@
 {
   "name": "delib",
   "author": "DeStore",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A lightweight, non-restrictive library and CLI for Ethereum and IPFS. It provides you the freedom to customize your decentralized application development process to suit your specific needs.",
   "keywords": [
     "web3",
