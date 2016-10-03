@@ -4,15 +4,16 @@ A non-restrictive framework (CLI/library) for Ethereum and IPFS. It lets you cus
 
 DISCLAIMER: DeLib is still in active alpha development and is bound to have bugs.
 
-#### Features
+## Features
 
-A library that provides the core abstractions needed in writing code for Ethereum and IPFS. You can write your own deployment scripts.
+Library that provides the core abstractions needed in writing code for Ethereum.
 
-A CLI that allows you to easily compile, build, deploy Ethereum Solidity smart contracts. It then lets you execute specific contract methods allowing quick validation that your contract is working. It also lets you run an actual Ethereum blockchain hosted in your project's files so you can manage it.
+Library that also makes it easy to add and retrieve files with IPFS.
+
+CLI that lets you easily compile, build, deploy, and execute specific methods on Ethereum Solidity smart contracts.
 
 
-
-### Requirements
+## Requirements
 
 You must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) (OSX commands below, see link for more information or other platforms):
 
@@ -24,7 +25,7 @@ You must also [install ipfs](https://ipfs.io/docs/install/)
 
 Currently must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it by default as a peer dependency.
 
-### Installation
+## Installation
 Install globally to use the CLI
 
 ```
@@ -37,39 +38,45 @@ Also install it within your project directory
 npm install delib --save
 ```
 
-### Usage
-#### CLI
-In the command line of your project's root directory:
-```
-delib init
-```
-This will create the delib.js configuration file and a contracts folder, which will contain the Solidity contracts ```.sol```, built contracts ```.sol.js```, and contract addresses saved in plain text.
-
-The library does not require the delib.js configuration file, but it makes things a lot easier. The configuration file lets you easily change the location of your contracts and is needed to change the transaction options from the default while using the CLI.
+## Usage
 
 The best server to use for development purposes is [testrpc](https://github.com/ethereumjs/testrpc).
 
 ```
 npm install -g ethereumjs-testrpc
-```
-Then
 
-```
 testrpc
 ```
 
-Delib's configuration options by default connects to the default testrpc server.
+### CLI
 
-Delib also comes with it's own development server that aims to simulate the real Ethereum blockchain. It creates its own private blockchain.
-
+Create the delib configuration file and contract folder.
 ```
-delib devserver
+-> delib init
 ```
 
-This will create an Ethereum blockchain folder in your project's directory and start up the server (Ethereum node). It will automatically create you your first account.
+Build contract
+```
+-> delib build Test
+```
 
-#### Scripts
-Now in your scripts.
+Deploy contract
+```
+-> delib deploy Test
+```
+
+Execute a contract method
+```
+-> delib exec Test testMethod
+```
+
+Transaction options for CLI are located in the delib.js configuration file.
+
+
+### Scripts
+
+Connect to Ethereum and IPFS node
+
 ```
 const delib = require('delib');
 
@@ -77,13 +84,14 @@ delib.eth.init(); // Initialize connection to Ethereum node
 
 delib.ipfs.init(); // Initialize connection to IPFS node
 ```
-To build a Solidity ```.sol``` contract located in the directory labeled path in the options located in delib.js. The file is called Test.sol.
+
+Build contract
 
 ```
-delib.eth.build('Test')
+delib.eth.build('Test');
 ```
 
-To deploy a contract located in directory labeled by built.
+Deploy contract and run a method
 
 ```
 delib.eth.deploy('Test')
@@ -99,8 +107,8 @@ delib.eth.deploy('Test')
 
   })
 ```
-The contract address is saved in your project files so later in your script or in another process you can:
 
+Execute method later in script or in another process
 ```
 delib.eth.exec('Test').testMethod()
   .then(tx => {
@@ -111,7 +119,7 @@ delib.eth.exec('Test').testMethod()
   })
 ```
 
-To change your transaction options:
+Change transaction options
 
 ```
 delib.eth.options = {
@@ -123,8 +131,8 @@ delib.eth.options = {
 
 ## Examples
 
-#### Example 1
-Contract file Example.sol
+### Example 1: Basic Deployment
+We have a contract file called ```Example.sol```
 
 ```
 contract Example {
@@ -149,7 +157,13 @@ contract Example {
   }
 }
 ```
-Deployment script
+Build ```Example.sol``` with the CLI
+
+```
+delib build Example
+```
+
+In the deployment script
 ```
 const delib = require('delib');
 
@@ -160,7 +174,7 @@ delib.eth.options = {
   from: delib.eth.account,
   value: 0,
   gas: 1000000
-}
+};
 
 delib.eth.deploy('Example', ['hello'])
   .then(instance => {
@@ -173,13 +187,15 @@ delib.eth.deploy('Example', ['hello'])
     console.log(err);
   });
 ```
-Later with CLI
+Later in CLI you can call methods on the deployed contract
 
 ```
 -> delib exec Example getMessage
 hello
+
 -> delib exec Example setMessage coffee
 Transaction response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a68592209b
+
 -> delib exec Example getMessage
 coffee
 ```
