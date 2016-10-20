@@ -2,11 +2,10 @@
   "name": "delib",
   "author": "DeStore",
   "version": "1.0.1",
-  "description": "A non-restrictive framework (CLI/library) for Ethereum and IPFS. It lets you customize your decentralized application development process to suit your specific needs.",
+  "description": "A non-restrictive and lightweight framework (CLI/Library) for Ethereum. It lets you customize your decentralized application development process to suit your specific needs.",
   "keywords": [
     "web3",
-    "ethereum",
-    "ipfs"
+    "ethereum"
   ],
   "repository": {
     "type": "git",
