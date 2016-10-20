@@ -123,6 +123,8 @@ delib.eth.options = {
 
 ## Examples
 
+Link to repo used for testing purposes: [delib-test](https://github.com/zhiwenhuang/delib-test)
+
 ### Example 1: Basic Deployment
 We have a contract file called ```Example.sol```
 
