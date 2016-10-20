@@ -1,17 +1,14 @@
 #!/usr/bin/env node
 'use strict';
 const program = require('commander');
-const spawn = require('child_process').spawn;
-
-const spawnSync = require('child_process').spawnSync;
 const path = require('path');
 const fs = require('fs-extra');
 const pathExists = require('path-exists').sync;
+const spawn = require('child_process').spawn;
+const spawnSync = require('child_process').spawnSync;
 
 const Ethereum = require('./../src/ethereum/ethereum.js');
-const IPFS = require('./../src/ipfs/ipfs.js');
 const Contracts = require('./../src/models/Contracts.js');
-
 const config = require('./../src/config/config.js');
 
 program
@@ -25,6 +22,10 @@ program
   .action(() => {
     const configPath = path.join(process.cwd(), 'delib.js');
     const contractsFolderPath = path.join(process.cwd(), 'contracts');
+    const builtFolderPath = path.join(process.cwd(), 'built');
+    const addressFolderPath = path.join(process.cwd(), 'addresses');
+    const devChainFolderPath = path.join(process.cwd(), 'devchain');
+
     // const genesisPath = path.join(process.cwd(), 'devgenesis.json')
     if (!pathExists(configPath)) {
       const defaultConfig = fs.readFileSync(path.join(__dirname, '/../src/config/default.js'));
@@ -33,18 +34,35 @@ program
     } else {
       console.log('DeLib config already initalized');
     }
+
     if (!pathExists(contractsFolderPath)) {
       fs.mkdirSync(contractsFolderPath);
       console.log('Created contract folder');
     } else {
       console.log('Contracts folder already created');
     }
-    // if (!pathExists(genesisPath)) {
-    //   const devGenesis = fs.readFileSync(path.join(__dirname, '/../src/config/devgenesis.json'));
-    //   fs.writeFileSync(genesisPath, devGenesis);
-    // } else {
-    //   console.log('Genesis file already initalized');
-    // }
+
+    if (!pathExists(builtFolderPath)) {
+      fs.mkdirSync(builtFolderPath);
+      console.log('Created built contracts folder');
+    } else {
+      console.log('Build contracts folder already created');
+    }
+
+    if (!pathExists(addressFolderPath)) {
+      fs.mkdirSync(addressFolderPath);
+      console.log('Created contract addresses folder');
+    } else {
+      console.log('Contract addresses folder already created');
+    }
+
+    if (!pathExists(devChainFolderPath)) {
+      fs.mkdirSync(devChainFolderPath);
+      console.log('Created devchain folder');
+    } else {
+      console.log('Devchain folder already created');
+    }
+
   });
 
 /**
@@ -108,11 +126,10 @@ program
  * Show all the logs of a contract event.
  */
 program
-  .command('logs <contractName> <event>')
-  .action((contractName, event) => {
+  .command('events <contractName> <eventName> <fromBlock>')
+  .action((contractName, eventName, fromBlock) => {
     Ethereum.init();
-    const contractAddress = Contracts.get(contractName);
-    Ethereum.getEventLogs(contractName, contractAddress, event)
+    Ethereum.events(contractName, eventName, fromBlock)
       .then(logs => {
         console.log('Event logs:');
         console.log(logs);
@@ -169,11 +186,11 @@ program
   });
 
 program
-  .command('devserver [args..]')
+  .command('devchain')
   .action(args => {
-    const blockchainPath = path.join(config.blockchain.path.dev, 'chaindata');
-    if (pathExists(blockchainPath)) {
-      fs.removeSync(blockchainPath);
+    const blockChainPath = path.join(config.blockchain.path.dev, 'chaindata');
+    if (pathExists(blockChainPath)) {
+      fs.removeSync(blockChainPath);
     }
     // console.log(path.join(__dirname, '../', 'genesis.json'));
     // console.log(config.blockchain.path.dev);
@@ -182,7 +199,6 @@ program
       'init', path.join(__dirname, '../', 'genesis.json')
     ];
     spawnSync('geth', initArgs, { stdio: 'inherit' });
-
 
     const startArgs = [
       '-identity', 'delib',

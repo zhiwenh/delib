@@ -6,6 +6,7 @@
   } else {
     web3.personal.unlockAccount(web3.eth.accounts[0], '', 10000000);
   }
+  web3.miner.start(1);
   // web3.personal.newAccount('');
   // web3.eth.accounts;
   // web3.eth.sendTransaction({

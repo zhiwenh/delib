@@ -1,17 +1,13 @@
 # DeLib
 
-A non-restrictive framework (CLI/library) for Ethereum and IPFS. It lets you customize your decentralized application development process to suit your specific needs.
+A non-restrictive and lightweight framework (CLI/Library) for Ethereum. It lets you customize your decentralized application development process to suit your specific needs.
 
-DISCLAIMER: DeLib is still in active alpha development and is bound to have bugs.
 
 ## Features
 
 Library that provides the core abstractions needed in writing code for Ethereum.
 
-Library that also makes it easy to add and retrieve files with IPFS.
-
 CLI that lets you easily compile, build, deploy, and execute specific methods on Ethereum Solidity smart contracts.
-
 
 ## Requirements
 
@@ -21,7 +17,6 @@ You must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Et
 brew tap ethereum/ethereum
 brew install ethereum
 ```
-You must also [install ipfs](https://ipfs.io/docs/install/)
 
 Currently must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it by default as a peer dependency.
 
@@ -72,17 +67,14 @@ Execute a contract method
 
 Transaction options for CLI are located in the delib.js configuration file.
 
-
 ### Scripts
 
-Connect to Ethereum and IPFS node
+Connect to Ethereum node
 
 ```
 const delib = require('delib');
 
 delib.eth.init(); // Initialize connection to Ethereum node
-
-delib.ipfs.init(); // Initialize connection to IPFS node
 ```
 
 Build contract
@@ -203,17 +195,17 @@ coffee
 ## API Reference
 
 ### CLI
-* [cli](#Cli)
+* [delib](#Cli)
     * [init](#Cli)
     * [build(file)](#Cli)
     * [deploy(contractName, args...)](#Cli)
     * [set(contractName, contractAddress)](#Cli)
     * [exec(contractName, method, args...)](#Cli)
-    * [logs(contractName, events)](#Cli)
+    * [events(contractName, eventName, fromBlock)](#Cli)
     * [balance(index)](#Cli)
     * [create(password)](#Cli)
     * [unlock(index, password, time)](#Cli)
-    * [.devserver](#Cli)
+    * [devchain](#Cli)
 
     <a name="Ethereum"></a>
 
@@ -236,20 +228,12 @@ coffee
     * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
     * [.getEventLogs(contractName, contractAddress, method, filter)](#Ethereum+getEventLogs) ⇒ <code>Promise</code>
 
-### IPFS
-
-* [delib.ipfs](#IPFS)
-    * [.init(manualConfig)](#IPFS+init) ⇒ <code>[IPFS](#IPFS)</code>
-    * [.daemon()](#IPFS+daemon)
-    * [.addFiles(filePaths)](#IPFS+addFiles) ⇒ <code>Promise</code>
-    * [.download(hashAddress, writePath)](#IPFS+download) ⇒ <code>Promise</code>
-    * [.links(hashAddress)](#IPFS+links) ⇒ <code>Promise</code>
-    * [.pin(hashAddress)](#IPFS+pin) ⇒ <code>Promise</code>
-    * [.unpin(hashAddress)](#IPFS+unpin) ⇒ <code>Promise</code>
-
-
 ### CLI
 Better CLI API is coming soon!
+
+#### delib init
+
+
 
 ### Ethereum
 
@@ -412,92 +396,18 @@ Calls a deployed contract at a specific address.
 
 <a name="Ethereum+getEventLogs"></a>
 
-#### delib.eth.getEventLogs(contractName, contractAddress, method, filter) ⇒ <code>Promise</code>
+#### delib.eth.event(contractName, eventName, fromBlock, filter) ⇒ <code>Promise</code>
+Gets the event logs for an event
+
 **Returns**: <code>Promise</code> - The response contains an array event logs.  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | contractName | <code>string</code> | Name of built contract located in the directory provided in Ethereum.config.built. |
 | contractAddress | <code>string</code> | Address of the contract. |
-| method | <code>string</code> | The name of the event method. |
-| filter | <code>Object</code> | Options to filter the events. Default: { address: contractAddress }. |
-
-<a name="IPFS"></a>
-
-### IPFS
-
-
-<a name="IPFS+init"></a>
-
-#### delib.ipfs.init(manualConfig) ⇒ <code>[IPFS](#IPFS)</code>
-Initalize the connection to an IPFS node. If no network configuration is given the configuration will be taken from IPFS.config.
-
-**Returns**: <code>[IPFS](#IPFS)</code> - IPFS object  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| manualConfig | <code>Object</code> | Object containing the configuration parameters for IPFS. Default: { host: 'localhost', port: 5001, protocol: 'http' } |
-
-<a name="IPFS+daemon"></a>
-
-#### delib.ipfs.daemon()
-Open an IPFS daemon is a child process
-
-<a name="IPFS+addFiles"></a>
-
-#### delib.ipfs.addFiles(filePaths) ⇒ <code>Promise</code>
-Add a single file or multiple files to the connected IPFS node.
-
-**Returns**: <code>Promise</code> - Response of Promise is an array of objects with {path: string, hash: string, size: number, file: filePath}  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| filePaths | <code>string</code> | Path to file. Can also be an array of paths. |
-
-<a name="IPFS+download"></a>
-
-#### delib.ipfs.download(hashAddress, writePath) ⇒ <code>Promise</code>
-Retrieve a file based on his hash address from the IPFS network.
-
-**Returns**: <code>Promise</code> - Response of Promise is an array of all file buffer chunks.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| hashAddress | <code>string</code> | Hashaddress of the file. |
-| writePath | <code>string</code> | Path in which to write the file to. |
-
-<a name="IPFS+links"></a>
-
-#### delib.ipfs.links(hashAddress) ⇒ <code>Promise</code>
-Take a hash address corresponding to a particular file and retrieve the Merkle Dag links of that file.
-
-**Returns**: <code>Promise</code> - Response of Promise is an array of Objects with DAGLink info. {name: String, hashAddress: String, size: Number, hash: Buffer of hash address}  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| hashAddress | <code>string</code> | Hash address of the file. |
-
-<a name="IPFS+pin"></a>
-
-#### delib.ipfs.pin(hashAddress) ⇒ <code>Promise</code>
-Pin a hash address to the connected to IPFS node.
-
-**Returns**: <code>Promise</code> - Response of Promise is an array of the hash addresses of the pinned files.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| hashAddress | <code>string</code> | Hash address of the file. |
-
-<a name="IPFS+unpin"></a>
-
-#### delib.ipfs.unpin(hashAddress) ⇒ <code>Promise</code>
-Unpin a hash address to the connected to IPFS node.
-
-**Returns**: <code>Promise</code> - Response of Promise is an array of the hash addresses of the unpinned files.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| hashAddress | <code>string</code> | Hash address of the file. |
+| eventName | <code>string</code> | The name of the event method. |
+| fromBlock | <code>number</code> | The block number to start getting the event logs. Optional. Defaults to 0. |
+| filter | <code>Object</code> | Options to filter the events. Optional. Defaults to: { address: contractAddress }. |
 
 
 ### Future Features

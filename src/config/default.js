@@ -1,12 +1,24 @@
+
+/** Configuration options for DeLib */
+
 module.exports = {
+  /* Transaction options for CLI */
+  cli: {
+    options: {
+      from: 0, // Ethereum account index
+      value: 0,
+      gas: 3000000
+    }
+  },
+
   /* Development mode status */
   dev: true,
 
   /* Solidity, build, and address paths of contracts */
   contracts: {
     path: './contracts/',
-    built: './contracts/',
-    address: './contracts/'
+    built: './built/',
+    address: './addresses/'
   },
 
   /* RPC connection options to geth node */
@@ -15,10 +27,10 @@ module.exports = {
     port: 8545,
   },
 
-  /* devsever location options */
+  /* Blockchain location options */
   blockchain: {
     path: {
-      dev: './devblockchain/',
+      dev: './devchain/', // Development blockchain. Initialized with CLI command devchain
       production: process.env.HOME + '/Library/Ethereum/'
     },
     difficulty: null
@@ -29,14 +41,5 @@ module.exports = {
     host: 'localhost',
     port: 5001,
     protocol: 'http'
-  },
-
-  /* Transaction options for CLI */
-  cli: {
-    options: {
-      from: 0,
-      value: 0,
-      gas: 3000000
-    }
   }
 };

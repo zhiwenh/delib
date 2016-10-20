@@ -291,30 +291,31 @@ class Ethereum {
   }
 
   /**
+   * Gets the event logs for an event
    * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
    * @param {string} contractAddress - Address of the contract.
-   * @param {string} method - The name of the event method.
-   * @param {Object} filter - Options to filter the events. Default: { address: contractAddress }.
+   * @param {string} eventName - The name of the event method.
+   * @param {number} fromBlock - The block number to start getting the event logs. Optional. Defaults to 0.
+   * @param {Object} filter - Options to filter the events. Optional. Defaults to: { address: contractAddress }.
    * @return {Promise} The response contains an array event logs.
   */
-  getEventLogs(contractName, contractAddress, method, filter) {
+  events(contractName, eventName, fromBlock, filter) {
     this.init();
-    if (!filter) {
-      filter = {
-        address: contractAddress
-      };
-    }
-    const contractInstance = this.execAt(contractName, contractAddress);
-    let methodEvent = contractInstance[method];
+    const contractAddress = Contracts.get(contractName);
+    const contractInstance = this.exec(contractName);
+
+    filter = filter || {address: contractAddress};
+    fromBlock = fromBlock || 0;
+
+    let methodEvent = contractInstance[eventName];
     methodEvent = methodEvent({}, {
-      fromBlock: 0
+      fromBlock: fromBlock
     });
-    // MAJOR BUG. If it doesnt return any events it freezes
+    // MAJOR BUG. If it doesnt return any events it freezes. Only on testrpc
     return promisify((event, callback) => {
       event.get((err, logs) => {
         if (err) callback(err, null);
         else {
-          const filteredLunlocogs = {};
           logs = logs.filter((element) => {
             for (let key in filter) {
               if (filter[key] !== element[key] && element[key] !== undefined) {
