@@ -33,7 +33,10 @@ module.exports = {
       dev: './devchain/', // Development blockchain. Initialized with CLI command devchain
       production: process.env.HOME + '/Library/Ethereum/'
     },
-    difficulty: null
+    auto: true, // Status of toggling mining if there are transactions pending and whether to keep coinbank topped off at minAmount
+    accountAmount: 5, // Number of accounts to generate in devchain
+    distributeAmount: 10, // Ether amount to distribute to accounts
+    minAmount: 100, // Amount for coinbank to mine to
   },
 
   /* IPFS network provider options */

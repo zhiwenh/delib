@@ -1,3 +1,4 @@
+var CONFIG = {"path":{"dev":"/Users/zhiwen/Development/DeStore-main/delib-test/devchain/","production":"/Users/zhiwen/Library/Ethereum/"},"auto":true,"accountAmount":5,"distributeAmount":10,"minAmount":100}; 
 /* global web3, CONFIG */
 
 (function () {
