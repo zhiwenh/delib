@@ -12,15 +12,17 @@ const Contracts = require('./../src/models/Contracts.js');
 const config = require('./../src/config/config.js');
 
 program
-  .version('1.0.0');
+  .version('1.0.3')
 
 /**
  * Initializes DeLib by creating a configuration file and the contracts folder.
  */
 program
   .command('init')
+  .description('Create configuration file, genesis file, and necessary folders')
   .action(() => {
     const configPath = path.join(process.cwd(), 'delib.js');
+    const genesisPath = path.join(process.cwd(), 'devgenesis.json');
     const contractsFolderPath = path.join(process.cwd(), 'contracts');
     const builtFolderPath = path.join(process.cwd(), 'built');
     const addressFolderPath = path.join(process.cwd(), 'addresses');
@@ -33,6 +35,14 @@ program
       console.log('Created configuration file delib.js');
     } else {
       console.log('DeLib config already initalized');
+    }
+
+    if (!pathExists(genesisPath)) {
+      const genesisFile = fs.readFileSync(path.join(__dirname, '/../src/devserver/devgenesis.json'));
+      fs.writeFileSync(genesisPath, genesisFile);
+      console.log('Created development genesis file devgenesis.json');
+    } else {
+      console.log('Development genesis already initalized');
     }
 
     if (!pathExists(contractsFolderPath)) {
@@ -70,6 +80,7 @@ program
  */
 program
   .command('build <file>')
+  .description('Build a solidity contract')
   .action((file) => {
     Ethereum.buildContracts(file);
   });
@@ -79,6 +90,7 @@ program
  */
 program
   .command('deploy <contractName> [args...]')
+  .description('Deploy a built contract')
   .action((contractName, args) => {
     Ethereum.init();
     Ethereum.options = config.cli.options;
@@ -97,6 +109,7 @@ program
  */
 program
   .command('set <contractName> <contractAddress>')
+  .description('Bind a built contract to an address to call methods with exec')
   .action((contractName, contractAddress) => {
     Contracts.set(contractName, contractAddress);
   });
@@ -106,6 +119,7 @@ program
  */
 program
   .command('exec <contractName> <method> [args...]')
+  .description('Call or make a transaction with a contract method')
   .action((contractName, method, args) => {
     Ethereum.init();
     Ethereum.options = config.cli.options;
@@ -127,6 +141,7 @@ program
  */
 program
   .command('events <contractName> <eventName> <fromBlock>')
+  .description('Show the logs of an event')
   .action((contractName, eventName, fromBlock) => {
     Ethereum.init();
     Ethereum.events(contractName, eventName, fromBlock)
@@ -144,6 +159,7 @@ program
  */
 program
   .command('balance <index>')
+  .description('Get the balance of an Ethereum account by its index')
   .action((index) => {
     Ethereum.init();
     const balance = Ethereum.getBalanceEther(index);
@@ -155,6 +171,7 @@ program
  */
 program
   .command('create <password>')
+  .description('Create an Ethereum account')
   .action(password => {
     Ethereum.init();
     Ethereum.createAccount(password)
@@ -173,6 +190,7 @@ program
  */
 program
   .command('unlock <index> <password> <time>')
+  .description('Unlock an Ethereum account')
   .action((index, password, time) => {
     Ethereum.init();
     Ethereum.unlockAccount(Ethereum.accounts[index], password, time)
@@ -187,16 +205,24 @@ program
 
 program
   .command('devchain')
-  .action(args => {
-    const blockChainPath = path.join(config.blockchain.path.dev, 'chaindata');
-    if (pathExists(blockChainPath)) {
-      fs.removeSync(blockChainPath);
+  .description('Start up a node for dev blockchain. --reset y to reset')
+  .option('--reset', 'If y to reset the blockchain')
+  .action(reset => {
+    if (reset === 'y') {
+      const blockChainPath = path.join(config.blockchain.path.dev, 'chaindata');
+      if (pathExists(blockChainPath)) {
+        fs.removeSync(blockChainPath);
+      }
     }
-    // console.log(path.join(__dirname, '../', 'genesis.json'));
-    // console.log(config.blockchain.path.dev);
+
+    // See if default devgenesis file is needed
+    let genesisPath = path.join(config.projectRoot, 'devgenesis.json');
+    genesisPath = pathExists(genesisPath) ? genesisPath : path.join(__dirname, '../src/devserver/devgenesis.json');
+    console.log('genesisPath', genesisPath);
+
     const initArgs = [
       '--datadir', config.blockchain.path.dev,
-      'init', path.join(__dirname, '../', 'genesis.json')
+      'init', genesisPath
     ];
     spawnSync('geth', initArgs, { stdio: 'inherit' });
 
@@ -212,5 +238,6 @@ program
 
     spawn('geth', startArgs, { stdio: 'inherit'});
   });
+
 
 program.parse(process.argv);

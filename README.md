@@ -1,13 +1,14 @@
 # DeLib
 
-A non-restrictive and lightweight framework (CLI/Library) for Ethereum. It lets you customize your decentralized application development process to suit your specific needs.
-
+A non-restrictive and lightweight framework (CLI/Library) for Ethereum that allows you spawn your own Ethereum private blockchain.
 
 ## Features
 
 Library that provides the core abstractions needed in writing code for Ethereum.
 
 CLI that lets you easily compile, build, deploy, and execute specific methods on Ethereum Solidity smart contracts.
+
+Gives you access to your Ethereum private blockchain in your project folder.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
   "name": "delib",
   "author": "DeStore",
   "version": "1.0.2",
-  "description": "A non-restrictive and lightweight framework (CLI/Library) for Ethereum. It lets you customize your decentralized application development process to suit your specific needs.",
+  "description": "A non-restrictive and lightweight framework (CLI/Library) for Ethereum that allows you spawn your own Ethereum private blockchain with genesis control.",
   "keywords": [
     "web3",
     "ethereum"
