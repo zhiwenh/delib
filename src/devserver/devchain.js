@@ -1,4 +1,4 @@
-var CONFIG = {"path":{"dev":"/Users/zhiwen/Development/DeStore-main/delib-test/devchain/","production":"/Users/zhiwen/Library/Ethereum/"},"auto":true,"accountAmount":5,"distributeAmount":10,"minAmount":100}; 
+var CONFIG = {"path":{"dev":"/Users/zhiwen/Development/DeStore-main/delib-test/devchain/","production":"/Users/zhiwen/Library/Ethereum/"},"auto":false,"accountAmount":5,"distributeAmount":10,"minAmount":100}; 
 /* global web3, CONFIG */
 
 (function () {
@@ -70,13 +70,13 @@ var CONFIG = {"path":{"dev":"/Users/zhiwen/Development/DeStore-main/delib-test/d
       startMining();
     }
 
-    // Display accounts info after send transactions are verified
-    if (!isAccountInfoDisplayed && web3.eth.blockNumber > initialBlockNumber) {
-      isAccountInfoDisplayed = true;
-      displayAccountsInfo();
-    }
-
     if (auto === true) {
+      // Display accounts info after send transactions are verified
+      if (!isAccountInfoDisplayed && web3.eth.blockNumber > initialBlockNumber) {
+        isAccountInfoDisplayed = true;
+        displayAccountsInfo();
+      }
+
       if  (web3.eth.getBalance(web3.eth.coinbase).lessThan(etherToWei(minAmount))) {
         startMining();
         return;
@@ -87,12 +87,20 @@ var CONFIG = {"path":{"dev":"/Users/zhiwen/Development/DeStore-main/delib-test/d
         startMining();
         return;
       }
+
+      if (web3.eth.blockNumber > blockNumber) {
+        stopMining();
+        return;
+      }
+    } else {
+      if (!isAccountInfoDisplayed && web3.eth.blockNumber > initialBlockNumber) {
+        isAccountInfoDisplayed = true;
+        displayAccountsInfo();
+        stopMining();
+      }
     }
 
-    if (web3.eth.blockNumber > blockNumber) {
-      stopMining();
-      return;
-    }
+
   }
 
   function displayAccountsInfo() {
@@ -122,4 +130,4 @@ var CONFIG = {"path":{"dev":"/Users/zhiwen/Development/DeStore-main/delib-test/d
     }
 
   }
-}());
+})();

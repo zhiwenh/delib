@@ -69,13 +69,13 @@
       startMining();
     }
 
-    // Display accounts info after send transactions are verified
-    if (!isAccountInfoDisplayed && web3.eth.blockNumber > initialBlockNumber) {
-      isAccountInfoDisplayed = true;
-      displayAccountsInfo();
-    }
-
     if (auto === true) {
+      // Display accounts info after send transactions are verified
+      if (!isAccountInfoDisplayed && web3.eth.blockNumber > initialBlockNumber) {
+        isAccountInfoDisplayed = true;
+        displayAccountsInfo();
+      }
+
       if  (web3.eth.getBalance(web3.eth.coinbase).lessThan(etherToWei(minAmount))) {
         startMining();
         return;
@@ -86,12 +86,20 @@
         startMining();
         return;
       }
+
+      if (web3.eth.blockNumber > blockNumber) {
+        stopMining();
+        return;
+      }
+    } else {
+      if (!isAccountInfoDisplayed && web3.eth.blockNumber > initialBlockNumber) {
+        isAccountInfoDisplayed = true;
+        displayAccountsInfo();
+        stopMining();
+      }
     }
 
-    if (web3.eth.blockNumber > blockNumber) {
-      stopMining();
-      return;
-    }
+
   }
 
   function displayAccountsInfo() {
@@ -121,4 +129,4 @@
     }
 
   }
-}());
+})();
