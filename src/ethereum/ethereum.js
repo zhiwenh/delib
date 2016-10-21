@@ -141,7 +141,7 @@ class Ethereum {
    * @return {string} The account address now being used.
    */
   changeAccount(index) {
-    this.initIPC();
+    this.init();
     if (index < 0 || index >= this.accounts.length) {
       return this.account;
     } else {
@@ -332,7 +332,6 @@ class Ethereum {
       });
     })(methodEvent);
   }
-
 }
 
 module.exports = new Ethereum();

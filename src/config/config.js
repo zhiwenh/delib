@@ -8,6 +8,7 @@ const fs = require('fs');
  *@param {number} levels - The number of folders to go up
  *@return {Object} The configuration object.
  */
+
 function findConfig(originalDirectory, levels) {
   const directoryPath = process.cwd();
   const files = fs.readdirSync(directoryPath);
@@ -20,7 +21,13 @@ function findConfig(originalDirectory, levels) {
       return configContents;
     }
   }
-  process.chdir('../');
+
+  try {
+    process.chdir('../');
+  } catch(e) {
+    levels = 1;
+  }
+
   if (levels === 1) {
     const configContents = require('./default.js');
     process.chdir(originalDirectory);
@@ -32,7 +39,7 @@ function findConfig(originalDirectory, levels) {
 }
 
 const originalDirectory = process.cwd();
-const config = findConfig(originalDirectory, 4);
+const config = findConfig(originalDirectory, 15);
 
 config.ipc = {};
 if (config.dev === true) {

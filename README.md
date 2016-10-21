@@ -2,15 +2,20 @@
 
 A non-restrictive and lightweight framework (CLI/Library) for Ethereum that allows you spawn your own Ethereum private blockchain.
 
-## Features
+# Features
+
+#### Ethereum Library
 
 Library that provides the core abstractions needed in writing code for Ethereum.
 
+#### Ethereum CLI
 CLI that lets you easily compile, build, deploy, and execute specific methods on Ethereum Solidity smart contracts.
 
-Gives you access to your Ethereum private blockchain in your project folder.
 
-## Requirements
+#### Geth Development Private Blockchain
+Allows you to create a geth development blockchain with access to the genesis file and that lets you easily connect to other private chains. It creates a set amount of accounts, distributes Ether to all of them, auto mines for transactions, and displays transaction information such as gas used.
+
+# Requirements
 
 You must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) (OSX commands below, see link for more information or other platforms):
 
@@ -21,54 +26,67 @@ brew install ethereum
 
 Currently must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it by default as a peer dependency.
 
-## Installation
+# Installation
 Install globally to use the CLI
 
 ```
 npm install -g delib
 ```
 
-Also install it within your project directory
+Install it within your project directory
 
 ```
 npm install delib --save
 ```
 
-## Usage
+# Usage
 
-The best server to use for development purposes is [testrpc](https://github.com/ethereumjs/testrpc).
+## CLI
 
-```
-npm install -g ethereumjs-testrpc
-
-testrpc
-```
-
-### CLI
-
-Create the delib configuration file and contract folder.
+Create the ```delib.js``` configuration file, project structure, and ```devgenesis.json``` file for the development blockchain.
 ```
 -> delib init
 ```
 
+### Smart contracts
 Build contract
 ```
--> delib build Test
+-> delib build TestContract
 ```
 
 Deploy contract
 ```
--> delib deploy Test
+-> delib deploy TestContract
 ```
 
 Execute a contract method
 ```
--> delib exec Test testMethod
+-> delib exec TestContract testMethod
 ```
-
+Get all the logs of an event
+```
+-> delib events TestContract eventName 0
+```
 Transaction options for CLI are located in the delib.js configuration file.
 
-### Scripts
+### Development blockchain
+Start initialize and start the development blockchain node
+```
+-> delib devchain
+```
+
+### Node interaction
+Create an account
+```
+-> delib create mypassword
+```
+
+Unlock an account
+```
+-> delib unlock 0 mypassword 100000
+```
+
+## Scripts
 
 Connect to Ethereum node
 
@@ -105,6 +123,17 @@ Execute method later in script or in another process
 ```
 delib.eth.exec('Test').testMethod()
   .then(tx => {
+
+  })
+  .catch(err => {
+
+  })
+```
+
+Get all the event logs of an event
+```
+delib.eth.events('Test', 'testEvent', 0)
+  .then(logs => {
 
   })
   .catch(err => {
@@ -229,13 +258,10 @@ coffee
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code>
     * [.exec(contractName)](#Ethereum+exec) ⇒ <code>Contract</code>
     * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
-    * [.getEventLogs(contractName, contractAddress, method, filter)](#Ethereum+getEventLogs) ⇒ <code>Promise</code>
+    * [.events(contractName, contractAddress, eventName, fromBlock, filter)](#Ethereum+getEventLogs) ⇒ <code>Promise</code>
 
 ### CLI
-Better CLI API is coming soon!
-
-#### delib init
-
+Better CLI API is coming soon
 
 
 ### Ethereum
@@ -399,7 +425,7 @@ Calls a deployed contract at a specific address.
 
 <a name="Ethereum+getEventLogs"></a>
 
-#### delib.eth.event(contractName, eventName, fromBlock, filter) ⇒ <code>Promise</code>
+#### delib.eth.events(contractName, eventName, fromBlock, filter) ⇒ <code>Promise</code>
 Gets the event logs for an event
 
 **Returns**: <code>Promise</code> - The response contains an array event logs.  
