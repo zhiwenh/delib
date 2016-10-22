@@ -103,12 +103,12 @@ The blockchain data is reset each time you start the node.
 ## Configuration
 A folder called ```devchain``` is created for data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file. If you called ```delib init``` then you will be given ```devgenesis.json```, which is the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) of the blockchain (information about the genesis file can be found in the link). By default the difficultly is set at 800.
 
-## Connect to other private blockchains
-Get their geth node's enode address and add it into the staticNodes option in ```delib.js```. If the nodes you want to connect to have the same geth identity name and genesis file, then syncing will begin.
+## To connect to other private blockchains
+Get the geth node's enode address you wish to connect to and add it to the staticNodes option in ```delib.js```. If they are running a blockchain with the same geth identity name and genesis file as you, then syncing will begin.
 
-Your enode address is shown upon starting up the blockchain with devchain. It will look like this: ```enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303```
+Your enode address is shown when you start up the development blockchain. It will look like this: ```enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303```
 
-You can have multiple blockchains synced on your computer by configuring them with an unique rpc port and network p2p port. By default these are 8545 and 30303.
+You can have multiple blockchains synced on your computer by configuring them with an unique rpc port and network p2p port. By default these are 8545 and 30303 respectively.
 
 <a name="CLI"></a>
 
