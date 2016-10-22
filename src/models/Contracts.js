@@ -13,7 +13,7 @@ const pathway = path.join(__dirname, RELATIVE_PATH, config.contracts.address);
 const ENDING = 'Address';
 
 module.exports = {
-  set: (name ,address) => {
+  set: (name, address) => {
     name = name + ENDING;
     fs.writeFileSync(path.join(pathway, name), address);
   },

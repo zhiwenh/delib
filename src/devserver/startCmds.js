@@ -3,21 +3,32 @@
 /** The global delib methods */
 var delib = CONFIG; // CONFIG object gets built onto this file
 
-/** DeLib console log */
-delib.log = function() {
-  var args = Array.prototype.slice.call(arguments);
-  args.unshift('[delib]');
-  args.concat(arguments);
-  console.log.apply(this, args);
+/** Displays all accounts, balances, and indexes */
+delib.accounts = function() {
+  console.log('');
+  this.log('=== Accounts ===');
+  this.log('Index  Account                                      Ether');
+  for (var i = 0; i < web3.eth.accounts.length; i++) {
+    if (web3.eth.accounts[i] === web3.eth.coinbase) {
+      delib.log(i, '    ', web3.eth.accounts[i], ' ', this.weiToEther(web3.eth.getBalance(web3.eth.accounts[i]).toString(10)), '- coinbase');
+    } else {
+      delib.log(i, '    ', web3.eth.accounts[i], ' ', this.weiToEther(web3.eth.getBalance(web3.eth.accounts[i]).toString(10)));
+    }
+  }
+  console.log('');
 };
 
-/** To start mining */
-delib.start = function() {
+/**
+ * To start mining
+ * @param {number} threads - Optional. The number of threads to mine with. Defaults to 1/
+ */
+delib.start = function(threads) {
+  threads = threads || 1;
   if (!web3.eth.mining) {
     console.log('');
     delib.log('Starting miner');
     console.log('');
-    web3.miner.start(1);
+    web3.miner.start(threads);
   }
 };
 
@@ -47,42 +58,28 @@ delib.auto = function() {
   this.stop();
 };
 
-/** Displays all accounts and balance info */
-delib.accounts = function() {
-  console.log('');
-  this.log('Accounts');
-  this.log('Index Account                                       Ether');
-  for (var i = 0; i < web3.eth.accounts.length; i++) {
-    if (web3.eth.accounts[i] === web3.eth.coinbase) {
-      delib.log(i, '   ', web3.eth.accounts[i], '  ', this.weiToEther(web3.eth.getBalance(web3.eth.accounts[i])), '    - coinbase');
-    } else {
-      delib.log(i, '   ', web3.eth.accounts[i], '  ', this.weiToEther(web3.eth.getBalance(web3.eth.accounts[i])));
-    }
-  }
-  console.log('');
-};
 
 /**
  * Distributes Ether to all of your accounts from an account
  * @param {number} fromIndex - Index in web3.eth.accounts to sender Ether from
- * @param {number} amount - Amount to transfer to all accounts
+ * @param {number} etherAmount - Amount to transfer to all accounts
  */
-delib.distribute = function(fromIndex, amount) {
-  var requiredAmount = amount * (web3.eth.accounts.length - 1) + 2;
+delib.distribute = function(fromIndex, etherAmount) {
+  var requiredAmount = etherAmount * (web3.eth.accounts.length - 1) + 2;
   if (web3.eth.getBalance(web3.eth.accounts[fromIndex]).greaterThan(this.etherToWei(requiredAmount))) {
     for (var i = 0; i < web3.eth.accounts.length; i++) {
       if (i === fromIndex) continue;
       var object = {
         from: web3.eth.accounts[fromIndex],
         to: web3.eth.accounts[i],
-        value: this.etherToWei(amount)
+        value: this.etherToWei(etherAmount)
       };
       web3.eth.sendTransaction(object);
     }
     console.log('');
-    this.log(amount, 'Ether distributed to accounts');
+    this.log(etherAmount, 'Ether distributed to accounts');
     console.log('');
-    this.mine(1);
+    this.mine(2);
   } else {
     var balanceEther = this.etherToWei(web3.eth.getBalance(web3.eth.accounts[fromIndex]));
     console.log('');
@@ -95,15 +92,15 @@ delib.distribute = function(fromIndex, amount) {
  * Transfer Ether between your accounts
  * @param {number} fromIndex - Index in web3.eth.accounts to send Ether from.
  * @param {number} toIndex - Index in web3.eth.accounts to send Ether to.
- * @param {number} amount - Amount of Ether to transfer over
+ * @param {number} etherAmount - Amount of Ether to transfer over
  */
-delib.transfer = function(fromIndex , toIndex, amount) {
+delib.transfer = function(fromIndex , toIndex, etherAmount) {
   if (fromIndex === toIndex) return;
   if (fromIndex < 0 || toIndex < 0) return;
   if (fromIndex > web3.eth.accounts.length - 1 || toIndex > web3.eth.accounts.length - 1) return;
 
-  var balanceEther = this.etherToWei(web3.eth.getBalance(web3.eth.coinbase));
-  if (balanceEther < amount) {
+  var balanceEther = this.weiToEther(web3.eth.getBalance(web3.eth.accounts[fromIndex]));
+  if (balanceEther < etherAmount) {
     console.log('');
     this.log('Not enough Ether. Balance:', balanceEther);
     console.log('');
@@ -112,45 +109,67 @@ delib.transfer = function(fromIndex , toIndex, amount) {
   var object = {
     from: web3.eth.accounts[fromIndex],
     to: web3.eth.accounts[toIndex],
-    value: this.etherToWei(amount)
+    value: this.etherToWei(etherAmount)
   };
   web3.eth.sendTransaction(object);
   console.log('');
-  this.log(amount, 'Ether transfered to', web3.eth.accounts[fromIndex], 'from', web3.eth.accounts[toIndex]);
+  this.log(etherAmount, 'Ether transfered to', web3.eth.accounts[fromIndex], 'from', web3.eth.accounts[toIndex]);
   console.log('');
   this.mine(1);
 };
 
-/** Mine a specified number of blocks
- * @param {number} blocks - Number of blocks to mine
+/**
+ * Mine a specified number of blocks
+ * @param {number} blockAmount - Number of blocks to mine
  */
-delib.mine = function(blocks) {
-  if (blocks <= 0 || web3.eth.mining === true) return;
-  var stopBlock = web3.eth.blockNumber + blocks;
+delib.mine = function(blockAmount) {
+  if (this.autoMine === true) return;
+  blockAmount = blockAmount || 1;
+  if (blockAmount <= 0 || web3.eth.mining === true) return;
+  var stopBlock = web3.eth.blockNumber + blockAmount;
   this.start();
 
   // Create the filter to watch with check function
   var filter = web3.eth.filter('latest');
   filter.watch(check.bind(this));
 
-  // To save status of current autoMine status to know whether or not to turn it back on
-  var autoStatus = this.autoMine;
-  this.autoMine = false;
   console.log('');
-  delib.log('Mining', blocks, 'blocks');
+  delib.log('Mining', blockAmount, 'blocks');
   console.log('');
 
   function check() {
-    if (stopBlock === web3.eth.blockNumber || web3.eth.mining === false) {
+    if (web3.eth.blockNumber >= stopBlock || web3.eth.mining === false) {
       // Stop watching filter
+      if (this.autoMine !== true) this.stop();
       filter.stopWatching();
-      autoStatus ? this.autoMine = true : this.stop();
     }
   }
 };
 
 /**
-* Change the coinbase to another one of your accounts
+ * Display block info
+ * @param {number} blockNumber - Optional. The block number to display the info of. Defaults to 'latest'.
+ */
+delib.block = function(blockNumber) {
+  blockNumber = blockNumber || 'latest';
+  web3.eth.getBlock(blockNumber, function(err, block) {
+    if (!err) {
+      console.log('');
+      this.log('Block Info');
+      this.log('Number:     ' + block.number);
+      this.log('Hash:       ' + block.hash);
+      this.log('Difficulty: ' + block.difficulty);
+      this.log('Gas Limit:  ' + block.gasLimit.toString());
+      this.log('Gas Price:  ' + web3.eth.gasPrice.toString());
+      this.log('Total Gas:  ' + block.gasUsed);
+      this.log('Miner:      ' + block.miner);
+      console.log('');
+    }
+  }.bind(this));
+};
+
+/**
+* Change the coinbase to another one of your accounts. This is where the Ether mining rewards are deposited.
 * @param accountIndex - Index in web3.eth.accounts.
 */
 delib.coinbase = function(accountIndex) {
@@ -163,56 +182,76 @@ delib.coinbase = function(accountIndex) {
 
 /** Wei to Ether conversion */
 delib.weiToEther = function (amount) {
-  return web3.fromWei(web3.toBigNumber(amount), 'ether');
+  return Number(web3.fromWei(amount, 'ether').toString());
 };
 
 /** Ether to Wei conversion */
 delib.etherToWei = function(amount) {
-  return web3.toWei(web3.toBigNumber(amount), 'ether');
+  return Number(web3.toWei(amount, 'ether').toString());
+};
+
+/** DeLib console log */
+delib.log = function() {
+  var args = Array.prototype.slice.call(arguments);
+  args.unshift('[delib]');
+  args.concat(arguments);
+  console.log.apply(this, args);
 };
 
 /**
  * Run on devchain start
  */
 (function () {
-  // amount of Ether for coinbank to always have
+  // Amount of Ether for coinbank to always have
   delib.minAmount;
-  // amount of accounts to create. Always creates 1 account.
+  // Amount of accounts to create. Always creates 1 account.
   var accountAmount = (delib.accountAmount > 0) ? delib.accountAmount : 1;
-  // amount of Ether to distribute to accounts
+  // Amount of Ether to distribute to accounts
   var distributeAmount = (delib.distributeAmount < 0) ? 0 : delib.distributeAmount;
-  // amount of Ether needed by coinbank
+  // Amount of Ether needed by coinbank
   var requiredEtherAmount = delib.distributeAmount * delib.accountAmount + 2;
   // Status of toggling mining if there are transactions pending and whether to keep coinbank topped off at minAmount
   var password = delib.password; // password for the accounts created
   var blockNumber = web3.blockNumber; // the block number to keep mining too
 
+  // For the automatic Ether distribution
   var distributeBlock; // block number when distributed for reference
   var isBalanceDisplayed = false;
   var isDistributed = (distributeAmount === 0) ? true : false; // status of ether distribution
 
   var transactions = []; // to contain pending transaction hashes of a block
-
-  console.log('');
-  delib.log('DeLib Development Blockchain');
+  var pendingBlock; // to make sure transactions are only displayed after another block is mined
   console.log('');
   delib.log('Node address:', web3.admin.nodeInfo.enode);
   console.log('');
+  delib.log('=== DeLib Development Blockchain ===');
+  console.log('');
+  delib.log('delib.accounts()                               ', '| Displays all accounts, balances, and indexes |');
+  delib.log('delib.auto()                                   ', '| Toggles auto mining |');
+  delib.log('delib.start(threads)                           ', '| To start mining |', '<threads> defaults to 1');
+  delib.log('delib.stop()                                   ', '| To stop mining |');
+  delib.log('delib.transfer(fromIndex, toIndex, etherAmount)', '| Transfer Ether between your accounts |');
+  delib.log('delib.distribute(fromIndex, etherAmount)       ', '| Distributes Ether to all of your accounts from an account |');
+  delib.log('delib.mine(blockAmount)                        ', '| Mine a specified number of blocks |', '<blockAmount> defaults to 1');
+  delib.log('delib.block(blockNumber)                       ', '| Display block info |', '<blockNumber> defaults to \'latest\'');
+  delib.log('delib.coinbase(accountIndex)                   ', '| Change coinbase |');
+  console.log('');
 
   if (delib.autoMine === true) {
-    isDistributed = true; // Don't allow for auto distribution if auto is off at the start
-    delib.log('Auto On');
-    delib.log('Coinbase will be remain above', delib.minAmount, 'Ether');
+    delib.log('Auto mining is on');
+    delib.log('Coinbase will be remain above', delib.minAmount, 'Ether. Set delib.minAmount to adjust');
     delib.log('Mining will start automatically when there are transactions pending');
     if (distributeAmount !== 0) {
       delib.log('Distributing', distributeAmount, 'to accounts when coinbase has', requiredEtherAmount, 'Ether');
     }
   } else {
-    delib.log('Auto Off');
-    delib.log('To start/stop mining call delib.start(), delib.stop()');
-    delib.log('To toggle auto mining for transactions call delib.auto()');
+    isDistributed = true; // Don't allow for auto distribution if auto is off at the start
+    delib.log('Auto mining is off');
+    delib.log('To start/stop mining call delib.start() / delib.stop()');
+    delib.log('To toggle auto mining call delib.auto()');
   }
 
+  // Creates all accounts
   createAccounts(accountAmount, password);
 
   // To allow for continous checking of status
@@ -223,7 +262,7 @@ delib.etherToWei = function(amount) {
 
   function checkStatus() {
     // Display the transaction receipt of previous blocks
-    if (transactions.length > 0) {
+    if (transactions.length > 0 && web3.eth.blockNumber > pendingBlock) {
       for (var i = 0; i < transactions.length; i++) {
         var transactionHash = transactions[i];
         transactionReceipt(transactionHash);
@@ -233,6 +272,7 @@ delib.etherToWei = function(amount) {
 
     // Fill transactions array to display receipts in next bock
     if (web3.eth.getBlock('pending').transactions.length > 0) {
+      pendingBlock = web3.eth.blockNumber;
       transactions = web3.eth.getBlock('pending').transactions;
     }
 
@@ -245,11 +285,10 @@ delib.etherToWei = function(amount) {
       }
       if (isDistributed === false) {
         distributeEther();
-        blockNumber = web3.eth.blockNumber + 5;
       }
 
       if (web3.eth.getBlock('pending').transactions.length > 0) {
-        blockNumber = web3.eth.blockNumber + 5;
+        blockNumber = web3.eth.blockNumber + 3;
         delib.start();
         return;
       }
@@ -273,7 +312,7 @@ delib.etherToWei = function(amount) {
     for (var i = 0; i < accountAmount; i++) {
       web3.personal.newAccount(password);
       web3.personal.unlockAccount(web3.eth.accounts[web3.eth.accounts.length - 1], password, 10000000);
-      delib.log(web3.eth.accounts[i]);
+      delib.log('.');
     }
     delib.accounts();
   }
@@ -282,14 +321,14 @@ delib.etherToWei = function(amount) {
   function transactionReceipt(transactionHash) {
     var transactionObj = web3.eth.getTransactionReceipt(transactionHash);
     console.log('');
-    delib.log('Transaction Receipt');
-    delib.log('Block:    ', transactionObj.blockNumber);
-    delib.log('Hash:     ', transactionObj.transactionHash);
-    delib.log('From:     ', transactionObj.from);
-    delib.log('To:       ', transactionObj.to);
-    delib.log('Gas Used: ', transactionObj.gasUsed);
-    delib.log('Total Gas:', transactionObj.cumulativeGasUsed);
-    delib.log('Contract: ', transactionObj.contractAddress);
+    delib.log('=== Transaction Receipt ===');
+    delib.log('Block:            ', transactionObj.blockNumber);
+    delib.log('Hash:             ', transactionObj.transactionHash);
+    delib.log('From:             ', transactionObj.from);
+    delib.log('To:               ', transactionObj.to);
+    delib.log('Gas Used:         ', transactionObj.gasUsed);
+    delib.log('Ether Cost Est:   ', delib.weiToEther(web3.eth.gasPrice * transactionObj.gasUsed));
+    delib.log('Created Contract: ', transactionObj.contractAddress);
     console.log('');
   }
 
@@ -297,7 +336,7 @@ delib.etherToWei = function(amount) {
   function distributeEther() {
     if (web3.eth.getBalance(web3.eth.coinbase).greaterThan(delib.etherToWei(requiredEtherAmount))) {
       for (var i = 0; i < accountAmount; i++) {
-        if (web3.eth.getBalance(web3.eth.accounts[i]).lessThan(delib.etherToWei(distributeAmount))) {
+        if (web3.eth.accounts[i] !== web3.eth.coinbase) {
           var object = {
             from: web3.eth.coinbase,
             to: web3.eth.accounts[i],

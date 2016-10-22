@@ -1,30 +1,31 @@
 # DeLib
 
-A non-restrictive and lightweight framework (CLI/Library) for Ethereum that allows you spawn your own Ethereum private blockchain.
+Non-restrictive framework for Ethereum. Allows you to spawn your own Ethereum private blockchain with genesis control.
 
 # Features
 
-#### Ethereum Library
+#### [Ethereum Library](#Ethereum)
+Promise based library that provides the core abstractions needed in writing code for Ethereum. It lets you create Ethereum accounts, write migration scripts, interact with smart contracts, and easily create tests.
 
-Library that provides the core abstractions needed in writing code for Ethereum.
-
-#### Ethereum CLI
-CLI that lets you easily compile, build, deploy, and execute specific methods on Ethereum Solidity smart contracts.
+#### [Ethereum CLI](#CLI)
+Lets you interaction with Ethereum Solidity smart contracts. You can easily compile, build, deploy, execute methods, and get event logs.
 
 
-#### Geth Development Private Blockchain
-Allows you to create a geth development blockchain with access to the genesis file and that lets you easily connect to other private chains. It creates a set amount of accounts, distributes Ether to all of them, auto mines for transactions, and displays transaction information such as gas used.
+#### [Geth Development Private Blockchain](#devchain)
+Allows you to create a geth development blockchain with access to the genesis file that lets you connect to other private chains. It creates a set amount of accounts, distributes Ether to them, auto mines for pending transactions, displays transaction information such as gas used, and gives you useful delib methods in the JavaScript console.
 
 # Requirements
 
-You must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) (OSX commands below, see link for more information or other platforms):
+You must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum)
+
+Mac OSX install commands with brew
 
 ```sh
 brew tap ethereum/ethereum
 brew install ethereum
 ```
 
-Currently must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it by default as a peer dependency.
+Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it by default as a peer dependency.
 
 # Installation
 Install globally to use the CLI
@@ -48,7 +49,6 @@ Create the ```delib.js``` configuration file, project structure, and ```devgenes
 -> delib init
 ```
 
-### Smart contracts
 Build contract
 ```
 -> delib build TestContract
@@ -67,15 +67,7 @@ Get all the logs of an event
 ```
 -> delib events TestContract eventName 0
 ```
-Transaction options for CLI are located in the delib.js configuration file.
 
-### Development blockchain
-Start initialize and start the development blockchain node
-```
--> delib devchain
-```
-
-### Node interaction
 Create an account
 ```
 -> delib create mypassword
@@ -85,6 +77,8 @@ Unlock an account
 ```
 -> delib unlock 0 mypassword 100000
 ```
+
+Transaction options for CLI are located in the ```delib.js``` file.
 
 ## Scripts
 
@@ -151,11 +145,24 @@ delib.eth.options = {
 }
 ```
 
-## Examples
+<a name="devchain"></a>
+## Development blockchain
+To start the development blockchain geth node
+```
+-> delib devchain
+```
+The command creates a folder called ```devchain``` containing the Ethereum blockchain data. The path and other options can be specified in the ```delib.js``` file or it creates it where you run the command. If you called ```delib init``` then you will be given the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) that the blockchain will using called ```devgenesis.json```. The data is reset each time to allow you to develop on a new blockchain.
+
+The command preloads a JavaScript file into geth. It creates a preset amount of accounts for you, displays them, and starts mining. When your coinbase reaches a certain amount it will then distribute Ether to all your accounts. Mining is stopped after your coinbase reaches a certain amount of Ether, and resumes again when it falls below that amount or if you have transactions pending on the blockchain. The information of each transaction performed is displayed. You're also given a ```delib``` object with methods that you can call in the JavaScript console, and they are shown when you start the blockchain.
+
+#### How to connect to other private blockchains
+To connect to other private blockchains you will need to get their geth node's enode address and add it into the staticNodes option in ```delib.js```. If the nodes you want to connect to have the same geth identity name and genesis file as you then syncing will begin. You're shown your enode address upon starting up the blockchain with devchain. It will look like this: enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303
+
+# Examples
 
 Link to repo used for testing purposes: [delib-test](https://github.com/zhiwenhuang/delib-test)
 
-### Example 1: Basic Deployment
+## Example 1: Basic Deployment
 We have a contract file called ```Example.sol```
 
 ```
@@ -223,8 +230,14 @@ Transaction response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a6
 -> delib exec Example getMessage
 coffee
 ```
+More examples are coming!
 
-## API Reference
+# Support
+If you found DeLib useful please leave a star on [GitHub](https://github.com/DeStore/delib) or give feedback!
+
+# API Reference
+
+<a name="CLI"></a>
 
 ### CLI
 * [delib](#Cli)
@@ -261,8 +274,7 @@ coffee
     * [.events(contractName, contractAddress, eventName, fromBlock, filter)](#Ethereum+getEventLogs) ⇒ <code>Promise</code>
 
 ### CLI
-Better CLI API is coming soon
-
+Better CLI API is coming soon!
 
 ### Ethereum
 

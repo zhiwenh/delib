@@ -2,7 +2,7 @@
   "name": "delib",
   "author": "DeStore",
   "version": "1.2.1",
-  "description": "A non-restrictive and lightweight framework (CLI/Library) for Ethereum that allows you spawn your own Ethereum private blockchain with genesis control.",
+  "description": "Non-restrictive framework for Ethereum. Allows you to spawn your own Ethereum private blockchain with genesis control.",
   "keywords": [
     "web3",
     "ethereum"
@@ -16,7 +16,7 @@
   },
   "main": "index.js",
   "bin": {
-    "delib": "./bin/cli"
+    "delib": "./bin/delib"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
