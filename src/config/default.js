@@ -37,8 +37,9 @@ module.exports = {
       production: process.env.HOME + '/Library/Ethereum/'
     },
 
-    /** devchain options */
+    /** Development blockchain options */
 
+    /** Preload script */
     /** Status of toggling mining if there are transactions pending and whether to keep coinbank topped off at minAmount */
     autoMine: true,
     /** Number of accounts to generate in devchain */

@@ -16,6 +16,7 @@ delib.accounts = function() {
     }
   }
   console.log('');
+  return true;
 };
 
 /**
@@ -29,7 +30,9 @@ delib.start = function(threads) {
     delib.log('Starting miner');
     console.log('');
     web3.miner.start(threads);
+    return true;
   }
+  return false;
 };
 
 /** To stop mining */
@@ -39,7 +42,9 @@ delib.stop = function() {
     delib.log('Stopping miner');
     console.log('');
     web3.miner.stop();
+    return true;
   }
+  return false;
 };
 
 /** Toggles auto mining */
@@ -56,6 +61,7 @@ delib.auto = function() {
     console.log('');
   }
   this.stop();
+  return true;
 };
 
 
@@ -80,11 +86,13 @@ delib.distribute = function(fromIndex, etherAmount) {
     this.log(etherAmount, 'Ether distributed to accounts');
     console.log('');
     this.mine(2);
+    return true;
   } else {
     var balanceEther = this.etherToWei(web3.eth.getBalance(web3.eth.accounts[fromIndex]));
     console.log('');
     this.log('Not enough Ether. Balance:', balanceEther, 'Required:', requiredAmount);
     console.log('');
+    return false;
   }
 };
 
@@ -115,7 +123,8 @@ delib.transfer = function(fromIndex , toIndex, etherAmount) {
   console.log('');
   this.log(etherAmount, 'Ether transfered to', web3.eth.accounts[fromIndex], 'from', web3.eth.accounts[toIndex]);
   console.log('');
-  this.mine(1);
+  this.mine(2);
+  return true;
 };
 
 /**
@@ -123,9 +132,9 @@ delib.transfer = function(fromIndex , toIndex, etherAmount) {
  * @param {number} blockAmount - Number of blocks to mine
  */
 delib.mine = function(blockAmount) {
-  if (this.autoMine === true) return;
+  if (this.autoMine === true) return false;
   blockAmount = blockAmount || 1;
-  if (blockAmount <= 0 || web3.eth.mining === true) return;
+  if (blockAmount <= 0 || web3.eth.mining === true) return false;
   var stopBlock = web3.eth.blockNumber + blockAmount;
   this.start();
 
@@ -144,6 +153,7 @@ delib.mine = function(blockAmount) {
       filter.stopWatching();
     }
   }
+  return true;
 };
 
 /**
@@ -166,6 +176,7 @@ delib.block = function(blockNumber) {
       console.log('');
     }
   }.bind(this));
+  return true;
 };
 
 /**
@@ -173,11 +184,12 @@ delib.block = function(blockNumber) {
 * @param accountIndex - Index in web3.eth.accounts.
 */
 delib.coinbase = function(accountIndex) {
-  if (accountIndex < 0 || accountIndex > web3.eth.accounts.length - 1) return;
+  if (accountIndex < 0 || accountIndex > web3.eth.accounts.length - 1) return false;
   web3.miner.setEtherbase(web3.eth.accounts[accountIndex]);
   console.log('');
   this.log('Coinbase set to', web3.eth.coinbase);
   console.log('');
+  return true;
 };
 
 /** Wei to Ether conversion */
@@ -226,15 +238,15 @@ delib.log = function() {
   console.log('');
   delib.log('=== DeLib Development Blockchain ===');
   console.log('');
-  delib.log('delib.accounts()                               ', '| Displays all accounts, balances, and indexes |');
-  delib.log('delib.auto()                                   ', '| Toggles auto mining |');
-  delib.log('delib.start(threads)                           ', '| To start mining |', '<threads> defaults to 1');
-  delib.log('delib.stop()                                   ', '| To stop mining |');
-  delib.log('delib.transfer(fromIndex, toIndex, etherAmount)', '| Transfer Ether between your accounts |');
-  delib.log('delib.distribute(fromIndex, etherAmount)       ', '| Distributes Ether to all of your accounts from an account |');
-  delib.log('delib.mine(blockAmount)                        ', '| Mine a specified number of blocks |', '<blockAmount> defaults to 1');
-  delib.log('delib.block(blockNumber)                       ', '| Display block info |', '<blockNumber> defaults to \'latest\'');
-  delib.log('delib.coinbase(accountIndex)                   ', '| Change coinbase |');
+  delib.log('delib.accounts()                               ', 'Displays all accounts, balances, and indexes');
+  delib.log('delib.auto()                                   ', 'Toggles auto mining');
+  delib.log('delib.start(threads)                           ', 'Start mining -', 'Defaults to 1');
+  delib.log('delib.stop()                                   ', 'Stop mining');
+  delib.log('delib.transfer(fromIndex, toIndex, etherAmount)', 'Transfer Ether between your accounts');
+  delib.log('delib.distribute(fromIndex, etherAmount)       ', 'Distributes Ether to all of your accounts from an account');
+  delib.log('delib.mine(blockAmount)                        ', 'Mine a specified number of blocks -', 'Defaults to 1');
+  delib.log('delib.block(blockNumber)                       ', 'Display block info -', 'Defaults to \'latest\'');
+  delib.log('delib.coinbase(accountIndex)                   ', 'Change coinbase');
   console.log('');
 
   if (delib.autoMine === true) {

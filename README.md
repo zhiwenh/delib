@@ -2,7 +2,7 @@
 
 Non-restrictive framework for Ethereum. Allows you to spawn your own Ethereum private blockchain with genesis control.
 
-# Features
+## Features
 
 #### [Ethereum Library](#Ethereum)
 Promise based library that provides the core abstractions needed in writing code for Ethereum. It lets you create Ethereum accounts, write migration scripts, interact with smart contracts, and easily create tests.
@@ -14,7 +14,7 @@ Lets you interaction with Ethereum Solidity smart contracts. You can easily comp
 #### [Geth Development Private Blockchain](#devchain)
 Allows you to create a geth development blockchain with access to the genesis file that lets you connect to other private chains. It creates a set amount of accounts, distributes Ether to them, auto mines for pending transactions, displays transaction information such as gas used, and gives you useful delib methods in the JavaScript console.
 
-# Requirements
+## Requirements
 
 You must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum)
 
@@ -27,27 +27,75 @@ brew install ethereum
 
 Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it by default as a peer dependency.
 
-# Installation
-Install globally to use the CLI
+## Installation
+Install globally to use the CLI.
 
 ```
 npm install -g delib
 ```
 
-Install it within your project directory
+Install it within your project directory.
 
 ```
 npm install delib --save
 ```
 
-# Usage
+To create the ```delib.js``` config file, ```devgenesis.json``` development blockchain genesis file, and project structure.
 
-## CLI
+```
+delib init
+```
 
-Create the ```delib.js``` configuration file, project structure, and ```devgenesis.json``` file for the development blockchain.
+<a name="devchain"></a>
+# Development Blockchain
+
+Start the development blockchain geth node with the following command.
 ```
--> delib init
+-> delib devchain
 ```
+
+## Configuration
+A folder called ```devchain``` is created for data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file. If you called ```delib init``` then you will be given ```devgenesis.json```, which is the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) of the blockchain (information about the genesis file can be found in the link).
+
+## Using the custom geth node
+A JavaScript is preloaded into geth which creates a preset amount of accounts and starts mining. When your coinbase mines enough it will distribute Ether to all your other accounts. Mining is stopped after your coinbase reaches a minimum amount of Ether, and resumes again when it falls below that amount. It  also mines automatically if you have transactions pending on the blockchain, and it displays the receipt of each transaction.
+
+You're given a ```delib``` object that you contains useful methods you can call in the JavaScript console.
+
+```
+delib.accounts() // Displays all accounts, balances, and indexes
+
+delib.auto() // Toggles auto mining for minimum amount of pending transactions
+
+delib.start(threads) // Start mining. Defaults to 1
+
+delib.stop() // Stop mining
+
+delib.transfer(fromIndex, toIndex, etherAmount) // Transfer Ether between your accounts
+
+delib.distribute(fromIndex, etherAmount) // Distribute Ether to all your accounts from one account
+
+delib.mine(blockAmount) // Mine a certain amount of blocks
+
+delib.block(blockNumber) // Display block information. Defaults to latest
+
+delib.coinbase(accountIndex) // Change coinbase
+```
+
+The blockchain data is reset each time you start the node.
+
+## Connect to other private blockchains
+Get their geth node's enode address and add it into the staticNodes option in ```delib.js```. If the nodes you want to connect to have the same geth identity name and genesis file, then syncing will begin.
+
+Your enode address is shown upon starting up the blockchain with devchain. It will look like this: enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303
+
+You can have multiple blockchains synced on your computer by configuring them with a unique rpc port and network p2p port.
+
+<a name="CLI"></a>
+
+# CLI
+
+## Usage
 
 Build contract
 ```
@@ -80,7 +128,9 @@ Unlock an account
 
 Transaction options for CLI are located in the ```delib.js``` file.
 
-## Scripts
+# Library
+
+## Basic Usage
 
 Connect to Ethereum node
 
@@ -144,19 +194,6 @@ delib.eth.options = {
   gas: 100000
 }
 ```
-
-<a name="devchain"></a>
-## Development blockchain
-To start the development blockchain geth node
-```
--> delib devchain
-```
-The command creates a folder called ```devchain``` containing the Ethereum blockchain data. The path and other options can be specified in the ```delib.js``` file or it creates it where you run the command. If you called ```delib init``` then you will be given the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) that the blockchain will using called ```devgenesis.json```. The data is reset each time to allow you to develop on a new blockchain.
-
-The command preloads a JavaScript file into geth. It creates a preset amount of accounts for you, displays them, and starts mining. When your coinbase reaches a certain amount it will then distribute Ether to all your accounts. Mining is stopped after your coinbase reaches a certain amount of Ether, and resumes again when it falls below that amount or if you have transactions pending on the blockchain. The information of each transaction performed is displayed. You're also given a ```delib``` object with methods that you can call in the JavaScript console, and they are shown when you start the blockchain.
-
-#### How to connect to other private blockchains
-To connect to other private blockchains you will need to get their geth node's enode address and add it into the staticNodes option in ```delib.js```. If the nodes you want to connect to have the same geth identity name and genesis file as you then syncing will begin. You're shown your enode address upon starting up the blockchain with devchain. It will look like this: enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303
 
 # Examples
 
@@ -237,9 +274,8 @@ If you found DeLib useful please leave a star on [GitHub](https://github.com/DeS
 
 # API Reference
 
-<a name="CLI"></a>
 
-### CLI
+## CLI
 * [delib](#Cli)
     * [init](#Cli)
     * [build(file)](#Cli)
@@ -252,9 +288,9 @@ If you found DeLib useful please leave a star on [GitHub](https://github.com/DeS
     * [unlock(index, password, time)](#Cli)
     * [devchain](#Cli)
 
-    <a name="Ethereum"></a>
 
-### Ethereum
+<a name="Ethereum"></a>
+## Ethereum
 
 * [delib.eth](#Ethereum)
     * [.buildContracts(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
@@ -273,13 +309,8 @@ If you found DeLib useful please leave a star on [GitHub](https://github.com/DeS
     * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
     * [.events(contractName, contractAddress, eventName, fromBlock, filter)](#Ethereum+getEventLogs) ⇒ <code>Promise</code>
 
-### CLI
-Better CLI API is coming soon!
-
-### Ethereum
 
 <a name="Ethereum+buildContracts"></a>
-
 #### delib.eth.buildContracts(contractFiles, contractPath, buildPath)
 Builds Solidity contracts.
 
@@ -449,7 +480,3 @@ Gets the event logs for an event
 | eventName | <code>string</code> | The name of the event method. |
 | fromBlock | <code>number</code> | The block number to start getting the event logs. Optional. Defaults to 0. |
 | filter | <code>Object</code> | Options to filter the events. Optional. Defaults to: { address: contractAddress }. |
-
-
-### Future Features
-Method to estimate transaction gas cost
