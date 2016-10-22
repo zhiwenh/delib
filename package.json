@@ -1,7 +1,7 @@
 {
   "name": "delib",
   "author": "DeStore",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Non-restrictive framework for Ethereum. Allows you to spawn your own Ethereum private blockchain with genesis control.",
   "keywords": [
     "web3",
