@@ -37,7 +37,7 @@ module.exports = {
 
     /** DeLib development chain options */
     /** Preload script options */
-    auto: true, // Status of toggling mining if there are transactions pending and whether to keep coinbank topped off at minAmount
+    autoMine: true, // Status of toggling mining if there are transactions pending and whether to keep coinbank topped off at minAmount
     accountAmount: 5, // Number of accounts to generate in devchain
     password: '', // Password to create accounts with
     minAmount: 100, // Amount for coinbank to mine to
