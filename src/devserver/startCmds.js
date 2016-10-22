@@ -238,15 +238,15 @@ delib.log = function() {
   console.log('');
   delib.log('=== DeLib Development Blockchain ===');
   console.log('');
-  delib.log('delib.accounts()                               ', 'Displays all accounts, balances, and indexes');
-  delib.log('delib.auto()                                   ', 'Toggles auto mining');
-  delib.log('delib.start(threads)                           ', 'Start mining -', 'Defaults to 1');
-  delib.log('delib.stop()                                   ', 'Stop mining');
-  delib.log('delib.transfer(fromIndex, toIndex, etherAmount)', 'Transfer Ether between your accounts');
-  delib.log('delib.distribute(fromIndex, etherAmount)       ', 'Distributes Ether to all of your accounts from an account');
-  delib.log('delib.mine(blockAmount)                        ', 'Mine a specified number of blocks -', 'Defaults to 1');
-  delib.log('delib.block(blockNumber)                       ', 'Display block info -', 'Defaults to \'latest\'');
-  delib.log('delib.coinbase(accountIndex)                   ', 'Change coinbase');
+  delib.log('delib.accounts()                                ', 'Displays all accounts, balances, and indexes');
+  delib.log('delib.auto()                                    ', 'Toggles auto mining');
+  delib.log('delib.start(threads)                            ', 'Start mining', '-- <threads> defaults to 1');
+  delib.log('delib.stop()                                    ', 'Stop mining');
+  delib.log('delib.transfer(fromIndex, toIndex, etherAmount) ', 'Transfer Ether between your accounts');
+  delib.log('delib.distribute(fromIndex, etherAmount)        ', 'Distribute Ether to all of your accounts from an account');
+  delib.log('delib.mine(blockAmount)                         ', 'Mine a specified number of blocks', '-- <blockAmount> defaults to 1');
+  delib.log('delib.block(blockNumber)                        ', 'Display block info', '-- <blockNumber> defaults to latest');
+  delib.log('delib.coinbase(accountIndex)                    ', 'Change coinbase');
   console.log('');
 
   if (delib.autoMine === true) {
