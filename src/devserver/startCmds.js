@@ -132,7 +132,6 @@ delib.transfer = function(fromIndex , toIndex, etherAmount) {
  * @param {number} blockAmount - Number of blocks to mine
  */
 delib.mine = function(blockAmount) {
-  if (this.autoMine === true) return false;
   blockAmount = blockAmount || 1;
   if (blockAmount <= 0 || web3.eth.mining === true) return false;
   var stopBlock = web3.eth.blockNumber + blockAmount;
