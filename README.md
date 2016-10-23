@@ -48,19 +48,19 @@ delib init
 <a name="devchain"></a>
 # Development Blockchain
 
-This development blockchain mimics the behavior of the actual Ethereum blockchain. It gives you access to the blockchain's genesis file so you can adjust the mining difficulty. If it is used within your project directory, the DeLib CLI and library will automatically by default open up RPC and IPC connections to it.
+This development blockchain mimics the behavior of the actual Ethereum blockchain. It gives you access to the blockchain's genesis file so you can adjust the mining difficulty. If it is used within your project folders, the DeLib CLI and library will automatically by default connect to it via RPC and IPC.
 
-Start the development blockchain geth node with the following command.
+Start the geth node for the development blockchain with the following command.:
 ```
 -> delib devchain
 ```
 
 ## Using the custom geth node
-A JavaScript file is preloaded into geth which creates a set amount of accounts and starts mining. When your coinbase mines enough it will distribute Ether to all other accounts. Mining is stopped after your coinbase reaches a certain minimum amount, and resumes again when it falls below it. It also mines automatically if there are transactions pending on the blockchain, and it displays the receipt of each transaction.
+A JavaScript file is preloaded into geth which creates accounts and starts mining. When your coinbase mines enough it will distribute Ether to all other accounts. Mining is stopped after your coinbase reaches a certain minimum amount, and resumes again when it falls below it. It also automatically mines if there are transactions pending on the blockchain, and displays the receipt of each transaction.
 
-You're given a ```delib``` object that contains useful methods you can call in the JavaScript console. Auto mining can be toggled with ```delib.auto()```.
+In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Auto mining can be toggled with ```delib.auto()``` and you can adjust the minimum amount with ```delib.minAmount```.
 
-Here are all the methods available
+Here's a list of all the methods
 
 ```
 delib.accounts() // Displays all accounts, balances, and indexes
@@ -101,10 +101,12 @@ delib.coinbase(accountIndex) // Change coinbase
 The blockchain data is reset each time you start the node.
 
 ## Configuration
-A folder called ```devchain``` is created for data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file. If you called ```delib init``` then you will be given ```devgenesis.json```, which is the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) of the blockchain (information about the genesis file can be found in the link). By default the difficultly is set at 800.
+A folder called ```devchain``` is created which contains the data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file.
+
+Calling ```delib init``` will create a file for you called ```devgenesis.json```. This is the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) of the blockchain (information about the genesis file can be found in the link). By default the difficulty is set to 800.
 
 ## To connect to other private blockchains
-Get the geth node's enode address you wish to connect to and add it to the staticNodes option in ```delib.js```. If they are running a blockchain with the same geth identity name and genesis file as you, then syncing will begin.
+Get the geth enode address you wish to connect with and add it to the staticNodes array in ```delib.js```. If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
 
 Your enode address is shown when you start up the development blockchain. It will look like this: ```enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303```
 
@@ -151,22 +153,38 @@ Transaction options for CLI are located in the ```delib.js``` file.
 
 ## Basic Usage
 
-Connect to Ethereum node
+##### Connect to Ethereum node
 
 ```
 const delib = require('delib');
 
-delib.eth.init(); // Initialize connection to Ethereum node
+/** Initialize connection to Ethereum node */
+delib.eth.init();
+
+/** How to get Web3 object */
+const web3 = delib.eth.init();
 ```
 
-Build contract
+##### Build contract
 
 ```
 delib.eth.build('Test');
 ```
 
-Deploy contract and run a method
+##### Adjust transaction options
 
+```
+delib.eth.options = {
+  from: delib.eth.accounts[0],
+  value: 0,
+  gas: 100000
+}
+```
+
+##### Deploy contract and call a method
+The address of the deployed contract is saved in your project directory. This address is used when you try and call methods on the contract.
+
+The promise returns an instance of the contract.
 ```
 delib.eth.deploy('Test')
   .then(instance => {
@@ -182,7 +200,11 @@ delib.eth.deploy('Test')
   })
 ```
 
-Execute method later in script or in another process
+##### Call a contract method
+The method will determine if it will perform a transaction (which requires gas) or if it will just call by whether or not you labeled your function with constant in your Solidity contract. A transaction will only return the transaction hash and a call will return a value.
+
+To call a contract at the address saved when you deployed it:
+
 ```
 delib.eth.exec('Test').testMethod()
   .then(tx => {
@@ -193,7 +215,18 @@ delib.eth.exec('Test').testMethod()
   })
 ```
 
-Get all the event logs of an event
+To call a contract method at a specified address:
+```
+delib.eth.execAt('Test', '0xd023633dbf0d482884be40adad5ecc0851015d9b').testMethod()
+  .then(tx => {
+
+  })
+  .catch(err => {
+
+  })
+```
+
+##### Get all event logs
 ```
 delib.eth.events('Test', 'testEvent', 0)
   .then(logs => {
@@ -204,15 +237,6 @@ delib.eth.events('Test', 'testEvent', 0)
   })
 ```
 
-Change transaction options
-
-```
-delib.eth.options = {
-  from: delib.eth.accounts[0],
-  value: 0,
-  gas: 100000
-}
-```
 
 # Examples
 
@@ -292,7 +316,6 @@ More examples are coming!
 If you found DeLib useful please leave a star on [GitHub](https://github.com/DeStore/delib) or give feedback!
 
 # API Reference
-
 
 ## CLI
 * [delib](#Cli)

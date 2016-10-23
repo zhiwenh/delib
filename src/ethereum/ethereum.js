@@ -239,7 +239,6 @@ class Ethereum {
   deploy(contractName, args, options) {
     this.init();
     const contract = this._getBuiltContract(contractName);
-    // need to add more default options
     if (!options) {
       options = this.options;
     }
