@@ -1,10 +1,10 @@
 # DeLib
 
-Non-restrictive framework for Ethereum. Lets you interact with smart contracts with its CLI and spawn your own Ethereum private blockchain.
+Non-restrictive framework for Ethereum that lets you interact with smart contracts using its CLI and spawn your own Ethereum private blockchain.
 
 DeLib's features include:
 
-  * A promise based library that provides the core abstractions needed for building Dapps on Ethereum.
+  * A promise based library that provides the core abstractions needed for building DApps on Ethereum.
   * A CLI that lets you compile, build, deploy, call methods, and get event logs from smart contracts.
   * The ability to save the address of deployed contracts to call later.
   * The easy creation of contract tests. Recommended to use the [tape](https://www.npmjs.com/package/tape) and [tapes](https://www.npmjs.com/package/tapes) testing library.
@@ -66,7 +66,6 @@ delib init
 
 <a name="projectStructure"></a>
 
-
 ```
 project/
 ├── addresses/        - (addresses of deployed contracts)
@@ -100,7 +99,7 @@ Another option is [testrpc](https://github.com/ethereumjs/testrpc), which perfor
 
 # Library
 
-This library gives you the freedom to customize your dapp development to fit your specific needs. You can easily write your own migration scripts, interact with smart contracts, and create tests.
+This library gives you the freedom to customize your DApp development to fit your specific needs. You can easily write your own migration scripts, interact with smart contracts, and create tests.
 
 ## Usage
 
@@ -197,7 +196,7 @@ delib.eth.events('Test', 'testEvent', 5, {
   })
 ```
 
-## [Library API](#Ethereum+api)
+## [Library API Link](#Ethereum+api)
 </br>
 
 <a name="Cli"></a>
@@ -253,13 +252,11 @@ The transaction options for the CLI are located in the ```delib.js``` file.
 -> delib unlock 0 mypassword 100000
 ```
 
-## [CLI API](#Cli+api)
+## [CLI API Link](#Cli+api)
 </br>
 
 <a name="devchain"></a>
 # Geth Development Private Blockchain
-
-This development blockchain mimics the behavior of the actual Ethereum blockchain. It gives you access to the blockchain's genesis file so you can adjust the mining difficulty. If it is used within your project folders, the DeLib CLI and library will automatically by default connect to it via RPC and IPC.
 
 Start the geth node for the development blockchain with the following command:
 ```
@@ -267,14 +264,23 @@ Start the geth node for the development blockchain with the following command:
 ```
 
 ## Using the custom geth node
+If it is used within your project folders, the DeLib CLI and library will automatically connect to it via RPC and IPC. If it is not used in your project folders then the IPC host path will need to be set. The RPC port by default is opened up at 8545.
 
-### Auto features
+### Automatic actions
 
-A JavaScript file is preloaded into geth which creates accounts and starts mining. When your coinbase mines enough it will distribute Ether to all other accounts. Mining is stopped after your coinbase reaches a certain minimum amount, and resumes again when it falls below it. It also automatically mines if there are transactions pending on the blockchain, and displays the receipt of each transaction. The blockchain data is reset each time you start the node.
+A JavaScript file is preloaded into geth that:
+* Creates accounts and starts mining Ether.
+* Distributes Ether from your coinbase (the first account created) to other accounts after enough has been mined.
+* Auto mines to keep your coinbase topped off at a certain amount and stops if it goes above it.
+* Auto mines if there are transactions pending on the blockchain and stops when they are performed.
+* Displays the receipt of each transaction. Also shows the estimated gas value used in Ether based on the network mean gas value.
+* Resets the blockchain and account data each time you use it.
 
-### Console delib object</b>
+By default it creates 3 accounts with a password of "", keeps the minimum amount at 50, and distributes 10 Ether from the coinbase.
 
-In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Here are the actions it lets you perform.
+### Console delib object
+
+In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Here are the actions you can perform.
 
 ###### delib.minAmount
 Adjust the minimum amount of Ether to keep above
@@ -307,7 +313,7 @@ Display block information -- <blockNumber> defaults to latest
 Change coinbase
 
 
-## Options
+## Blockchain configuration
 
 A folder called ```devchain/``` is created which contains the data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file.
 
@@ -336,11 +342,11 @@ blockchain: {
 
 ## To connect with other private blockchains
 
-Get the geth enode address you wish to connect with and add it to ```{blockchain: {staticNodes: [ ] }} ```in ```delib.js```. If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
+Get the geth enode addresses you wish to connect with and add it to ```{ blockchain: {staticNodes: [ ] } } ``` in ```delib.js```. If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
 
 Your enode address is shown when you start up the development blockchain. It will look like this: ```enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303```
 
-You can have multiple blockchains synced on your computer by configuring them with an unique rpc port and network p2p port. By default these are 8545 and 30303 respectively.
+You can have multiple blockchains synced on your computer by configuring them with an unique RPC port and network p2p port. By default these are 8545 and 30303 respectively.
 </br>
 
 <a name="examples"></a>
@@ -387,13 +393,13 @@ Start up the geth development node
 
 Build ```Example.sol``` with the CLI
 ```
-delib build Example
+-> delib build Example
 ```
 A file called ```Example.sol.js``` will be created in the built folder
 
 Deploy the built contract with arguments for the constructor
 ```
-delib deploy Example hello
+-> delib deploy Example hello
 ```
 A file called ```ExampleAddresss``` will be created in your addresses folder with the deployed contract's address
 
@@ -463,6 +469,7 @@ If you found DeLib useful please leave a star on [GitHub](https://github.com/DeS
     * [unlock `<accountIndex>` `<password>` `<unlockTime>`](#Cli+unlock)
     * [devchain](#Cli+devchain)
 
+<a name="Cli+init"></a>
 #### delib init
 Create the config file ```delib.js```, development blockchain genesis file ```devgenesis.json``` , and [project structure](#projectStructure).
 
@@ -507,10 +514,10 @@ Start up a geth node running the [development private blockchain](#devchain).
 <a name="Ethereum+api"></a>
 
 ## Library
-* [delib.eth](#Ethereum)
+* [delib.eth](#Ethereum+api)
     * [.account](#Ethereum+account)
     * [.accounts](#Ethereum+accounts)
-    * [.options](#Ethereum+options))
+    * [.options](#Ethereum+options)
     * [.init(rpcHost, rpcPort, contractOptions)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.check()](#Ethereum+check) ⇒ <code>boolean</code>
@@ -553,9 +560,9 @@ The transaction options to be used. Change this in-between your contract deploym
 
 <a name="Ethereum+init"></a>
 #### delib.eth.init(rpcHost, rpcPort, contractOptions) ⇒ <code>Web3</code>
-Initializes a RPC connection with a local Ethereum node. The RPC provider is set in Ethereum.config.rpc.port. Need to call before using the Ethereum object. If RPC connection is already initalized and valid the RPC connection will be set to the current provider.
+Initializes a RPC connection with a local Ethereum node. The RPC provider is set in the ```delib.js``` or you can pass it in as arguments. Need to call before using the Ethereum object. This returns a Web3 object that you can use.
 
-**Returns**: <code>Web3</code> - The Web3 object Ethereum uses set up to the RPC provider  
+**Returns**: <code>Web3</code> - The Web3 object that delib.eth uses set up to the RPC provider  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -566,9 +573,9 @@ Initializes a RPC connection with a local Ethereum node. The RPC provider is set
 <a name="Ethereum+initIPC"></a>
 
 #### delib.eth.initIPC(ipcPath) ⇒ <code>Web3</code>
-Initializes an IPC connection with a local Ethereum node. The IPC provider is set in the config file. Need to call before using the Ethereum object IPC methods.
+Initializes an IPC connection with a local Ethereum node. The IPC provider is set in the config file. Need to call before using the Ethereum object IPC methods. This returns a Web3 object connected via IPC that you call admin tasks on.
 
-**Returns**: <code>Web3</code> - The Web3 object Ethereum uses for its IPC connection.  
+**Returns**: <code>Web3</code> - The Web3 object delib.eth uses for its IPC connection.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -602,7 +609,7 @@ Deploy a built contract.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| contractName | <code>string</code> | Name of built contract located in the directory provided in Ethereum.config.built. |
+| contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js |
 | args | <code>Array</code> | Arguments to be passed into the deployed contract as initial parameters. |
 | options | <code>Object</code> | Transaction options. Options are: {from: contract address, value: number, gas: number, gasValue: number}. |
 
@@ -615,7 +622,7 @@ Calls a deployed contract. Will take the address provided in the config file.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| contractName | <code>string</code> | Name of built contract located in the directory provided in Ethereum.config.built. |
+| contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
 
 <a name="Ethereum+execAt"></a>
 
@@ -626,7 +633,7 @@ Calls a deployed contract at a specific address.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| contractName | <code>string</code> | Name of built contract located in the directory provided in Ethereum.config.built. |
+| contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
 | contractAddress | <code>string</code> | Address of the contract. |
 
 <a name="Ethereum+events"></a>
@@ -638,7 +645,7 @@ Gets the event logs for an event.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| contractName | <code>string</code> | Name of built contract located in the directory provided in Ethereum.config.built. |
+| contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
 | contractAddress | <code>string</code> | Address of the contract. |
 | eventName | <code>string</code> | The name of the event method. |
 | fromBlock | <code>number</code> | The block number to start getting the event logs. Optional. Defaults to 0. |
