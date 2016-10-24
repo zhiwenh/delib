@@ -268,35 +268,44 @@ Start the geth node for the development blockchain with the following command:
 
 ## Using the custom geth node
 
-<b>Auto features</b>
+### Auto features
 
 A JavaScript file is preloaded into geth which creates accounts and starts mining. When your coinbase mines enough it will distribute Ether to all other accounts. Mining is stopped after your coinbase reaches a certain minimum amount, and resumes again when it falls below it. It also automatically mines if there are transactions pending on the blockchain, and displays the receipt of each transaction. The blockchain data is reset each time you start the node.
 
-<b>Console delib object</b>
+### Console delib object</b>
 
-In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Auto mining can be toggled with ```delib.auto()``` and you can adjust the minimum amount with ```delib.minAmount```.
+In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Here are the actions it lets you perform.
 
-Here's a list of all the methods
+###### delib.minAmount
+Adjust the minimum amount of Ether to keep above
 
-```
-delib.accounts() // Displays all accounts, balances, and indexes
+###### delib.accounts()
+Displays all accounts, balances, and indexes
 
-delib.auto() // Toggles auto mining
+###### delib.auto()
+Toggles auto mining
 
-delib.start(threads) // Start mining -- <threads> defaults to 1
+###### delib.start(threads)
+Start mining -- <threads> defaults to 1
 
-delib.stop() // Stop mining
+###### delib.stop()
+Stop mining
 
-delib.transfer(fromIndex, toIndex, etherAmount) // Transfer Ether between your accounts
+###### delib.transfer(fromIndex, toIndex, etherAmount)
+Transfer Ether between your accounts
 
-delib.distribute(fromIndex, etherAmount) // Distribute Ether to all your accounts from one account
+###### delib.distribute(fromIndex, etherAmount)
+Distribute Ether to all your accounts from one account
 
-delib.mine(blockAmount) // Mine a certain amount of blocks -- <blockAmount> defaults to 1
+###### delib.mine(blockAmount)
+Mine a certain amount of blocks -- <blockAmount> defaults to 1
 
-delib.block(blockNumber) // Display block information -- <blockNumber> defaults to latest
+###### delib.block(blockNumber)
+Display block information -- <blockNumber> defaults to latest
 
-delib.coinbase(accountIndex) // Change coinbase
-```
+###### delib.coinbase(accountIndex)
+Change coinbase
+
 
 ## Options
 
