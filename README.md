@@ -282,35 +282,26 @@ By default it creates 3 accounts with a password of "", keeps the minimum amount
 
 In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Here are the actions you can perform.
 
-###### delib.minAmount
-Adjust the minimum amount of Ether to keep above
-
-###### delib.accounts()
-Displays all accounts, balances, and indexes
-
-###### delib.auto()
-Toggles auto mining
-
-###### delib.start(threads)
-Start mining -- <threads> defaults to 1
-
-###### delib.stop()
-Stop mining
-
-###### delib.transfer(fromIndex, toIndex, etherAmount)
-Transfer Ether between your accounts
-
-###### delib.distribute(fromIndex, etherAmount)
-Distribute Ether to all your accounts from one account
-
-###### delib.mine(blockAmount)
-Mine a certain amount of blocks -- <blockAmount> defaults to 1
-
-###### delib.block(blockNumber)
-Display block information -- <blockNumber> defaults to latest
-
-###### delib.coinbase(accountIndex)
-Change coinbase
+* **delib.minAmount**
+* Adjust the minimum amount of Ether to keep above
+* **delib.accounts()**
+* Displays all accounts, balances, and indexes
+* **delib.auto()**
+* Toggles auto mining
+* **delib.start(threads)**
+* Start mining -- <threads> defaults to 1
+* **delib.stop()**
+* Stop mining
+* **delib.transfer(fromIndex, toIndex, etherAmount)**
+* Transfer Ether between your accounts
+* **delib.distribute(fromIndex, etherAmount)**
+* Distribute Ether to all your accounts from one account
+* **delib.mine(blockAmount)**
+* Mine a certain amount of blocks -- <blockAmount> defaults to 1
+* **delib.block(blockNumber)**
+* Display block information -- <blockNumber> defaults to latest
+* **delib.coinbase(accountIndex)**
+* Change coinbase
 
 
 ## Blockchain configuration
