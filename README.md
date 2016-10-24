@@ -2,18 +2,18 @@
 
 Non-restrictive framework for Ethereum. Allows you to spawn your own Ethereum private blockchain with genesis control.
 
-### Features
+## Features
 
-#### [Ethereum Library](#Ethereum)
+### [Ethereum Library](#Ethereum)
 Promise based library that provides the basic but core abstractions needed for building dapps with Ethereum.
 
-#### [Ethereum CLI](#Cli)
+### [Ethereum CLI](#Cli)
 The CLI lets you compile, build, deploy, call methods, and get event logs on Solidity smart contracts.
 
-#### [Geth Development Private Blockchain](#devchain)
+### [Geth Development Private Blockchain](#devchain)
 Allows you to create a development private blockchain with access to the genesis file. The custom geth node creates accounts, distributes Ether, displays transaction info, and auto mines.
 
-### Requirements
+## Requirements
 
 Must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum). Here are the Mac OSX install commands with brew.
 
@@ -24,22 +24,22 @@ brew install ethereum
 
 Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it as a dependency and also as a peer dependency. The current web3 version is 0.17.0-beta.
 
-### Installation and Setup
+## Installation and Setup
 
-#### Global install
+### Global install
 Install globally to use the CLI.
 
 ```
 npm install -g delib
 ```
 
-#### Local install
+### Local install
 Install locally to require the library.
 ```
 npm install delib --save
 ```
 
-#### Project creation
+### Project creation
 
 To create the project structure call:
 
@@ -65,10 +65,10 @@ The library can be used without initializing. You will need to pass connection a
 The development blockchain can also be used without initializing. It will create the blockchain data directory in the folder you started the development geth node in.
 
 
-#### Configuration File
+### Configuration File
 The configuration options are located in ```delib.js```. [Click here](#config) to see the options.
 
-#### Development Node
+### Development Node
 Before using the library or CLI you will need to connect to a development node.
 
 You can use the [geth development private blockchain](#devchain) provided by this package.
@@ -244,11 +244,11 @@ Start the geth node for the development blockchain with the following command:
 
 ### Using the custom geth node
 
-#### Auto features
+<b>Auto features</b>
 
 A JavaScript file is preloaded into geth which creates accounts and starts mining. When your coinbase mines enough it will distribute Ether to all other accounts. Mining is stopped after your coinbase reaches a certain minimum amount, and resumes again when it falls below it. It also automatically mines if there are transactions pending on the blockchain, and displays the receipt of each transaction. The blockchain data is reset each time you start the node.
 
-#### Console delib object
+<b>Console delib object</b>
 
 In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Auto mining can be toggled with ```delib.auto()``` and you can adjust the minimum amount with ```delib.minAmount```.
 
