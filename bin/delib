@@ -12,7 +12,7 @@ const Contracts = require('./../src/models/Contracts.js');
 const config = require('./../src/config/config.js');
 
 program
-  .version('1.3.11');
+  .version('1.3.13');
 
 /**
  * Initializes DeLib by creating a configuration file and the contracts folder.

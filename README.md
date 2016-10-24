@@ -2,27 +2,42 @@
 
 Non-restrictive framework for Ethereum. Lets you interact with smart contracts with its CLI and spawn your own Ethereum private blockchain.
 
-## Features
+DeLib's features include:
 
-### [Ethereum Library](#Ethereum)
-Promise based library that provides the basic but core abstractions needed for building dapps with Ethereum.
+  * A promise based library that provides the core abstractions needed for building Dapps on Ethereum.
+  * A CLI that lets you compile, build, deploy, call methods, and get event logs from smart contracts.
+  * The ability to save the address of deployed contracts to call later.
+  * The easy creation of contract tests. Recommended to use the [tape](https://www.npmjs.com/package/tape) and [tapes](https://www.npmjs.com/package/tapes) testing library.
+  * A private Ethereum blockchain for development and lets you configure its genesis file.
+  * A custom geth node that automatically creates accounts, distributes Ether, displays transaction info, and auto mines.
 
-### [Ethereum CLI](#Cli)
-The CLI lets you compile, build, deploy, call methods, and get event logs on Solidity smart contracts.
 
-### [Geth Development Private Blockchain](#devchain)
-Allows you to create a development private blockchain with access to the genesis file. The custom geth node creates accounts, distributes Ether, displays transaction info, and auto mines.
+## Table of Contents
+  * [Requirements](#requirements)
+  * [Installation and Setup](#install)
+  * [Library](#Ethereum)
+  * [CLI](#Cli)
+  * [Geth Development Private Blockchain](#devchain)
+  * [Examples](#examples)
+  * [Support](#support)
+  * [CLI API](#Cli+api)
+  * [Library API](#Ethereum+api)
+  * [Configuration File](#config)
+
+<a name="requirements"></a>
 
 ## Requirements
 
 Must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum). Here are the Mac OSX install commands with brew.
 
-```sh
+```
 brew tap ethereum/ethereum
 brew install ethereum
 ```
 
 Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it as a dependency and also as a peer dependency. The current web3 version is 0.17.0-beta.
+
+<a name="install"></a>
 
 ## Installation and Setup
 
@@ -83,13 +98,13 @@ Another option is [testrpc](https://github.com/ethereumjs/testrpc), which perfor
 
 <a name="Ethereum"></a>
 
-## Ethereum Library
+# Library
 
 This library gives you the freedom to customize your dapp development to fit your specific needs. You can easily write your own migration scripts, interact with smart contracts, and create tests.
 
-### Usage
+## Usage
 
-#### Initialize connection
+### Initialize connection
 
 ```
 const delib = require('delib');
@@ -101,13 +116,13 @@ delib.eth.init(); // Sets up a rpc connection to port 8545 and IPC connection to
 const web3 = delib.eth.init();
 ```
 
-#### Build contract
+### Build contract
 
 ```
 delib.eth.build('Test');
 ```
 
-#### Adjust transaction options
+### Adjust transaction options
 
 ```
 delib.eth.options = {
@@ -119,7 +134,7 @@ delib.eth.options = {
 };
 ```
 
-#### Deploy contract and call a method
+### Deploy contract
 
 The address of the deployed contract is saved in your project directory. This address is used when you try and call methods on the contract.
 
@@ -139,7 +154,7 @@ delib.eth.deploy('Test')
   })
 ```
 
-#### Call a contract method
+### Call a contract method
 
 The method will determine if it will perform a transaction (which requires gas) or if it will just call by whether or not you labeled your function with constant in your Solidity contract. A transaction will only return the transaction hash and a call will return a value.
 
@@ -166,9 +181,14 @@ delib.eth.execAt('Test', '0xd023633dbf0d482884be40adad5ecc0851015d9b').testMetho
   })
 ```
 
-#### Get all event logs
+### Get event logs
+
+The following gets the logs for an event starting from block number 5 up to the latest,  filters the logs for a name of 'James', and returns an array of matching logs.
+
 ```
-delib.eth.events('Test', 'testEvent', 0)
+delib.eth.events('Test', 'testEvent', 5, {
+    name: 'James'
+  })
   .then(logs => {
 
   })
@@ -177,20 +197,20 @@ delib.eth.events('Test', 'testEvent', 0)
   })
 ```
 
-### [Library API](#Ethereum+api)
+## [Library API](#Ethereum+api)
 </br>
 
 <a name="Cli"></a>
-## Ethereum CLI
+# CLI
 
-### Usage
+## Usage
 
-#### Build contract
+### Build contract
 ```
 -> delib build TestContract
 ```
 
-#### Adjust transaction options
+### Adjust transaction options
 
 The transaction options for the CLI are located in the ```delib.js``` file.
 ```
@@ -203,41 +223,41 @@ The transaction options for the CLI are located in the ```delib.js``` file.
 }
 ```
 
-#### Deploy contract
+### Deploy contract
 
 ```
 -> delib deploy TestContract
 ```
 
-#### Execute a contract method
+### Execute a contract method
 
 ```
 -> delib exec TestContract testMethod
 ```
 
-#### Get all the logs of an event
+### Get all the logs of an event
 
 ```
 -> delib events TestContract eventName 0
 ```
 
-#### Create an account
+### Create an account
 
 ```
 -> delib create mypassword
 ```
 
-#### Unlock an account
+### Unlock an account
 
 ```
 -> delib unlock 0 mypassword 100000
 ```
 
-### [CLI API](#Cli+api)
+## [CLI API](#Cli+api)
 </br>
 
 <a name="devchain"></a>
-## Geth Development Private Blockchain
+# Geth Development Private Blockchain
 
 This development blockchain mimics the behavior of the actual Ethereum blockchain. It gives you access to the blockchain's genesis file so you can adjust the mining difficulty. If it is used within your project folders, the DeLib CLI and library will automatically by default connect to it via RPC and IPC.
 
@@ -246,7 +266,7 @@ Start the geth node for the development blockchain with the following command:
 -> delib devchain
 ```
 
-### Using the custom geth node
+## Using the custom geth node
 
 <b>Auto features</b>
 
@@ -278,7 +298,7 @@ delib.block(blockNumber) // Display block information -- <blockNumber> defaults 
 delib.coinbase(accountIndex) // Change coinbase
 ```
 
-### Options
+## Options
 
 A folder called ```devchain/``` is created which contains the data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file.
 
@@ -305,7 +325,7 @@ blockchain: {
 }
 ```
 
-### To connect to other private blockchains
+## To connect with other private blockchains
 
 Get the geth enode address you wish to connect with and add it to ```{blockchain: {staticNodes: [ ] }} ```in ```delib.js```. If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
 
@@ -314,11 +334,12 @@ Your enode address is shown when you start up the development blockchain. It wil
 You can have multiple blockchains synced on your computer by configuring them with an unique rpc port and network p2p port. By default these are 8545 and 30303 respectively.
 </br>
 
-## Examples
+<a name="examples"></a>
+# Examples
 
 Link to repo used for testing purposes: [delib-test](https://github.com/zhiwenhuang/delib-test)
 
-### Example 1
+## Example 1
 
 Initialize the project structure
 ```
@@ -411,15 +432,16 @@ apples
 More examples are coming!
 </br>
 
-## Support
+<a name="support"></a>
+# Support
 
-If you found DeLib useful please leave a star on [GitHub](https://github.com/DeStore/delib) or give feedback!
+If you found DeLib useful please leave a star on [GitHub](https://github.com/DeStore/delib) and give feedback!
 </br>
 
-## API Reference
+# API Reference
 
 <a name=Cli+api></a>
-### CLI
+## CLI
 * [delib](#Cli+build)
     * [init](#Cli+init)
     * [build `<fileName>`](#Cli+build)
@@ -470,11 +492,16 @@ Unlock an Ethereum account.
 <a name="Cli+devchain"></a>
 #### delib devchain
 Start up a geth node running the [development private blockchain](#devchain).
+
+
 </br>
 <a name="Ethereum+api"></a>
-### Ethereum Library
+## Library
 
 * [delib.eth](#Ethereum)
+    * [.account](#Ethereum+account)
+    * [.accounts](#Ethereum+accounts)
+    * [.options](#Ethereum+options))
     * [.init(rpcHost, rpcPort, contractOptions)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.check()](#Ethereum+check) ⇒ <code>boolean</code>
@@ -491,8 +518,31 @@ Start up a geth node running the [development private blockchain](#devchain).
     * [.toWei(amount)](#Ethereum+toWei) ⇒ <code>number</code>
     * [.toEther(amount)](#Ethereum+toEther) ⇒ <code>number</code>
 
-<a name="Ethereum+init"></a>
+<a name="Ethereum+account"></a>
+#### delib.eth.account
+The Ethereum account being used by delib. Set this as the from property in delib.eth.options. The account is changed when you call ```delib.eth.changeAccount()```.
 
+
+<a name="Ethereum+accounts"></a>
+#### delib.eth.accounts
+An array of your Ethereum accounts.
+
+<a name="Ethereum+options"></a>
+#### delib.eth.options
+The transaction options to be used. Change this in-between your contract deployments or contract method calls. The option's object could contain:
+
+```
+{
+  from: // The address of the account being used
+  to: // (Optional) Destination address for this transaction
+  value: // (Optional) Value transferred in wei
+  gas: // (Optional) Amount of gas to use for transaction
+  gasPrice: // (Optional) Price of gas to be used for transaction in wei. Defaults to mean network gas price
+  nonce: // (Optional)
+}
+```
+
+<a name="Ethereum+init"></a>
 #### delib.eth.init(rpcHost, rpcPort, contractOptions) ⇒ <code>Web3</code>
 Initializes a RPC connection with a local Ethereum node. The RPC provider is set in Ethereum.config.rpc.port. Need to call before using the Ethereum object. If RPC connection is already initalized and valid the RPC connection will be set to the current provider.
 
@@ -665,7 +715,7 @@ Convert a Wei amount to Ether.
 </br>
 
 <a name="config"></a>
-### Configuration File
+## Configuration File
 The configuration file is called ```delib.js```. Here is a breakdown of what each of the options do. Make sure to not remove any of these properties from the file.
 
 ```
