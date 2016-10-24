@@ -54,9 +54,9 @@ delib init
 project/
 ├── addresses/        - (addresses of deployed contracts)
 ├── built/            - (built Solidity contracts .sol.js)
-└── contracts/        - (Solidity contracts .sol)
-└── devchain/         - (development private blockchain data directory)
-└── delib.js/         - (delib config file)
+├── contracts/        - (Solidity contracts .sol)
+├── devchain/         - (development private blockchain data directory)
+├── delib.js/         - (delib config file)
 └── devgenesis.json/  - (development private blockchain genesis file)
 
 ```
@@ -73,8 +73,9 @@ Before using the library or CLI you will need to connect to a development node.
 
 You can use the [geth development private blockchain](#devchain) provided by this package.
 
-Another option is [testrpc](#https://github.com/ethereumjs/testrpc), which performs transaction instantaneously, but only allows RPC connections.
+Another option is [testrpc](https://github.com/ethereumjs/testrpc), which performs transaction instantaneously, but only allows RPC connections.
 
+</br>
 
 <a name="Ethereum"></a>
 
@@ -171,6 +172,7 @@ delib.eth.events('Test', 'testEvent', 0)
 ```
 
 ### [Library API](#Ethereum+api)
+</br>
 
 
 
@@ -224,7 +226,7 @@ The transaction options for the CLI are located in the ```delib.js``` file.
 ```
 
 ### [CLI API](#Cli+api)
-
+</br>
 
 
 
@@ -241,7 +243,12 @@ Start the geth node for the development blockchain with the following command:
 ```
 
 ### Using the custom geth node
+
+#### Auto features
+
 A JavaScript file is preloaded into geth which creates accounts and starts mining. When your coinbase mines enough it will distribute Ether to all other accounts. Mining is stopped after your coinbase reaches a certain minimum amount, and resumes again when it falls below it. It also automatically mines if there are transactions pending on the blockchain, and displays the receipt of each transaction. The blockchain data is reset each time you start the node.
+
+#### Console delib object
 
 In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Auto mining can be toggled with ```delib.auto()``` and you can adjust the minimum amount with ```delib.minAmount```.
 
@@ -268,7 +275,7 @@ delib.coinbase(accountIndex) // Change coinbase
 ```
 
 ### Options
-A folder called ```devchain``` is created which contains the data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file.
+A folder called ```devchain/``` is created which contains the data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file.
 
 Calling ```delib init``` will create a file for you called ```devgenesis.json```. This is the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) of the blockchain (information about the genesis file can be found in the link). By default the difficulty is set to 800.
 
@@ -299,7 +306,7 @@ Get the geth enode address you wish to connect with and add it to ```{blockchain
 Your enode address is shown when you start up the development blockchain. It will look like this: ```enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303```
 
 You can have multiple blockchains synced on your computer by configuring them with an unique rpc port and network p2p port. By default these are 8545 and 30303 respectively.
-
+</br>
 
 ## Examples
 
@@ -395,13 +402,16 @@ Transaction response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a6
 apples
 ```
 More examples are coming!
+</br>
 
 ## Support
 If you found DeLib useful please leave a star on [GitHub](https://github.com/DeStore/delib) or give feedback!
+</br>
+
+## API Reference
 
 <a name=Cli+api></a>
-## CLI API Reference
-
+### CLI
 * [delib](#Cli+build)
     * [init](#Cli+init)
     * [build(fileName)](#Cli+build)
@@ -452,9 +462,9 @@ Unlock an Ethereum account.
 <a name="Cli+devchain"></a>
 #### delib devchain
 Start up a geth node running the [development private blockchain](#devchain).
-
+</br>
 <a name="Ethereum+api"></a>
-## Ethereum Library API Reference
+### Ethereum Library
 
 * [delib.eth](#Ethereum)
     * [.buildContracts(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
@@ -644,6 +654,7 @@ Convert a Wei amount to Ether.
 | Param | Type | Description |
 | --- | --- | --- |
 | amount | <code>number</code> | Amount to convert. Can also be a BigNumber object. |
+</br>
 
 <a name="config"></a>
 ## Configuration File
