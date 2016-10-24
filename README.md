@@ -422,49 +422,49 @@ If you found DeLib useful please leave a star on [GitHub](https://github.com/DeS
 ### CLI
 * [delib](#Cli+build)
     * [init](#Cli+init)
-    * [build(fileName)](#Cli+build)
-    * [deploy (contractName) (...args)](#Cli+deploy)
-    * [set(contractName) (contractAddress)](#Cli+set)
-    * [exec (contractName) (methodName) (...args)](#Cli+exec)
-    * [events (contractName) (eventName) (fromBlock)](#Cli+events)
-    * [balance(accountIndex)](#Cli+balance)
-    * [create(password)](#Cli+create)
-    * [unlock (accountIndex) (password) (unlockTime)](#Cli+unlock)
+    * [build `<fileName>`](#Cli+build)
+    * [deploy `<contractName>` `[...args]`](#Cli+deploy)
+    * [set `<contractName>` `<contractAddress>`](#Cli+set)
+    * [exec `<contractName>` `<methodName>` `[...args]`](#Cli+exec)
+    * [events `<contractName>` `<eventName>` `<fromBlock>`](#Cli+events)
+    * [balance `<accountIndex>`](#Cli+balance)
+    * [create `<password>`](#Cli+create)
+    * [unlock `<accountIndex>` `<password>` `<unlockTime>`](#Cli+unlock)
     * [devchain](#Cli+devchain)
 
 #### delib init
 Create the config file ```delib.js```, development blockchain genesis file ```devgenesis.json``` , and [project structure](#projectStructure).
 
 <a name="Cli+build"></a>
-#### delib build (file)
+#### delib build `<fileName>`
 Compile and build a Solidity smart contract ```.sol``` (contracts folder) into a JavaScript file ```.sol.js``` (built folder) that you can require. The paths are set in the ```delib.js``` file under  ```{contracts: {paths: '<path to .sol contracts>', built: '<path to .sol.js built contracts>' }}```
 
 <a name="Cli+deploy"></a>
-#### delib deploy (contractName)
+#### delib deploy `<contractName>` `[...args]`
 Deploy a built Solidity smart contract located in the path set in the ```delib.js``` file under ```{contracts: {built: '<path to built contract'>}}``` The address
 
 <a name="Cli+set"></a>
-#### delib set (contractName) (contractAddress)
+#### delib set `<contractName>` `<contractAddress>`
 Set the address of contract to be used with the CLI exec method and also with the delib.exec() library method. It is saved in the addresses folder, and the path can be set in the ```delib.js``` file under  ```{contracts: {paths: '.sol contracts', address: '<path to contract addresses>' }}```
 
 <a name="Cli+exec"></a>
-#### delib exec (contractName) (methodName) [... args]
+#### delib exec `<contractName>` `<methodName>` `[...args]`
 Call a deployed contract method with the provided arguments.
 
 <a name="Cli+events"></a>
-#### delib events (contractName) (eventName) (fromBlock)
+#### delib events `<contractName>` `<eventName>` `<fromBlock>`
 Get the logs of a deployed contract's event from a block number. By default fromBlock is 0, so it gets all the logs of a particular event.
 
 <a name="Cli+balance"></a>
-#### delib balance (accountIndex)
+#### delib balance `<accountIndex>`
 Get the balance of one of your account by its account index.
 
 <a name="Cli+create"></a>
-#### delib create (password)
+#### delib create `<password>`
 Create a new Ethereum account.
 
 <a name="Cli+unlock"></a>
-#### delib unlock (accountIndex) (password) (unlockTime)
+#### delib unlock `<accountIndex>` `<password>` `<unlockTime>`
 Unlock an Ethereum account.
 
 <a name="Cli+devchain"></a>
@@ -475,21 +475,21 @@ Start up a geth node running the [development private blockchain](#devchain).
 ### Ethereum Library
 
 * [delib.eth](#Ethereum)
-    * [.buildContracts(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
     * [.init(rpcHost, rpcPort, contractOptions)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
-    * [.check()](#Ethereum+check) ⇒ <code>bool</code>
+    * [.check()](#Ethereum+check) ⇒ <code>boolean</code>
+    * [.buildContracts(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
+    * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>Contract</code>
+    * [.exec(contractName)](#Ethereum+exec) ⇒ <code>Contract</code>
+    * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
+    * [.events(contractName, contractAddress, eventName, fromBlock, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.changeAccount(index)](#Ethereum+changeAccount) ⇒ <code>string</code>
-    * [.createAccount(password)](#Ethereum+createAccount) ⇒ <code>Promise</code>
+    * [.createAccount(password)](#Ethereum+createAccount) ⇒ <code>Promise</code> ⇒ <code>string</code>
     * [.unlockAccount(address, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>boolean</code>
     * [.getBalanceEther(index)](#Ethereum+getBalanceEther) ⇒ <code>number</code>
     * [.getBalanceWei(index)](#Ethereum+getBalanceWei) ⇒ <code>number</code>
     * [.toWei(amount)](#Ethereum+toWei) ⇒ <code>number</code>
     * [.toEther(amount)](#Ethereum+toEther) ⇒ <code>number</code>
-    * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code>
-    * [.exec(contractName)](#Ethereum+exec) ⇒ <code>Contract</code>
-    * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
-    * [.events(contractName, contractAddress, eventName, fromBlock, filter)](#Ethereum+events) ⇒ <code>Promise</code>
 
 <a name="Ethereum+init"></a>
 
@@ -599,7 +599,7 @@ Change the account address being used by the Ethereum object.
 <a name="Ethereum+createAccount"></a>
 
 #### delib.eth.createAccount(password) ⇒ <code>Promise</code>
-Creates a new Ethereum account. The account will be located in your geth Ethereum directory in a JSON file encrpyted with the password provided.
+Creates a new Ethereum account. The account will be located in your geth Ethereum directory in a JSON file encrypted with the password provided.
 **Returns**: <code>Promise</code> - Promise return is a string with the newly created account's address.  
 
 | Param | Type | Description |
