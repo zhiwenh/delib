@@ -505,8 +505,8 @@ Start up a geth node running the [development private blockchain](#devchain).
 
 </br>
 <a name="Ethereum+api"></a>
-## Library
 
+## Library
 * [delib.eth](#Ethereum)
     * [.account](#Ethereum+account)
     * [.accounts](#Ethereum+accounts)
