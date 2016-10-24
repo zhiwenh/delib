@@ -1,7 +1,7 @@
 {
   "name": "delib",
   "author": "DeStore",
-  "version": "1.3.10",
+  "version": "1.3.11",
   "description": "Non-restrictive framework for Ethereum. Lets you interact with smart contracts with its CLI and spawn your own Ethereum private blockchain.",
   "keywords": [
     "web3",
