@@ -1,6 +1,6 @@
 # DeLib
 
-Non-restrictive framework for Ethereum. Allows you to spawn your own Ethereum private blockchain with genesis control.
+Non-restrictive framework for Ethereum. Lets you interact with smart contracts with its CLI and spawn your own Ethereum private blockchain.
 
 ## Features
 
@@ -27,6 +27,7 @@ Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. De
 ## Installation and Setup
 
 ### Global install
+
 Install globally to use the CLI.
 
 ```
@@ -34,6 +35,7 @@ npm install -g delib
 ```
 
 ### Local install
+
 Install locally to require the library.
 ```
 npm install delib --save
@@ -66,9 +68,11 @@ The development blockchain can also be used without initializing. It will create
 
 
 ### Configuration File
+
 The configuration options are located in ```delib.js```. [Click here](#config) to see the options.
 
 ### Development Node
+
 Before using the library or CLI you will need to connect to a development node.
 
 You can use the [geth development private blockchain](#devchain) provided by this package.
@@ -116,6 +120,7 @@ delib.eth.options = {
 ```
 
 #### Deploy contract and call a method
+
 The address of the deployed contract is saved in your project directory. This address is used when you try and call methods on the contract.
 
 The promise returns an instance of the contract.
@@ -135,6 +140,7 @@ delib.eth.deploy('Test')
 ```
 
 #### Call a contract method
+
 The method will determine if it will perform a transaction (which requires gas) or if it will just call by whether or not you labeled your function with constant in your Solidity contract. A transaction will only return the transaction hash and a call will return a value.
 
 To call a contract at the address saved when you deployed it:
@@ -174,10 +180,6 @@ delib.eth.events('Test', 'testEvent', 0)
 ### [Library API](#Ethereum+api)
 </br>
 
-
-
-
-
 <a name="Cli"></a>
 ## Ethereum CLI
 
@@ -189,6 +191,7 @@ delib.eth.events('Test', 'testEvent', 0)
 ```
 
 #### Adjust transaction options
+
 The transaction options for the CLI are located in the ```delib.js``` file.
 ```
 {
@@ -201,36 +204,37 @@ The transaction options for the CLI are located in the ```delib.js``` file.
 ```
 
 #### Deploy contract
+
 ```
 -> delib deploy TestContract
 ```
 
 #### Execute a contract method
+
 ```
 -> delib exec TestContract testMethod
 ```
 
 #### Get all the logs of an event
+
 ```
 -> delib events TestContract eventName 0
 ```
 
 #### Create an account
+
 ```
 -> delib create mypassword
 ```
 
 #### Unlock an account
+
 ```
 -> delib unlock 0 mypassword 100000
 ```
 
 ### [CLI API](#Cli+api)
 </br>
-
-
-
-
 
 <a name="devchain"></a>
 ## Geth Development Private Blockchain
@@ -275,6 +279,7 @@ delib.coinbase(accountIndex) // Change coinbase
 ```
 
 ### Options
+
 A folder called ```devchain/``` is created which contains the data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file.
 
 Calling ```delib init``` will create a file for you called ```devgenesis.json```. This is the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) of the blockchain (information about the genesis file can be found in the link). By default the difficulty is set to 800.
@@ -301,6 +306,7 @@ blockchain: {
 ```
 
 ### To connect to other private blockchains
+
 Get the geth enode address you wish to connect with and add it to ```{blockchain: {staticNodes: [ ] }} ```in ```delib.js```. If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
 
 Your enode address is shown when you start up the development blockchain. It will look like this: ```enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303```
@@ -313,6 +319,7 @@ You can have multiple blockchains synced on your computer by configuring them wi
 Link to repo used for testing purposes: [delib-test](https://github.com/zhiwenhuang/delib-test)
 
 ### Example 1
+
 Initialize the project structure
 ```
 -> delib init
@@ -405,6 +412,7 @@ More examples are coming!
 </br>
 
 ## Support
+
 If you found DeLib useful please leave a star on [GitHub](https://github.com/DeStore/delib) or give feedback!
 </br>
 
@@ -657,7 +665,7 @@ Convert a Wei amount to Ether.
 </br>
 
 <a name="config"></a>
-## Configuration File
+### Configuration File
 The configuration file is called ```delib.js```. Here is a breakdown of what each of the options do. Make sure to not remove any of these properties from the file.
 
 ```
