@@ -137,6 +137,10 @@ delib.mine = function(blockAmount) {
   var stopBlock = web3.eth.blockNumber + blockAmount;
   this.start();
 
+  // keep ref to auto mine status when called to set it back to it later
+  var autoStatus = this.autoMine;
+  this.autoMine = false;
+
   // Create the filter to watch with check function
   var filter = web3.eth.filter('latest');
   filter.watch(check.bind(this));
@@ -148,6 +152,7 @@ delib.mine = function(blockAmount) {
   function check() {
     if (web3.eth.blockNumber >= stopBlock || web3.eth.mining === false) {
       // Stop watching filter
+      this.autoMine = autoStatus;
       if (this.autoMine !== true) this.stop();
       filter.stopWatching();
     }
@@ -209,6 +214,26 @@ delib.log = function() {
   console.log.apply(this, args);
 };
 
+/** Display delib methods */
+delib.help = function() {
+  console.log('');
+  this.log('=== delib Methods ===');
+  this.log('delib');
+  this.log(' .minAmount', '                           Set the minimum amount to mine to');
+  this.log(' .accounts()', '                          Displays all accounts, balances, and indexes');
+  this.log(' .auto()', '                              Toggles auto mining');
+  this.log(' .start(threads)', '                      Start mining', '- threads defaults to 1');
+  this.log(' .stop()', '                              Stop mining');
+  this.log(' .transfer(fromIndex, toIndex, ether)', ' Transfer Ether between your accounts');
+  this.log(' .distribute(fromIndex, ether)   ', '     Distribute Ether to all of your accounts from an account');
+  this.log(' .mine(blockAmount)', '                   Mine a specified number of blocks', '- blockAmount defaults to 1');
+  this.log(' .block(blockNumber)', '                  Display block info', '- blockNumber defaults to latest');
+  this.log(' .coinbase(accountIndex)', '              Change coinbase');
+  this.log(' .help()', '                              Display delib methods');
+  console.log('');
+  return true;
+};
+
 /**
  * Run on devchain start
  */
@@ -217,36 +242,30 @@ delib.log = function() {
   delib.minAmount;
   // Amount of accounts to create. Always creates 1 account.
   var accountAmount = (delib.accountAmount > 0) ? delib.accountAmount : 1;
+  accountAmount -= web3.eth.accounts.length; // Don't allow creation if accounts are already there
   // Amount of Ether to distribute to accounts
   var distributeAmount = (delib.distributeAmount < 0) ? 0 : delib.distributeAmount;
   // Amount of Ether needed by coinbank
-  var requiredEtherAmount = delib.distributeAmount * delib.accountAmount + 2;
+  var requiredEtherAmount = delib.distributeAmount * delib.accountAmount + 1;
   // Status of toggling mining if there are transactions pending and whether to keep coinbank topped off at minAmount
   var password = delib.password; // password for the accounts created
-  var blockNumber = web3.blockNumber; // the block number to keep mining too
+  var blockNumber = web3.eth.blockNumber; // the block number to keep mining too
 
   // For the automatic Ether distribution
   var distributeBlock; // block number when distributed for reference
   var isBalanceDisplayed = false;
-  var isDistributed = (distributeAmount === 0) ? true : false; // status of ether distribution
+  var isDistributed = (distributeAmount === 0 || !delib.reset) ? true : false; // status of ether distribution
 
   var transactions = []; // to contain pending transaction hashes of a block
   var pendingBlock; // to make sure transactions are only displayed after another block is mined
+
+  console.log('');
+  delib.log('Path to blockchain data:', delib.path.dev);
   console.log('');
   delib.log('Node address:', web3.admin.nodeInfo.enode);
   console.log('');
   delib.log('=== DeLib Development Blockchain ===');
-  console.log('');
-  delib.log('delib.accounts()                                ', 'Displays all accounts, balances, and indexes');
-  delib.log('delib.auto()                                    ', 'Toggles auto mining');
-  delib.log('delib.start(threads)                            ', 'Start mining', '-- <threads> defaults to 1');
-  delib.log('delib.stop()                                    ', 'Stop mining');
-  delib.log('delib.transfer(fromIndex, toIndex, etherAmount) ', 'Transfer Ether between your accounts');
-  delib.log('delib.distribute(fromIndex, etherAmount)        ', 'Distribute Ether to all of your accounts from an account');
-  delib.log('delib.mine(blockAmount)                         ', 'Mine a specified number of blocks', '-- <blockAmount> defaults to 1');
-  delib.log('delib.block(blockNumber)                        ', 'Display block info', '-- <blockNumber> defaults to latest');
-  delib.log('delib.coinbase(accountIndex)                    ', 'Change coinbase');
-  console.log('');
+  delib.help(); // Display delib methods and info
 
   if (delib.autoMine === true) {
     delib.log('Auto mining is on');
@@ -263,7 +282,12 @@ delib.log = function() {
   }
 
   // Creates all accounts
-  createAccounts(accountAmount, password);
+  if (accountAmount > 0) {
+    createAccounts(accountAmount, password);
+  } else {
+    unlockAccounts();
+  }
+  delib.accounts();
 
   // To allow for continous checking of status
   web3.eth.filter('latest', checkStatus);
@@ -318,6 +342,7 @@ delib.log = function() {
 
   // Create the specified number of accounts
   function createAccounts(accountAmount, password) {
+    if (accountAmount <= 0) return;
     console.log('');
     delib.log('Creating ' + accountAmount + ' accounts with password ' + '"' + password + '"');
     for (var i = 0; i < accountAmount; i++) {
@@ -325,9 +350,22 @@ delib.log = function() {
       web3.personal.unlockAccount(web3.eth.accounts[web3.eth.accounts.length - 1], password, 10000000);
       delib.log('.');
     }
-    delib.accounts();
   }
 
+  function unlockAccounts() {
+    console.log('');
+    delib.log('Unlocking accounts');
+    for (var i = 0; i < web3.eth.accounts.length; i++) {
+      try {
+        web3.personal.unlockAccount(web3.eth.accounts[i], password, 10000000);
+        delib.log('.');
+      } catch (e) {
+        delib.log('Unable to unlock account', i);
+        delib.log('Unlock with: web3.personal.unlockAccount(' + web3.eth.accounts[i] + ', \'yourpassword\', 100000)');
+      }
+    }
+    console.log('.');
+  }
   // Display the transaction receipts
   function transactionReceipt(transactionHash) {
     var transactionObj = web3.eth.getTransactionReceipt(transactionHash);
@@ -346,20 +384,24 @@ delib.log = function() {
   // Auto distribute ether to all your accounts
   function distributeEther() {
     if (web3.eth.getBalance(web3.eth.coinbase).greaterThan(delib.etherToWei(requiredEtherAmount))) {
-      for (var i = 0; i < accountAmount; i++) {
-        if (web3.eth.accounts[i] !== web3.eth.coinbase) {
+      var doesOneDistribute = false; // check to see if there needs to be a blank line consoled
+      for (var i = 0; i < web3.eth.accounts.length; i++) {
+        if (web3.eth.accounts[i] !== web3.eth.coinbase && web3.eth.getBalance(web3.eth.accounts[i]) == 0) {
           var object = {
             from: web3.eth.coinbase,
             to: web3.eth.accounts[i],
             value: delib.etherToWei(distributeAmount)
           };
           web3.eth.sendTransaction(object);
+          if (!doesOneDistribute) {
+            console.log('');
+            doesOneDistribute = true;
+          }
+          delib.log('Distributed', distributeAmount, 'Ether to account', i);
+          distributeBlock = web3.eth.blockNumber;
         }
       }
-      console.log('');
-      delib.log(distributeAmount, 'Ether distributed to accounts');
-      console.log('');
-      distributeBlock = web3.eth.blockNumber;
+      if (doesOneDistribute) console.log('');
       isDistributed = true;
     }
   }

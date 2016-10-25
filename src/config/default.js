@@ -46,6 +46,7 @@ module.exports = {
 
     /** Geth node start arguments */
     identity: 'delib', // RPC identity name
+    rpcaddr: 'localhost', // RPC host
     rpcport: 8545, // RPC port to open for web3 calls
     port: 30303, // Geth p2p network listening port. Allows other nodes to connect
 

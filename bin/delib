@@ -32,15 +32,15 @@ program
     if (!pathExists(configPath)) {
       const defaultConfig = fs.readFileSync(path.join(__dirname, '/../src/config/default.js'));
       fs.writeFileSync(configPath, defaultConfig);
-      console.log('Created configuration file delib.js');
+      console.log('Created config file delib.js');
     } else {
       console.log('DeLib config already initalized');
     }
 
     if (!pathExists(genesisPath)) {
-      const genesisFile = fs.readFileSync(path.join(__dirname, '/../src/devserver/devgenesis.json'));
+      const genesisFile = fs.readFileSync(path.join(__dirname, '/../src/devchain/devgenesis.json'));
       fs.writeFileSync(genesisPath, genesisFile);
-      console.log('Created development genesis file devgenesis.json');
+      console.log('Created genesis file devgenesis.json');
     }
 
     if (!pathExists(contractsFolderPath)) {
@@ -196,53 +196,84 @@ program
 program
   .command('devchain')
   .description('Start up a node for dev blockchain')
-  .action(() => {
-    const blockChainPath = path.join(config.blockchain.path.dev);
-    if (pathExists(blockChainPath)) {
-      fs.removeSync(blockChainPath);
+  .option('-r --reset', 'Reset the blockchain data directory')
+  .option('--off', 'Turn off automatic mining.')
+  .option('--accounts <amount>', 'Number of accounts to create if creating the blockchain or reseting')
+  .option('--password <value>', 'Password to give and unlock the accounts automatically created')
+  .option('--identity <value>', 'Geth node identity name. Default is "delib".')
+  .option('--datadir <path>', 'Relative path to blockchain data. Creates the folder if it\'s not there. Default is your projects devchain folder file or where this command is run')
+  .option('--port <number>', 'Geth server network p2p port. Default is 30303')
+  .option('--rpchost <value>', 'Geth server HTTP-RPC host. Default is localhost')
+  .option('--rpcport <number>', 'Geth server HTTP-RPC port. Default is 8545')
+  .option('--verbosity <number>', 'Logging verbosity: 0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=detail. Default is 3')
+  .option('--rpccorsdomain <value>', 'Comma separated list of domains from which to accept cross origin requests. Default is *')
+  .action(options => {
+    // Set custom geth options based on options
+    config.blockchain.autoMine = (!options.off) ? true : false;
+    config.blockchain.path.dev = options.datadir ? path.join(process.cwd(), options.datadir) : config.blockchain.path.dev;
+    config.blockchain.accountAmount = options.accounts || config.blockchain.accountAmount;
+    config.blockchain.password = options.password || config.blockchain.password;
+
+    // Check to see if initialization is needed (reset)
+    if (pathExists(config.blockchain.path.dev) && options.reset) {
+      fs.removeSync(config.blockchain.path.dev);
+      gethInit();
+    } else if (!pathExists(config.blockchain.path.dev)) {
+      options.reset = true;
+      gethInit();
     }
 
-    // Add the configuration object to the preload script
+    // Add the config object to the preload script
     const configString = 'var CONFIG = ' + JSON.stringify(config.blockchain, 2) + '; \n';
-    const startCmdsFile = fs.readFileSync(path.join(__dirname, './../src/devserver/startCmds.js'));
-    const pathToScript = path.join(__dirname, './../src/devserver/devchain.js');
-    fs.writeFileSync(pathToScript, configString);
-    fs.appendFileSync(pathToScript, startCmdsFile);
+    const preloadFile = fs.readFileSync(path.join(__dirname, './../src/devchain/preload.js'));
+    const pathToBuiltPreload = path.join(__dirname, './../src/devchain/devchain.js');
+    fs.writeFileSync(pathToBuiltPreload, configString);
+    fs.appendFileSync(pathToBuiltPreload, preloadFile);
 
-    // See if default devgenesis file is needed
-    let genesisPath = path.join(config.projectRoot, 'devgenesis.json');
-    genesisPath = pathExists(genesisPath) ? genesisPath : path.join(__dirname, '../src/devserver/devgenesis.json');
-
-    // Initialize the development chain
-    const initArgs = [
-      '--datadir', config.blockchain.path.dev,
-      'init', genesisPath
-    ];
-    spawnSync('geth', initArgs, { stdio: 'inherit' });
-
-    // Add the static-nodes.json file to chain folder if it contains enodes
+    // Add the static-nodes.json file to chain folder if the config file contains enodes
     if (config.blockchain.staticNodes.length > 0) {
       const staticNodesString = JSON.stringify(config.blockchain.staticNodes);
-      fs.writeFileSync(path.join(blockChainPath, 'static-nodes.json'), staticNodesString);
+      fs.writeFileSync(path.join(config.blockchain.path.dev, 'static-nodes.json'), staticNodesString);
     }
 
     // Start the development chain
     const startArgs = [
-      '-identity', config.blockchain.identity,
-      '--datadir', config.blockchain.path.dev,
-      '--port', config.blockchain.port,
-      '--rpcport', config.blockchain.rpcport,
-      '--verbosity', 3,
-      '--rpccorsdomain', '*',
+      '--identity', options.identity || config.blockchain.identity,
+      '--datadir', options.datadir || config.blockchain.path.dev,
+      '--port', options.port || config.blockchain.port,
+      '--rpcaddr', options.rpchost || config.blockchain.rpcaddr,
+      '--rpcport', options.rpcport || config.blockchain.rpcport,
+      '--verbosity', options.verbosity || 3,
+      '--rpccorsdomain', options.rpccorsdomain || '*',
       '--rpc',
       '--nodiscover',
-      '--fast',
-      '--cache=256',
-      '--preload', path.join(__dirname, './../src/devserver/devchain.js'),
+      '--preload', path.join(__dirname, './../src/devchain/devchain.js'),
       'console',
     ];
-
     spawn('geth', startArgs, { stdio: 'inherit'});
+
+    // Init the geth blockchain.
+    // Looks for the genesis file in project root folder, where command was called, or one directory above the blockchain data if --datadir is specified.
+    function gethInit() {
+      config.blockchain.reset = true;
+      // See if default devgenesis file is needed
+      let genesisPath = options.datadir ?  path.join(process.cwd(), options.datadir, '..', 'devgenesis.json') : path.join(config.projectRoot, 'devgenesis.json');
+      // create devgenesis in project or where command was run if not in project
+      if (!pathExists(genesisPath)) {
+        const genesisFile = fs.readFileSync(path.join(__dirname, '/../src/devchain/devgenesis.json'));
+        fs.writeFileSync(genesisPath, genesisFile);
+        console.log('');
+        console.log('[delib] Created file', genesisPath);
+        console.log('');
+      }
+
+      const initArgs = [
+        '--datadir', config.blockchain.path.dev,
+        'init', genesisPath
+      ];
+      spawnSync('geth', initArgs, { stdio: 'inherit' });
+    }
+
   });
 
 

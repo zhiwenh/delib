@@ -41,6 +41,7 @@ function findConfig(originalDirectory, levels) {
 const originalDirectory = process.cwd();
 const config = findConfig(originalDirectory, 15);
 
+// Creates the ipc config object that holds the IPC host path
 config.ipc = {};
 if (config.dev === true) {
   try {
@@ -49,7 +50,7 @@ if (config.dev === true) {
     const defaultConfig = require('./default');
     config.blockchain = defaultConfig.blockchain;
   }
-  config.ipc.host = path.join(config.projectRoot, config.blockchain.path.dev, 'geth.ipc');
+  config.ipc.host = path.join(config.blockchain.path.dev, 'geth.ipc');
 } else {
   try {
     config.ipc.host = path.join(config.blockchain.path.production, 'geth.ipc');

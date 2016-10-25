@@ -1,14 +1,14 @@
 # DeLib
 
-Non-restrictive framework for Ethereum that lets you interact with smart contracts using its CLI and spawn your own Ethereum private blockchain.
+Non-restrictive framework for [Ethereum](https://www.ethereum.org/) that lets you interact with smart contracts using its CLI and spawn your own Ethereum private blockchain.
 
 DeLib's features include:
 
   * A promise based library that provides the core abstractions needed for building DApps on Ethereum.
-  * A CLI that lets you compile, build, deploy, call methods, and get event logs from smart contracts.
+  * A CLI that lets you compile, build, deploy, call methods on, and get event logs from Ethereum smart contracts.
   * The ability to save the address of deployed contracts to call later.
   * The easy creation of contract tests. Recommended to use the [tape](https://www.npmjs.com/package/tape) and [tapes](https://www.npmjs.com/package/tapes) testing library.
-  * A private Ethereum blockchain for development and lets you configure its genesis file.
+  * Creating multiple private Ethereum blockchains and lets you configure their genesis files.
   * A custom geth node that automatically creates accounts, distributes Ether, displays transaction info, and auto mines.
 
 
@@ -63,7 +63,6 @@ To create the project structure call:
 ```
 delib init
 ```
-
 <a name="projectStructure"></a>
 
 ```
@@ -76,9 +75,9 @@ project/
 └── devgenesis.json/  - (development private blockchain genesis file)
 
 ```
-The library can be used without initializing. You will need to pass connection arguments into [delib.eth.init()](#Ethereum+init). To use the IPC methods you will need to pass in an IPC path into [delib.eth.initIPC()](#Ethereum+initIPC).
+The library can be used without creating a project. You will need to pass connection arguments into [delib.eth.init()](#Ethereum+init). To use the IPC methods you will need to pass in an IPC path into [delib.eth.initIPC()](#Ethereum+initIPC).
 
-The development blockchain can also be used without initializing. It will create the blockchain data directory in the folder you started the development geth node in.
+The development blockchain can also be used outside a project. It will create the blockchain data directory in the folder you started the development geth node in, or you can choose a custom path.
 
 
 ### Configuration File
@@ -89,11 +88,14 @@ The configuration options are located in ```delib.js```. [Click here](#config) t
 
 Before using the library or CLI you will need to connect to a development node.
 
-You can use the [geth development private blockchain](#devchain) provided by this package.
+You can use the [geth development private blockchain](#devchain) provided by this package. To quick start call:
+
+```
+-> delib devchain
+```
 
 Another option is [testrpc](https://github.com/ethereumjs/testrpc), which performs transaction instantaneously, but only allows RPC connections.
 
-</br>
 
 <a name="Ethereum"></a>
 
@@ -197,7 +199,6 @@ delib.eth.events('Test', 'testEvent', 5, {
 ```
 
 ## [Library API Link](#Ethereum+api)
-</br>
 
 <a name="Cli"></a>
 # CLI
@@ -205,6 +206,9 @@ delib.eth.events('Test', 'testEvent', 5, {
 ## Usage
 
 ### Build contract
+**delib build `<fileName>`**
+
+Build a Solidity contract with the file name ```TestContract.sol```.
 ```
 -> delib build TestContract
 ```
@@ -223,58 +227,126 @@ The transaction options for the CLI are located in the ```delib.js``` file.
 ```
 
 ### Deploy contract
+**delib deploy `<contractName> [...args]`**
 
+
+Deploy a built contract with the name ```TestContract.sol.js```
 ```
 -> delib deploy TestContract
 ```
 
 ### Execute a contract method
+**delib exec `<contractName> <methodName> [...args]`**
 
+Call the method testMethod on the deployed contract and pass in two arguments
 ```
--> delib exec TestContract testMethod
+-> delib exec TestContract testMethod hello 1
 ```
 
-### Get all the logs of an event
+### Get the logs of an event
+**delib events `<contractName> <eventName> <fromBlock>`**
 
 ```
 -> delib events TestContract eventName 0
 ```
 
 ### Create an account
+**delib create `<password>`**
 
 ```
 -> delib create mypassword
 ```
+### Get account balance
+**delib balance `<accountIndex>`**
+
+```
+-> delib balance 0
+```
 
 ### Unlock an account
+**delib unlock `<accountIndex> <password> <unlockTime>`**
 
 ```
 -> delib unlock 0 mypassword 100000
 ```
 
-## [CLI API Link](#Cli+api)
-</br>
+### [Start the development blockchain geth node](#devchain)
+**delib devchain `--reset --off --accounts <amount> --password <value> --identity <value> --datadir <path> --port <number> --rpchost <value> --rpcport <number> --verbosity <number> --rpccorsdomain <value>`**
 
-<a name="devchain"></a>
-# Geth Development Private Blockchain
-
-Start the geth node for the development blockchain with the following command:
 ```
 -> delib devchain
 ```
 
+## [CLI API Link](#Cli+api)
+
+<a name="devchain"></a>
+# Geth Development Private Blockchain
+
+## Starting up the geth node
+
+Start the geth node for the development blockchain with the following command. This can be called outside a DeLib project, and will create a ```devchain/``` (containing the blockchain data) and ```devgenesis.json``` (the blockchain's genesis file) where its run.
+
+```
+-> delib devchain
+```
+
+## CLI Options
+The command to start the blockchain takes in the following options. [Click here](#Cli+api) to see a description of each option. All of these options are optional, and will overwrite the options specified in the ```delib.js``` config file.
+
+**delib devchain `--reset --off --accounts <amount> --password <value> --identity <value> --datadir <path> --port <number> --rpchost <value> --rpcport <number> --verbosity <number> --rpccorsdomain <value>`**
+
+#### Reset blockchain data
+```
+-> delib devchain --reset
+```
+
+#### Turn off auto mining
+```
+-> delib devchain --off
+```
+
+#### Choose number of accounts to create
+This option only works if you are creating or reseting a blockchain.
+```
+-> delib devchain --accounts 6 --password hello
+```
+If you choose your own password you will need to remember it for next time, or you can add it into the password option in the ```delib.js``` config file.
+
+#### Choose custom path to blockchain data
+This will create or use a specified folder for the blockchain data. It will try and reference a `devgenesis.json` file in the directory above and will create it if not found.
+```
+-> delib devchain --datadir './relative/path/to/folder'
+```
+
+#### Specify RPC port and network p2p port
+You can create multiple private blockchains running on geth nodes by giving them a unique RPC and network p2p port.
+
+The default ports opened:
+```
+-> delib devchain --datadir './relative/path/to/folder1/chaindata' --rpcport 8545 --port 30303
+```
+
+Open up another private blockchain node
+```
+-> delib devchain --datadir './relative/path/to/folder2/chaindata' --rpcport 8546 --port 30304
+```
+
+And another:
+```
+-> delib devchain --datadir './relative/path/to/folder3/chaindata' --rpcport 8547 --port 30305
+```
+
 ## Using the custom geth node
-If it is used within your project folders, the DeLib CLI and library will automatically connect to it via RPC and IPC. If it is not used in your project folders then the IPC host path will need to be set. The RPC port by default is opened up at 8545.
+If it is used within your project, the DeLib CLI and library will automatically connect to it via RPC and IPC. If it is not used in your project folders then the IPC host path will need to be set. The RPC port by default is opened up at 8545.
 
 ### Automatic actions
 
 A JavaScript file is preloaded into geth that:
 * Creates accounts and starts mining Ether.
-* Distributes Ether from your coinbase (the first account created) to other accounts after enough has been mined.
+* Distributes Ether from your coinbase (the first account created) to other accounts if it's an initialized blockchain.
 * Auto mines to keep your coinbase topped off at a certain amount and stops if it goes above it.
 * Auto mines if there are transactions pending on the blockchain and stops when they are performed.
 * Displays the receipt of each transaction. Also shows the estimated gas value used in Ether based on the network mean gas value.
-* Resets the blockchain and account data each time you use it.
 
 By default it creates 3 accounts with a password of "", keeps the minimum amount at 50, and distributes 10 Ether from the coinbase.
 
@@ -282,35 +354,23 @@ By default it creates 3 accounts with a password of "", keeps the minimum amount
 
 In the JavaScript console you're given a ```delib``` object that contains useful methods you can call. Here are the actions you can perform.
 
-* **delib.minAmount**
-* Adjust the minimum amount of Ether to keep above
-* **delib.accounts()**
-* Displays all accounts, balances, and indexes
-* **delib.auto()**
-* Toggles auto mining
-* **delib.start(threads)**
-* Start mining -- <threads> defaults to 1
-* **delib.stop()**
-* Stop mining
-* **delib.transfer(fromIndex, toIndex, etherAmount)**
-* Transfer Ether between your accounts
-* **delib.distribute(fromIndex, etherAmount)**
-* Distribute Ether to all your accounts from one account
-* **delib.mine(blockAmount)**
-* Mine a certain amount of blocks -- <blockAmount> defaults to 1
-* **delib.block(blockNumber)**
-* Display block information -- <blockNumber> defaults to latest
-* **delib.coinbase(accountIndex)**
-* Change coinbase
-
+* **delib.minAmount** - *Adjust the minimum amount of Ether to keep above*
+* **delib.accounts()** - *Displays all accounts, balances, and indexes*
+* **delib.auto()** - *Toggles auto mining*
+* **delib.start(threads)** - *Start mining -- threads defaults to 1*
+* **delib.stop()** - *Stop mining*
+* **delib.transfer(fromIndex, toIndex, etherAmount)** - *Transfer Ether between your accounts*
+* **delib.distribute(fromIndex, etherAmount)** - *Distribute Ether to all your accounts from one account*
+* **delib.mine(blockAmount)** - *Mine a certain amount of blocks -- blockAmount defaults to 1*
+* **delib.block(blockNumber)** - *Display block information -- blockNumber defaults to latest*
+* **delib.coinbase(accountIndex)** - *Change coinbase*
+* **delib.help()** - *Display delib methods*
 
 ## Blockchain configuration
 
-A folder called ```devchain/``` is created which contains the data directory of the blockchain. The folder contains all the blocks and accounts. The data path and other options can be specified in the ```delib.js``` file.
+The folder called ```devchain/``` contains the data directory of the blockchain. The folder contains all the blocks and accounts. The file called ```devgenesis.json``` is the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) of your blockchain. Click the link for more information about it.
 
-Calling ```delib init``` will create a file for you called ```devgenesis.json```. This is the [genesis file](http://ethereum.stackexchange.com/questions/2376/what-does-each-genesis-json-parameter-mean) of the blockchain (information about the genesis file can be found in the link). By default the difficulty is set to 800.
-
-Here are the options you can set in ```delib.js```
+If the blockchain is used in your project folders the data path and other options can be specified in the ```delib.js``` file. Here are the options you can set in ```delib.js```:
 ```
 blockchain: {
   path: {
@@ -335,10 +395,9 @@ blockchain: {
 
 Get the geth enode addresses you wish to connect with and add it to ```{ blockchain: {staticNodes: [ ] } } ``` in ```delib.js```. If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
 
-Your enode address is shown when you start up the development blockchain. It will look like this: ```enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303```
+Your enode address is shown when you start up the development blockchain. It will look like this: *enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303*
 
 You can have multiple blockchains synced on your computer by configuring them with an unique RPC port and network p2p port. By default these are 8545 and 30303 respectively.
-</br>
 
 <a name="examples"></a>
 # Examples
@@ -436,13 +495,11 @@ Transaction response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a6
 apples
 ```
 More examples are coming!
-</br>
 
 <a name="support"></a>
 # Support
 
 If you found DeLib useful please leave a star on [GitHub](https://github.com/DeStore/delib) and give feedback!
-</br>
 
 # API Reference
 
@@ -451,14 +508,14 @@ If you found DeLib useful please leave a star on [GitHub](https://github.com/DeS
 * [delib](#Cli+build)
     * [init](#Cli+init)
     * [build `<fileName>`](#Cli+build)
-    * [deploy `<contractName>` `[...args]`](#Cli+deploy)
-    * [set `<contractName>` `<contractAddress>`](#Cli+set)
-    * [exec `<contractName>` `<methodName>` `[...args]`](#Cli+exec)
-    * [events `<contractName>` `<eventName>` `<fromBlock>`](#Cli+events)
+    * [deploy `<contractName> [...args]`](#Cli+deploy)
+    * [set `<contractName> <contractAddress>`](#Cli+set)
+    * [exec `<contractName> <methodName>` `[...args]`](#Cli+exec)
+    * [events `<contractName> <eventName> <fromBlock>`](#Cli+events)
     * [balance `<accountIndex>`](#Cli+balance)
     * [create `<password>`](#Cli+create)
-    * [unlock `<accountIndex>` `<password>` `<unlockTime>`](#Cli+unlock)
-    * [devchain](#Cli+devchain)
+    * [unlock `<accountIndex> <password> <unlockTime>`](#Cli+unlock)
+    * [devchain `--reset --off --accounts <amount> --password <value> --identity <value> --datadir <path> --port <number> --rpchost <value> --rpcport <number> --verbosity <number> --rpccorsdomain <value>`](#Cli+devchain)
 
 <a name="Cli+init"></a>
 #### delib init
@@ -469,19 +526,19 @@ Create the config file ```delib.js```, development blockchain genesis file ```de
 Compile and build a Solidity smart contract ```.sol``` (contracts folder) into a JavaScript file ```.sol.js``` (built folder) that you can require. The paths are set in the ```delib.js``` file under  ```{contracts: {paths: '<path to .sol contracts>', built: '<path to .sol.js built contracts>' }}```
 
 <a name="Cli+deploy"></a>
-#### delib deploy `<contractName>` `[...args]`
+#### delib deploy `<contractName> [...args]`
 Deploy a built Solidity smart contract located in the path set in the ```delib.js``` file under ```{contracts: {built: '<path to built contract'>}}``` The address
 
 <a name="Cli+set"></a>
-#### delib set `<contractName>` `<contractAddress>`
+#### delib set `<contractName> <contractAddress>`
 Set the address of contract to be used with the CLI exec method and also with the delib.exec() library method. It is saved in the addresses folder, and the path can be set in the ```delib.js``` file under  ```{contracts: {paths: '.sol contracts', address: '<path to contract addresses>' }}```
 
 <a name="Cli+exec"></a>
-#### delib exec `<contractName>` `<methodName>` `[...args]`
+#### delib exec `<contractName> <methodName> [...args]`
 Call a deployed contract method with the provided arguments.
 
 <a name="Cli+events"></a>
-#### delib events `<contractName>` `<eventName>` `<fromBlock>`
+#### delib events `<contractName> <eventName> <fromBlock>`
 Get the logs of a deployed contract's event from a block number. By default fromBlock is 0, so it gets all the logs of a particular event.
 
 <a name="Cli+balance"></a>
@@ -493,15 +550,28 @@ Get the balance of one of your account by its account index.
 Create a new Ethereum account.
 
 <a name="Cli+unlock"></a>
-#### delib unlock `<accountIndex>` `<password>` `<unlockTime>`
+#### delib unlock `<accountIndex> <password> <unlockTime>`
 Unlock an Ethereum account.
 
 <a name="Cli+devchain"></a>
-#### delib devchain
+#### delib devchain `--reset --off --accounts <amount> --password <value> --identity <value> --datadir <path> --port <number> --rpchost <value> --rpcport <number> --verbosity <number> --rpccorsdomain <value>`
 Start up a geth node running the [development private blockchain](#devchain).
 
+| Options   | Type | Description |
+| --- | --- | --- |
+| `--reset` | `-- `| Reset the blockchain data directory |
+| `--off` | `--`  | Turn off automatic mining |
+| `--accounts` | `<amount>` | Number of accounts to create if creating or resetting the blockchain |
+| `--password` | `<value>` |  Password to give and unlock the accounts automatically created |
+| `--identity ` | `<value>` | Geth node identity name. Default is "delib" |
+| `--datadir` | `<path>` | Relative path to blockchain data. Creates the folder if it\'s not there. Default is your projects `devchain/` folder file or where this command is run |
+| `--port` | `<number>` | Geth server network p2p port. Default is 30303 |
+| `--rpchost` | `<value>` | Geth server HTTP-RPC host. Default is 'localhost' |
+| `--rpcport` | `<number>` | Geth server HTTP-RPC port. Default is 8545 |
+| `--verbosity` | `<number>`  | Logging verbosity: 0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=detail. Default is 3 |
+| `--rpccorsdomain` | `<value>` | Comma separated list of domains from which to accept cross origin requests. Default is * |
 
-</br>
+
 <a name="Ethereum+api"></a>
 
 ## Library
@@ -719,7 +789,6 @@ Convert a Wei amount to Ether.
 | Param | Type | Description |
 | --- | --- | --- |
 | amount | <code>number</code> | Amount to convert. Can also be a BigNumber object. |
-</br>
 
 <a name="config"></a>
 ## Configuration File
@@ -734,7 +803,7 @@ The configuration file is called ```delib.js```. Here is a breakdown of what eac
   contracts: {
     path: './contracts/', // Path to Solidity contracts
     built: './built/', // Path to built contracts
-    address: './addresses/' Path to deployed contract addresses
+    address: './addresses/' // Path to deployed contract addresses
   },
 
   /** Transaction options for CLI. */
@@ -769,6 +838,7 @@ The configuration file is called ```delib.js```. Here is a breakdown of what eac
 
     /** Geth node start arguments */
     identity: 'delib', // RPC identity name
+    rpcaddr: 'localhost', // RPC host
     rpcport: 8545, // RPC port to open for web3 calls
     port: 30303, // Geth p2p network listening port. Allows other nodes to connect
 
@@ -778,5 +848,6 @@ The configuration file is called ```delib.js```. Here is a breakdown of what eac
       // "enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303", "enode://pubkey@ip:port"
     ]
   }
-}
+};
+
 ```
