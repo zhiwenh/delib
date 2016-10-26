@@ -7,9 +7,18 @@ const pathExists = require('path-exists').sync;
 const spawn = require('child_process').spawn;
 const spawnSync = require('child_process').spawnSync;
 
-const Ethereum = require('./../src/ethereum/ethereum.js');
+const delib = require('./../index.js');
 const Contracts = require('./../src/models/Contracts.js');
 const config = require('./../src/config/config.js');
+
+/** Formats the options to include options and account index */
+function optionsFormat(options, configOptions) {
+  if (options.value) options.value = delib.eth.toWei(options.value);
+  const newObject = Object.assign(configOptions, options);
+  const index = newObject.from;
+  newObject.from = delib.eth.accounts[index];
+  return newObject;
+}
 
 program
   .version('1.4.1');
@@ -72,7 +81,14 @@ program
   .command('build <file>')
   .description('Build a solidity contract')
   .action((file) => {
-    Ethereum.buildContracts(file);
+    delib.eth.init();
+    delib.eth.buildContracts(file)
+      .then((contracts) => {
+
+      })
+      .catch(err => {
+        console.log(err);
+      });
   });
 
 /**
@@ -81,13 +97,18 @@ program
 program
   .command('deploy <contractName> [args...]')
   .description('Deploy a built contract')
-  .action((contractName, args) => {
-    Ethereum.init();
-    Ethereum.options = config.cli.options;
-    Ethereum.deploy(contractName, args)
+  .option('-f --from <index>', 'From transaction option. Takes in the account index')
+  .option('-t --to <address>', 'To transaction option. Takes in the actual account address')
+  .option('-v --value <ether>', 'Value transaction option. Converts the value from Ether to wei')
+  .option('-g --gas Gas transaction option')
+  .option('-g --gasPrice <number>', 'Gas price transaction option')
+  .option('-n --nonce <number>', 'Nonce transaction option')
+  .action((contractName, args, options) => {
+    delib.eth.init();
+    options = optionsFormat(options, config.cli.options);
+    delib.eth.deploy(contractName, args, options)
       .then(instance => {
         console.log('Deployed address:', instance.address);
-        Contracts.set(contractName, instance.address);
       })
       .catch(err => {
         console.error(err);
@@ -110,13 +131,17 @@ program
 program
   .command('exec <contractName> <method> [args...]')
   .description('Call or make a transaction with a contract method')
-  .action((contractName, method, args) => {
-    Ethereum.init();
-    Ethereum.options = config.cli.options;
+  .option('-f --from <index>', 'From transaction option. The account index')
+  .option('-t --to <address>', 'To transaction option. The actual account address')
+  .option('-v --value <ether>', 'Value transaction option. Converts it from Ether to wei')
+  .option('-g --gas <number>', 'Gas transaction option')
+  .option('-p --gasPrice <number>', 'Gas price transaction option')
+  .option('-n --nonce <number>', 'Nonce transaction option')
+  .action((contractName, method, args, options) => {
+    delib.eth.init();
     const contractAddress = Contracts.get(contractName);
-    const contract = Ethereum.execAt(contractName, contractAddress);
-    // args.push(Ethereum.options);
-
+    options = optionsFormat(options, config.cli.options);
+    const contract = delib.eth.execAt(contractName, contractAddress, options);
     contract[method].apply(this, args)
       .then(txRes => {
         console.log('Transaction response:', txRes);
@@ -127,14 +152,14 @@ program
   });
 
 /**
- * Show all the logs of a contract event.
+ * Show the logs of a contract event.
  */
 program
-  .command('events <contractName> <eventName> <fromBlock>')
+  .command('events <contractName> <eventName> [fromBlock]')
   .description('Show the logs of an event')
   .action((contractName, eventName, fromBlock) => {
-    Ethereum.init();
-    Ethereum.events(contractName, eventName, fromBlock)
+    delib.eth.init();
+    delib.eth.events(contractName, eventName, fromBlock)
       .then(logs => {
         console.log('Event logs:');
         console.log(logs);
@@ -151,8 +176,8 @@ program
   .command('balance <index>')
   .description('Get the balance of an Ethereum account by its index')
   .action((index) => {
-    Ethereum.init();
-    const balance = Ethereum.getBalanceEther(index);
+    delib.eth.init();
+    const balance = delib.eth.getBalanceEther(index);
     console.log(balance);
   });
 
@@ -163,15 +188,16 @@ program
   .command('create <password>')
   .description('Create an Ethereum account')
   .action(password => {
-    Ethereum.init();
-    Ethereum.createAccount(password)
+    delib.eth.init();
+    delib.eth.initIPC();
+    delib.eth.createAccount(password)
       .then(res => {
         console.log(res);
-        process.exit();
+        delib.eth.closeIPC();
       })
       .catch(err => {
         console.error(err);
-        process.exit();
+        delib.eth.closeIPC();
       });
   });
 
@@ -179,23 +205,25 @@ program
  * Unlocks an Ethereum account.
  */
 program
-  .command('unlock <index> <password> <time>')
+  .command('unlock <index> <password> [time]')
   .description('Unlock an Ethereum account')
   .action((index, password, time) => {
-    Ethereum.init();
-    Ethereum.unlockAccount(Ethereum.accounts[index], password, time)
+    delib.eth.init();
+    delib.eth.initIPC();
+    time = time || 60 * 60 * 24;
+    delib.eth.unlockAccount(delib.eth.accounts[index], password, time)
       .then(bool => {
-        process.exit();
+        delib.eth.closeIPC();
       })
       .catch(err => {
         console.error(err);
-        process.exit();
+        delib.eth.closeIPC();
       });
   });
 
 program
   .command('devchain')
-  .description('Start up a node for dev blockchain')
+  .description('Start up a node for a dev blockchain. Creates devgenesis.json if it\'s not available')
   .option('-r --reset', 'Reset the blockchain data directory')
   .option('--off', 'Turn off automatic mining.')
   .option('--accounts <amount>', 'Number of accounts to create if creating the blockchain or reseting')
@@ -214,65 +242,70 @@ program
     config.blockchain.accountAmount = options.accounts || config.blockchain.accountAmount;
     config.blockchain.password = options.password || config.blockchain.password;
 
-    // Check to see if initialization is needed (reset)
+    // Check to see if a reset is needed
     if (pathExists(config.blockchain.path.dev) && options.reset) {
       fs.removeSync(config.blockchain.path.dev);
       gethInit();
-    } else if (!pathExists(config.blockchain.path.dev)) {
+    } else if (!pathExists(path.join(config.blockchain.path.dev, 'chaindata'))) {
       options.reset = true;
       gethInit();
+    } else {
+      gethStart();
     }
 
-    // Add the config object to the preload script
-    const configString = 'var CONFIG = ' + JSON.stringify(config.blockchain, 2) + '; \n';
-    const preloadFile = fs.readFileSync(path.join(__dirname, './../src/devchain/preload.js'));
-    const pathToBuiltPreload = path.join(__dirname, './../src/devchain/devchain.js');
-    fs.writeFileSync(pathToBuiltPreload, configString);
-    fs.appendFileSync(pathToBuiltPreload, preloadFile);
-
-    // Add the static-nodes.json file to chain folder if the config file contains enodes
-    if (config.blockchain.staticNodes.length > 0) {
-      const staticNodesString = JSON.stringify(config.blockchain.staticNodes);
-      fs.writeFileSync(path.join(config.blockchain.path.dev, 'static-nodes.json'), staticNodesString);
-    }
-
-    // Start the development chain
-    const startArgs = [
-      '--identity', options.identity || config.blockchain.identity,
-      '--datadir', options.datadir || config.blockchain.path.dev,
-      '--port', options.port || config.blockchain.port,
-      '--rpcaddr', options.rpchost || config.blockchain.rpcaddr,
-      '--rpcport', options.rpcport || config.blockchain.rpcport,
-      '--verbosity', options.verbosity || 3,
-      '--rpccorsdomain', options.rpccorsdomain || '*',
-      '--rpc',
-      '--nodiscover',
-      '--preload', path.join(__dirname, './../src/devchain/devchain.js'),
-      'console',
-    ];
-    spawn('geth', startArgs, { stdio: 'inherit'});
-
-    // Init the geth blockchain.
-    // Looks for the genesis file in project root folder, where command was called, or one directory above the blockchain data if --datadir is specified.
     function gethInit() {
       config.blockchain.reset = true;
-      // See if default devgenesis file is needed
+
+      // Looks for the genesis file in project root folder, where command was called, or one directory above the blockchain data if --datadir is specified.
       let genesisPath = options.datadir ?  path.join(process.cwd(), options.datadir, '..', 'devgenesis.json') : path.join(config.projectRoot, 'devgenesis.json');
-      // create devgenesis in project or where command was run if not in project
-      if (!pathExists(genesisPath)) {
+
+      // Only reset or create blockchain folder if there's a genesis file avaliable
+      if (pathExists(genesisPath)) {
+        const initArgs = [
+          '--datadir', config.blockchain.path.dev,
+          'init', genesisPath
+        ];
+        spawnSync('geth', initArgs, { stdio: 'inherit' });
+        gethStart();
+      } else {
         const genesisFile = fs.readFileSync(path.join(__dirname, '/../src/devchain/devgenesis.json'));
         fs.writeFileSync(genesisPath, genesisFile);
-        console.log('');
-        console.log('[delib] Created file', genesisPath);
-        console.log('');
+        console.log('Created devchain genesis file at', genesisPath);
+        console.log('Call commmand again to start the blockchain using the genesis file');
+      }
+    }
+
+    function gethStart() {
+      // Add the config object to the preload script
+      const configString = 'var CONFIG = ' + JSON.stringify(config.blockchain, 2) + '; \n';
+      const preloadFile = fs.readFileSync(path.join(__dirname, './../src/devchain/preload.js'));
+      const pathToBuiltPreload = path.join(__dirname, './../src/devchain/devchain.js');
+      fs.writeFileSync(pathToBuiltPreload, configString);
+      fs.appendFileSync(pathToBuiltPreload, preloadFile);
+
+      // Add the static-nodes.json file to chain folder if the config file contains enodes
+      if (config.blockchain.staticNodes.length > 0) {
+        const staticNodesString = JSON.stringify(config.blockchain.staticNodes);
+        fs.writeFileSync(path.join(config.blockchain.path.dev, 'static-nodes.json'), staticNodesString);
       }
 
-      const initArgs = [
-        '--datadir', config.blockchain.path.dev,
-        'init', genesisPath
+      // Start the development chain
+      const startArgs = [
+        '--identity', options.identity || config.blockchain.identity,
+        '--datadir', options.datadir || config.blockchain.path.dev,
+        '--port', options.port || config.blockchain.port,
+        '--rpcaddr', options.rpchost || config.blockchain.rpcaddr,
+        '--rpcport', options.rpcport || config.blockchain.rpcport,
+        '--verbosity', options.verbosity || 3,
+        '--rpccorsdomain', options.rpccorsdomain || '*',
+        '--rpc',
+        '--nodiscover',
+        '--preload', path.join(__dirname, './../src/devchain/devchain.js'),
+        'console',
       ];
-      spawnSync('geth', initArgs, { stdio: 'inherit' });
+      spawn('geth', startArgs, { stdio: 'inherit'});
     }
+
 
   });
 

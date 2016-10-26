@@ -3,7 +3,7 @@ const promisify = require('es6-promisify');
 const config = require('./../config/config.js');
 
 const options = {
-  host: config.ipc.host,
+  host: null,
   ipc: true,
   personal: true,
   admin: true,
@@ -11,12 +11,13 @@ const options = {
 };
 
 module.exports = (ipcPath) => {
+  options.host = ipcPath || config.ipc.host;
+
   let web3IPC;
-  if (ipcPath) {
-    options.host = ipcPath;
-    const web3IPC = Web3IPC.create(options);
-  } else {
-    const web3IPC = Web3IPC.create(options);
+  try {
+    web3IPC = Web3IPC.create(options);
+  } catch (e) {
+    web3IPC = undefined;
   }
   return web3IPC;
 };

@@ -118,9 +118,12 @@ const web3 = delib.eth.init();
 ```
 
 ### Build contract
-
+Pass in a file name or an array of file names you wish you build from your projects `contracts/` folder.
 ```
 delib.eth.build('Test');
+  .then(contracts => {
+    console.log(contracts); // An array of all the contracts built.
+  });
 ```
 
 ### Adjust transaction options
@@ -559,27 +562,28 @@ Start up a geth node running the [development private blockchain](#devchain).
 
 | Options   | Type | Description |
 | --- | --- | --- |
-| `--reset` | `-- `| Reset the blockchain data directory |
-| `--off` | `--`  | Turn off automatic mining |
-| `--accounts` | `<amount>` | Number of accounts to create if creating or resetting the blockchain |
-| `--password` | `<value>` |  Password to give and unlock the accounts automatically created |
-| `--identity ` | `<value>` | Geth node identity name. Default is "delib" |
-| `--datadir` | `<path>` | Relative path to blockchain data. Creates the folder if it\'s not there. Default is your projects `devchain/` folder file or where this command is run |
-| `--port` | `<number>` | Geth server network p2p port. Default is 30303 |
-| `--rpchost` | `<value>` | Geth server HTTP-RPC host. Default is 'localhost' |
-| `--rpcport` | `<number>` | Geth server HTTP-RPC port. Default is 8545 |
-| `--verbosity` | `<number>`  | Logging verbosity: 0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=detail. Default is 3 |
-| `--rpccorsdomain` | `<value>` | Comma separated list of domains from which to accept cross origin requests. Default is * |
+| `reset` | `-- `| Reset the blockchain data directory |
+| `off` | `--`  | Turn off automatic mining |
+| `accounts` | `<amount>` | Number of accounts to create if creating or resetting the blockchain |
+| `password` | `<value>` |  Password to give and unlock the accounts automatically created |
+| `identity ` | `<value>` | Geth node identity name. Default is "delib" |
+| `datadir` | `<path>` | Relative path to blockchain data. Creates the folder if it\'s not there. Default is your projects `devchain/` folder file or where this command is run |
+| `port` | `<number>` | Geth server network p2p port. Default is 30303 |
+| `rpchost` | `<value>` | Geth server HTTP-RPC host. Default is 'localhost' |
+| `rpcport` | `<number>` | Geth server HTTP-RPC port. Default is 8545 |
+| `verbosity` | `<number>`  | Logging verbosity: 0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=detail. Default is 3 |
+| `rpccorsdomain` | `<value>` | Comma separated list of domains from which to accept cross origin requests. Default is * |
 
 
 <a name="Ethereum+api"></a>
 
 ## Library
 * [delib.eth](#Ethereum+api)
+    * [.contractOptions](#Ethereum+contractOptions)
     * [.account](#Ethereum+account)
     * [.accounts](#Ethereum+accounts)
     * [.options](#Ethereum+options)
-    * [.init(rpcHost, rpcPort, contractOptions)](#Ethereum+init) ⇒ <code>Web3</code>
+    * [.init(rpcHost, rpcPort)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.check()](#Ethereum+check) ⇒ <code>boolean</code>
     * [.buildContracts(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
@@ -594,6 +598,11 @@ Start up a geth node running the [development private blockchain](#devchain).
     * [.getBalanceWei(index)](#Ethereum+getBalanceWei) ⇒ <code>number</code>
     * [.toWei(amount)](#Ethereum+toWei) ⇒ <code>number</code>
     * [.toEther(amount)](#Ethereum+toEther) ⇒ <code>number</code>
+
+
+<a name="Ethereum+contractOptions"></a>
+#### delib.eth.contractOptions
+An object that contains the relative path to the contracts, built contracts, and contract addresses. Use if you don't want to create a project or if you want to customize the paths.
 
 <a name="Ethereum+account"></a>
 #### delib.eth.account
@@ -620,7 +629,7 @@ The transaction options to be used. Change this in-between your contract deploym
 ```
 
 <a name="Ethereum+init"></a>
-#### delib.eth.init(rpcHost, rpcPort, contractOptions) ⇒ <code>Web3</code>
+#### delib.eth.init(rpcHost, rpcPort) ⇒ <code>Web3</code>
 Initializes a RPC connection with a local Ethereum node. The RPC provider is set in the ```delib.js``` or you can pass it in as arguments. Need to call before using the Ethereum object. This returns a Web3 object that you can use.
 
 **Returns**: <code>Web3</code> - The Web3 object that delib.eth uses set up to the RPC provider  
@@ -634,7 +643,7 @@ Initializes a RPC connection with a local Ethereum node. The RPC provider is set
 <a name="Ethereum+initIPC"></a>
 
 #### delib.eth.initIPC(ipcPath) ⇒ <code>Web3</code>
-Initializes an IPC connection with a local Ethereum node. The IPC provider is set in the config file. Need to call before using the Ethereum object IPC methods. This returns a Web3 object connected via IPC that you call admin tasks on.
+Initializes an IPC connection with a local Ethereum node. The IPC provider is set in the config file. Need to call before using the Ethereum object IPC methods. This returns a Web3 object connected via IPC that you call web3.personal and web3.admin tasks on.
 
 **Returns**: <code>Web3</code> - The Web3 object delib.eth uses for its IPC connection.  
 

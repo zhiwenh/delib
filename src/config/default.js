@@ -20,7 +20,7 @@ module.exports = {
     options: {
       from: 0, // Account index
       value: 0,
-      gas: 1000000
+      gas: 0 // Set to 0 to estimate the gas value for transactions
     }
   },
 
@@ -30,10 +30,15 @@ module.exports = {
     port: 8545,
   },
 
+  /** The IPC host absolute path. If it's not specified the path will be to the development blockchain. blockchain.path.dev. */
+  ipc: {
+    host: null
+  },
+
   blockchain: {
     /** IPC host connection is based off these paths */
     path: {
-      dev: './devchain/', // Development blockchain path
+      dev: './devchain/', // Relative path to the development blockchain for this project
       production: process.env.HOME + '/Library/Ethereum/' // Path used if dev is set to false. This is the directory that geth uses for the actual Ethereum blockchain on Mac OSX
     },
 

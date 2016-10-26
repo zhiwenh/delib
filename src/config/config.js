@@ -22,12 +22,14 @@ function findConfig(originalDirectory, levels) {
     }
   }
 
+  // To break if it reaches the computer root.
   try {
     process.chdir('../');
   } catch(e) {
     levels = 1;
   }
 
+  // Requires the default config file if delib.js can't be found
   if (levels === 1) {
     const configContents = require('./default.js');
     process.chdir(originalDirectory);
@@ -39,26 +41,17 @@ function findConfig(originalDirectory, levels) {
 }
 
 const originalDirectory = process.cwd();
-const config = findConfig(originalDirectory, 15);
+const config = findConfig(originalDirectory, 10);
 
-// Creates the ipc config object that holds the IPC host path
-config.ipc = {};
-if (config.dev === true) {
-  try {
-    config.blockchain.path.dev = path.join(config.projectRoot, config.blockchain.path.dev);
-  } catch(e) {
-    const defaultConfig = require('./default');
-    config.blockchain = defaultConfig.blockchain;
-  }
-  config.ipc.host = path.join(config.blockchain.path.dev, 'geth.ipc');
-} else {
-  try {
+config.blockchain.path.dev = path.join(config.projectRoot, config.blockchain.path.dev);
+
+// If no IPC host path is given
+if (!config.ipc.host) {
+  if (config.dev === true) {
+    config.ipc.host = path.join(config.blockchain.path.dev, 'geth.ipc');
+  } else {
     config.ipc.host = path.join(config.blockchain.path.production, 'geth.ipc');
-  } catch(e) {
-    const defaultConfig = require('./default');
-    config.blockchain = defaultConfig.blockchain;
   }
-  config.ipc.host = path.join(config.projectRoot, config.blockchain.path.production, 'geth.ipc');
 }
 
 module.exports = config;
