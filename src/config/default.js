@@ -9,9 +9,9 @@ module.exports = {
 
   /** Contract file paths */
   contracts: {
-    path: './contracts/', // Path to Solidity contracts
-    built: './built/', // Path to built contracts
-    address: './addresses/' // Path to deployed contract addresses
+    path: './contracts/', // Relative path to Solidity contracts
+    built: './built/', // Relative path to built contracts
+    address: './addresses/' // Relative path to deployed contract addresses
   },
 
   /** Transaction options for CLI. */
@@ -30,7 +30,7 @@ module.exports = {
     port: 8545,
   },
 
-  /** The IPC host absolute path. If it's not specified the path will be to the development blockchain. blockchain.path.dev. */
+  /** The IPC host absolute path. If not specified the path will be taken from blockchain.path.dev */
   ipc: {
     host: null
   },

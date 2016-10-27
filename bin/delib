@@ -100,8 +100,8 @@ program
   .option('-f --from <index>', 'From transaction option. Takes in the account index')
   .option('-t --to <address>', 'To transaction option. Takes in the actual account address')
   .option('-v --value <ether>', 'Value transaction option. Converts the value from Ether to wei')
-  .option('-g --gas Gas transaction option')
-  .option('-g --gasPrice <number>', 'Gas price transaction option')
+  .option('-g --gas <number>', 'Gas transaction option')
+  .option('-p --gasPrice <number>', 'Gas price transaction option')
   .option('-n --nonce <number>', 'Nonce transaction option')
   .action((contractName, args, options) => {
     delib.eth.init();
@@ -305,8 +305,6 @@ program
       ];
       spawn('geth', startArgs, { stdio: 'inherit'});
     }
-
-
   });
 
 
