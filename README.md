@@ -1,6 +1,6 @@
 # DeLib
 
-Light framework for [Ethereum](https://www.ethereum.org/) that lets you interact with smart contracts using its CLI and spawn your own Ethereum private blockchains.
+Simple framework for Ethereum that lets you interact with smart contracts using its CLI and spawn your own Ethereum private blockchains.
 
 DeLib's features include:
 
@@ -9,7 +9,7 @@ DeLib's features include:
   * Option to automatically estimate your transaction gas costs.
   * The ability to save the address of deployed contracts to call later.
   * Creating multiple private Ethereum blockchains with genesis control.
-  * A custom geth node that automatically creates accounts, distributes Ether, displays transaction info, and auto mines.
+  * A custom [geth](https://github.com/ethereum/go-ethereum/wiki/geth) node that automatically creates accounts, distributes Ether, displays transaction info, and auto mines.
 
 
 ## Table of Contents
@@ -128,7 +128,7 @@ delib.eth.closeIPC();
 
 ```
 
-### Build contract
+### Build contracts
 Pass in a file name or an array of file names you wish you build from your projects `contracts/` folder.
 ```
 delib.eth.build('Test');
@@ -536,13 +536,13 @@ If you found DeLib useful please leave a star on [GitHub](https://github.com/DeS
 * [delib](#Cli+build)
     * [init](#Cli+init)
     * [build `<fileName>`](#Cli+build)
-    * [deploy `<contractName> [...args]`](#Cli+deploy)
+    * [deploy `<contractName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`](#Cli+deploy)
     * [set `<contractName> <contractAddress>`](#Cli+set)
-    * [exec `<contractName> <methodName>` `[...args]`](#Cli+exec)
-    * [events `<contractName> <eventName> <fromBlock>`](#Cli+events)
+    * [exec `<contractName> <methodName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`](#Cli+exec)
+    * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
     * [balance `<accountIndex>`](#Cli+balance)
     * [create `<password>`](#Cli+create)
-    * [unlock `<accountIndex> <password> <unlockTime>`](#Cli+unlock)
+    * [unlock `<accountIndex> <password> [unlockTime]`](#Cli+unlock)
     * [devchain `--reset --off --accounts <amount> --password <value> --identity <value> --datadir <path> --port <number> --rpchost <value> --rpcport <number> --verbosity <number> --rpccorsdomain <value>`](#Cli+devchain)
 
 <a name="Cli+init"></a>
