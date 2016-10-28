@@ -500,15 +500,13 @@ function Ethereum() {
    * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
    * @param {string} contractAddress - Address of the contract.
    * @param {string} eventName - The name of the event method.
-   * @param {number} fromBlock - The block number to start getting the event logs. Optional. Defaults to 0.
+   * @param {number} blocksBack - The blocks back to get logs for. 'all' gets all blocks. 
    * @param {Object} filter - Options to filter the events. Optional. Defaults to: { address: contractAddress }.
    * @return {Promise} The response contains an array event logs.
   */
   this.events = (contractName, eventName, blocksBack, filter) => {
     this._checkConnectionError();
-
     const contractAddress = Contracts.get(contractName);
-
     const contract = this._getBuiltContract(contractName);
     contract.setProvider(this.provider);
     const contractInstance = contract.at(contractAddress);
@@ -517,14 +515,9 @@ function Ethereum() {
         .then(block => {
           // By default it filter by contract address
           filter = filter || {};
-          filter.address = filter.address || contractAddress;
+          filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
           let fromBlock = (!blocksBack || blocksBack === 'all') ?  0 : block.number - blocksBack;
-
           const toBlock = 'latest';
-          console.log('current block', block.number);
-          console.log('fromBlock', fromBlock);
-          console.log('toBLock', toBlock);
-          console.log(eventName);
           let methodEvent = contractInstance[eventName];
           methodEvent = methodEvent({}, { fromBlock: fromBlock, toBlock: toBlock });
           methodEvent.get((err, logs) => {
@@ -532,6 +525,7 @@ function Ethereum() {
             else {
               logs = logs.filter((log) => {
                 for (let key in filter) {
+                  console.log(filter[key]);
                   // If filter value is a function pass log value in as callback for filter
                   if (log[key] === undefined || filter[key] === null) continue;
                   if (typeof filter[key] === 'function') {
