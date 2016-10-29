@@ -16,7 +16,8 @@ function optionsFormat(options, configOptions) {
   if (options.value) options.value = delib.eth.toWei(options.value);
   const newObject = Object.assign(configOptions, options);
   const index = newObject.from;
-  newObject.from = delib.eth.accounts[index];
+  delib.eth.defaultAccount = index;
+  // newObject.from = delib.eth.accounts[index];
   return newObject;
 }
 

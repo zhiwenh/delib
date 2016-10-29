@@ -44,15 +44,13 @@ function Ethereum() {
   this._rpcProvider; // RPC connection to Ethereum geth node
   this._ipcProvider;
 
-  this.account;
-  this.accounts = [];
-  this._accountIndex = 0; // The account index to use. Used for IPC cause of async
+  this.defaultAccount = 0; // The default account index used for methods
 
   /** The transaction options allowed for Ethereum */
   this.options = {
-    from: this.account,
+    from: null,
     to: null,
-    value: 0,
+    value: null,
     gas: 0,
     gasValue: null,
     data: null,
@@ -78,75 +76,6 @@ function Ethereum() {
     path: null,
     built: null,
     address: null
-  };
-
-  /**
-   * Sets up connection to RPC and IPC providers. Initializes the RPC and IPC connection with a local Ethereum node. The RPC provider is set in Ethereum.config.rpc.port. Need to call before using the Ethereum object. If RPC connection is already initalized and valid the RPC connection will be set to the current provider.
-   * @param {string} rpcHost - The host URL path to the RPC connection. Optional. If not given the rpcHost path will be taken from Ethereum.config.rpc.host.
-   * @param {number} rpcPort - The port number to the RPC connection. Optional. If not given the rpcPort path will be taken from Ethereum.config.rpc.port.
-   * @returns {Web3} The Web3 object Ethereum uses set up to the RPC provider
-   */
-  this.init = (rpcHost, rpcPort, ipcPath) => {
-    if (this._init === false) {
-      this.web3RPC = init(rpcHost, rpcPort);
-
-      // Set the account bindings
-      // Determine the Web3 object used by library and the provider. Default is rpc
-      if (this.checkConnection('rpc')) {
-        this._rpcProvider = this.web3RPC.currentProvider;
-
-        this.web3 = this.web3RPC;
-        this.connectionType = 'rpc';
-        this.provider = this.web3RPC.currentProvider;
-
-        this.accounts = this.web3RPC.eth.accounts; // GET THIS TO WORK WITH IPC
-        this.account = this.accounts[0];
-        this.options.from = this.account;
-      } else { // try and connect via ipc if rpc doesn't work
-        this.web3IPC = initIPC(ipcPath);
-        if (this.checkConnection('ipc')) {
-          this._ipcProvider = this.web3IPC.currentProvider;
-          this.web3 = this.web3IPC;
-          this.connectionType = 'ipc';
-          this.provider = this.web3IPC.currentProvider;
-        } else {
-          throw new Error('Unable to connect to RPC or IPC provider');
-        }
-      }
-      this._init = true;
-    }
-    return this.web3; // Return web3 object used
-  };
-
-  this.initRPC = (rpcHost, rpcPort) => {
-    this.web3RPC = init(rpcHost, rpcPort) || this.web3RPC;
-    this._rpcProvider = this.web3RPC.currentProvider;
-
-    if (this._init === false) {
-      this._checkConnectionError('rpc'); // Check error only if init
-      this.changeProvider('rpc');
-      this.accounts = this.web3RPC.eth.accounts; // GET THIS TO WORK WITH IPC
-      this._init = true;
-    }
-
-    return this.web3RPC;
-  };
-
-  /**
-   * Initializes an IPC connection with a local Ethereum node. The IPC provider is set in Ethereum.config.ipc.host. Need to call before using the Ethereum object IPC methods.
-   * @param {string} ipcPath Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'
-   * @returns {Web3} The Web3 object delib.eth uses for its IPC connection.
-   */
-  this.initIPC = (ipcPath) => {
-    this.web3IPC = initIPC(ipcPath) || this.web3IPC;
-    this._ipcProvider = this.web3IPC.currentProvider;
-
-    if (this._init === false) {
-      this._checkConnectionError('ipc');
-      this.changeProvider('ipc');
-      this._init = true;
-    }
-    return this.web3IPC;
   };
 
   /**
@@ -182,6 +111,64 @@ function Ethereum() {
     }
   };
 
+
+  /**
+   * Sets up connection to RPC and IPC providers. Initializes the RPC and IPC connection with a local Ethereum node. The RPC provider is set in Ethereum.config.rpc.port. Need to call before using the Ethereum object. If RPC connection is already initalized and valid the RPC connection will be set to the current provider.
+   * @param {string} rpcHost - The host URL path to the RPC connection. Optional. If not given the rpcHost path will be taken from Ethereum.config.rpc.host.
+   * @param {number} rpcPort - The port number to the RPC connection. Optional. If not given the rpcPort path will be taken from Ethereum.config.rpc.port.
+   * @returns {Web3} The Web3 object Ethereum uses set up to the RPC provider
+   */
+  this.init = (rpcHost, rpcPort) => {
+    if (this._init === false) {
+      this.web3RPC = init(rpcHost, rpcPort);
+      // Set the account bindings
+      // Determine the Web3 object used by library and the provider. Default is rpc
+      if (this.checkConnection('rpc')) {
+        this._rpcProvider = this.web3RPC.currentProvider;
+        this.web3 = this.web3RPC;
+        this.connectionType = 'rpc';
+        this.provider = this.web3RPC.currentProvider;
+        this.accounts = this.web3RPC.eth.accounts; // GET THIS TO WORK WITH IPC
+        this.account = this.accounts[0];
+      } else { // try and connect via ipc if rpc doesn't work
+        throw new Error('Unable to connect to RPC provider');
+      }
+      this._init = true;
+    }
+    return this.web3; // Return web3 object used
+  };
+
+
+  /**
+   * Initializes an IPC connection with a local Ethereum node. The IPC provider is set in Ethereum.config.ipc.host. Need to call before using the Ethereum object IPC methods.
+   * @param {string} ipcPath Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'
+   * @returns {Web3} The Web3 object delib.eth uses for its IPC connection.
+   */
+  this.initIPC = (ipcPath) => {
+    this.web3IPC = initIPC(ipcPath) || this.web3IPC;
+    this._ipcProvider = this.web3IPC.currentProvider;
+
+    if (this._init === false) {
+      this._checkConnectionError('ipc');
+      this.changeProvider('ipc');
+      this._init = true;
+      this.web3 = this.web3IPC;
+    }
+    return this.web3IPC;
+  };
+
+  /**
+   * Closes the IPC connection
+   * @returns {boolean} - Status of the IPC connection
+   */
+  this.closeIPC = () => {
+    if (this.checkConnection('ipc')) {
+      this.web3IPC.currentProvider.connection.destroy();
+      return this.web3IPC.currentProvider.connection.destroyed;
+    }
+    return true;
+  };
+
   /**
    * Check the status of a certain connection type.
    * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
@@ -203,91 +190,6 @@ function Ethereum() {
       return status;
     }
     return false;
-  };
-
-  /**
-   * Deploy a built contract.
-   * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
-   * @param {Array} args - Arguments to be passed into the deployed contract as initial parameters.
-   * @param {Object} options - Transaction options. Options are: {from: contract address, value: number, gas: number, gasValue: number}.
-   * @return {Promise} The response is a Contract object of the deployed instance.
-   */
-  this.deploy = (contractName, args, options) => {
-    this._checkConnectionError();
-    options = this.optionsUtil(this.options, options);
-    const contract = this._getBuiltContract(contractName);
-    contract.setProvider(this.provider);
-
-    return promisify(callback => {
-      if (options.gas && options.gas > 0) {
-        deployInstance(options);
-        return;
-      }
-      // Only estimate gas if options.gas is 0 or null
-      this.deploy.estimate(contractName, args, options)
-        .then(gasEstimate => {
-          options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
-          deployInstance(options);
-        })
-        .catch(err => {
-          callback(err, null);
-        });
-
-      // Deploys the contract and returns the instance only after its address is saved
-      function deployInstance(deployOptions) {
-        contract.defaults(deployOptions);
-        const contractInstance = contract.new.apply(contract, args);
-        contractInstance
-          .then(instance => {
-            Contracts.set(contractName, instance.address);
-            callback(null, instance);
-          })
-          .catch(err => {
-            callback(err, null);
-          });
-      }
-    })();
-  };
-
-  /**
-   * Estimates the gas usage for a deployed contract
-   * @param {string} contractName - Name of the built contract located in this.contracts.built
-   * @param {Array} args - An array of arugments for the constructor of the deployed contract
-   * @param {Object} options - The options for the transaction. Gas cost used for deployment will be the gas limit.
-   * @returns {number} The estimated gas of deployment.
-   */
-  this.deploy.estimate = (contractName, args, options) => {
-    this._checkConnectionError();
-    options = this.optionsUtil(this.options, options);
-    const contract = this._getBuiltContract(contractName);
-    contract.setProvider(this.provider);
-    return promisify(callback => {
-      promisify(this.web3.eth.getBlock)('latest')
-        .then(block => {
-          const transactionOptions = Object.assign({}, options);
-          transactionOptions.gas = Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
-          transactionOptions.data = contract.unlinked_binary;
-          return promisify(this.web3.eth.estimateGas)(transactionOptions);
-        })
-        .then(gasEstimate => {
-          callback(null, gasEstimate);
-        })
-        .catch(err => {
-          callback(err, null);
-        });
-    })();
-  };
-
-  /**
-   * Closes the IPC connection
-   * @returns {boolean} - Status of the IPC connection
-   */
-  this.closeIPC = () => {
-    if (this.checkConnection('ipc')) {
-      this.web3IPC.currentProvider.connection.destroy();
-      return this.web3IPC.currentProvider.connection.destroyed;
-    }
-    return true;
   };
 
   /**
@@ -323,41 +225,6 @@ function Ethereum() {
     }
   };
 
-  /**
-   * Change the account address being used by the Ethereum object.
-   * @param {number} index Index of the account address returned from web3.eth.accounts to change to.
-   * @return {string} The account address now being used.
-   */
-  this.changeAccount = (index) => {
-    if (index < 0 || index >= this.accounts.length) {
-      return this.account;
-    } else {
-      this.account = this.accounts[index];
-      return this.account;
-    }
-  };
-
-  /**
-   * Creates a new Ethereum account. The account will be located in your geth Ethereum directory in a JSON file encrpyted with the password provided. process.exit() needs to be called in Promise or the method will run indefinately. Don't use process.exit() if using method in Electron.
-   * @param {string} password - The password to create the new account with.
-   * @return {Promise} Promise return is a string with the newly created account's address.
-   */
-  this.createAccount = (password) => {
-    this._checkConnectionError('ipc');
-    return createAccount(password, this.web3IPC);
-  };
-
-  /**
-   * Unlocks an Ethereum account. process.exit() needs to be called in Promise or the method will run indefinately. Don't use process.exit() if using method in Electron.
-   * @param {string} address - The address of the account.
-   * @param {string} password - Password of account.
-   * @param {number} timeLength - Time in seconds to have account remain unlocked for.
-   * @return {boolean} Status if account was sucessfully unlocked.
-   */
-  this.unlockAccount = (address, password, timeLength) => {
-    this._checkConnectionError('ipc');
-    return unlockAccount(address, password, timeLength, this.web3IPC);
-  };
 
   /**
    * Builds Solidity contracts.
@@ -384,6 +251,90 @@ function Ethereum() {
       }
     }
     return buildContracts(contractFiles, contractPath, buildPath);
+  };
+
+  /**
+   * Deploy a built contract.
+   * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
+   * @param {Array} args - Arguments to be passed into the deployed contract as initial parameters.
+   * @param {Object} options - Transaction options. Options are: {from: contract address, value: number, gas: number, gasValue: number}.
+   * @return {Promise} The response is a Contract object of the deployed instance.
+   */
+  this.deploy = (contractName, args, options) => {
+    this._checkConnectionError();
+    options = this.optionsUtil(this.options, options);
+    const contract = this._getBuiltContract(contractName);
+    contract.setProvider(this.provider);
+
+    var self = this;
+
+    return promisify(callback => {
+      if (options.gas && options.gas > 0) {
+        deployInstance(options);
+        return;
+      }
+      // Only estimate gas if options.gas is 0 or null
+      self.deploy.estimate(contractName, args, options)
+        .then(gasEstimate => {
+          options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
+          deployInstance(options);
+        })
+        .catch(err => {
+          callback(err, null);
+        });
+
+      // Deploys the contract and returns the instance only after its address is saved
+      function deployInstance(deployOptions) {
+        promisify(self.web3.eth.getAccounts)()
+          .then(accounts => {
+            deployOptions.from = deployOptions.from || accounts[self.defaultAccount];
+            console.log(deployOptions);
+            contract.defaults(deployOptions);
+            const contractInstance = contract.new.apply(contract, args);
+            return contractInstance;
+          })
+          .then(instance => {
+            Contracts.set(contractName, instance.address);
+            callback(null, instance);
+          })
+          .catch(err => {
+            callback(err, null);
+          });
+      }
+    })();
+  };
+
+  /**
+   * Estimates the gas usage for a deployed contract
+   * @param {string} contractName - Name of the built contract located in this.contracts.built
+   * @param {Array} args - An array of arugments for the constructor of the deployed contract
+   * @param {Object} options - The options for the transaction. Gas cost used for deployment will be the gas limit.
+   * @returns {number} The estimated gas of deployment.
+   */
+  this.deploy.estimate = (contractName, args, options) => {
+    this._checkConnectionError();
+    options = this.optionsUtil(this.options, options);
+    const contract = this._getBuiltContract(contractName);
+    contract.setProvider(this.provider);
+    return promisify(callback => {
+      promisify(this.web3.eth.getAccounts)()
+        .then(accounts => {
+          options.from = options.from || accounts[this.defaultAccount];
+          return promisify(this.web3.eth.getBlock)('latest');
+        })
+        .then(block => {
+          const transactionOptions = Object.assign({}, options);
+          transactionOptions.gas = Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+          transactionOptions.data = contract.unlinked_binary;
+          return promisify(this.web3.eth.estimateGas)(transactionOptions);
+        })
+        .then(gasEstimate => {
+          callback(null, gasEstimate);
+        })
+        .catch(err => {
+          callback(err, null);
+        });
+    })();
   };
 
   /**
@@ -429,10 +380,16 @@ function Ethereum() {
           if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
             options = this.optionsUtil(options, args[args.length - 1]);
             args.pop();
+          } else {
+            options = this.optionsUtil(options, {});
+
           }
-          console.log('estimateOptions', options);
           return promisify(callback => {
-            promisify(this.web3.eth.getBlock)('latest')
+            promisify(this.web3.eth.getAccounts)()
+              .then(accounts => {
+                options.from = options.from || accounts[this.defaultAccount];
+                return promisify(this.web3.eth.getBlock)('latest');
+              })
               .then(block => {
                 options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
                 args.push(options);
@@ -456,6 +413,8 @@ function Ethereum() {
           if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
             options = this.optionsUtil(options, args[args.length - 1]);
             args.pop();
+          } else {
+            options = this.optionsUtil(options, {});
           }
           // Only estimate gas if it doesn't exist or if its 0
           if (options.gas && options.gas != 0) {
@@ -465,7 +424,13 @@ function Ethereum() {
 
           return promisify((callback) => {
             // Get the estimate transaction options. Set gas at the gas limit
-            promisify(this.web3.eth.getBlock)('latest')
+            promisify(this.web3.eth.getAccounts)()
+              .then(accounts => {
+                console.log(options);
+                options.from = options.from || accounts[this.defaultAccount];
+                console.log(options);
+                return promisify(this.web3.eth.getBlock)('latest');
+              })
               .then(block => {
                 options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
                 args.push(options);
@@ -500,7 +465,7 @@ function Ethereum() {
    * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
    * @param {string} contractAddress - Address of the contract.
    * @param {string} eventName - The name of the event method.
-   * @param {number} blocksBack - The blocks back to get logs for. 'all' gets all blocks. 
+   * @param {number} blocksBack - The blocks back to get logs for. 'all' gets all blocks.
    * @param {Object} filter - Options to filter the events. Optional. Defaults to: { address: contractAddress }.
    * @return {Promise} The response contains an array event logs.
   */
@@ -513,32 +478,47 @@ function Ethereum() {
     return promisify(callback => {
       promisify(this.web3.eth.getBlock)('latest')
         .then(block => {
-          // By default it filter by contract address
-          filter = filter || {};
+          filter = (filter && typeof filter === 'object') ? filter : {};
+          // Create the default contract address filter
           filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
+          // Create the default args filter
+          filter.args = (filter.args && typeof filter === 'object') ? filter.args : {};
+
           let fromBlock = (!blocksBack || blocksBack === 'all') ?  0 : block.number - blocksBack;
           const toBlock = 'latest';
           let methodEvent = contractInstance[eventName];
           methodEvent = methodEvent({}, { fromBlock: fromBlock, toBlock: toBlock });
           methodEvent.get((err, logs) => {
-            if (err) callback(err, null);
-            else {
-              logs = logs.filter((log) => {
-                for (let key in filter) {
-                  console.log(filter[key]);
-                  // If filter value is a function pass log value in as callback for filter
-                  if (log[key] === undefined || filter[key] === null) continue;
-                  if (typeof filter[key] === 'function') {
-                    if (filter[key](log[key]) === false) return false;
-                  }
-                  if (filter[key] !== log[key]) {
-                    return false;
-                  }
-                }
-                return true;
-              });
-              callback(null, logs);
+            if (err) {
+              callback(err, null);
+              return;
             }
+            /** Filters the logs */
+            logs = logs.filter(log => {
+              for (let key in filter) {
+                if (key === 'args') {
+                  for (let key in filter.args) {
+                    if (log.args[key] === undefined || filter.args[key] === null) continue;
+                    if (typeof filter.args[key] === 'function') {
+                      if (filter.args[key](log.args[key]) === false) return false;
+                    } else if (filter.args[key] !== log.args[key]) {
+                      return false;
+                    }
+                  }
+                  continue;
+                }
+                // If filter value is a function pass log value in as callback for filter
+                if (log[key] === undefined || filter[key] === null) continue;
+                if (typeof filter[key] === 'function') {
+                  if (filter[key](log[key]) === false) return false;
+                } else if (filter[key] !== log[key]) {
+                  return false;
+                }
+              }
+              return true;
+            });
+
+            callback(null, logs);
           });
         })
         .catch(err => {
@@ -614,6 +594,35 @@ function Ethereum() {
     return Number(this.web3.fromWei(amount, 'ether').toString());
   };
 
+  /**
+   * Creates a new Ethereum account. The account will be located in your geth Ethereum directory in a JSON file encrpyted with the password provided. process.exit() needs to be called in Promise or the method will run indefinately. Don't use process.exit() if using method in Electron.
+   * @param {string} password - The password to create the new account with.
+   * @return {Promise} Promise return is a string with the newly created account's address.
+   */
+  this.createAccount = (password) => {
+    this._checkConnectionError('ipc');
+    return createAccount(password, this.web3IPC);
+  };
+
+  /**
+   * Unlocks an Ethereum account. process.exit() needs to be called in Promise or the method will run indefinately. Don't use process.exit() if using method in Electron.
+   * @param {string} address - The address of the account.
+   * @param {string} password - Password of account.
+   * @param {number} timeLength - Time in seconds to have account remain unlocked for.
+   * @return {boolean} Status if account was sucessfully unlocked.
+   */
+  this.unlockAccount = (address, password, timeLength) => {
+    this._checkConnectionError('ipc');
+    return unlockAccount(address, password, timeLength, this.web3IPC);
+  };
+
+
+
+  /** DEPRECATED */
+
+  this.account;
+  this.accounts = [];
+
   /** Depreciated version of build */
   this.buildContracts = (contractFiles, contractPath, buildPath) => {
     this._checkConnectionError('rpc');
@@ -635,5 +644,33 @@ function Ethereum() {
     return buildContracts(contractFiles, contractPath, buildPath);
   };
 
+  /**
+   * Change the account address being used by the Ethereum object.
+   * @param {number} index Index of the account address returned from web3.eth.accounts to change to.
+   * @return {string} The account address now being used.
+   */
+  this.changeAccount = (index) => {
+    if (index < 0 || index >= this.accounts.length) {
+      return this.account;
+    } else {
+      this.defaultAccount = index;
+      this.account = this.accounts[index];
+      return this.account;
+    }
+  };
+
+  this.initRPC = (rpcHost, rpcPort) => {
+    this.web3RPC = init(rpcHost, rpcPort) || this.web3RPC;
+    this._rpcProvider = this.web3RPC.currentProvider;
+
+    if (this._init === false) {
+      this._checkConnectionError('rpc'); // Check error only if init
+      this.changeProvider('rpc');
+      this.accounts = this.web3RPC.eth.accounts; // GET THIS TO WORK WITH IPC
+      this._init = true;
+    }
+
+    return this.web3RPC;
+  };
 }
 module.exports = new Ethereum();
