@@ -9,10 +9,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/DeStore/delib"
+    "url": "https://github.com/zhiwenhuang/delib"
   },
   "bugs": {
-    "url": "https://github.com/DeStore/delib/issues"
+    "url": "https://github.com/zhiwenhuang/delib/issues"
   },
   "main": "index.js",
   "bin": {
