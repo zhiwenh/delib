@@ -1,6 +1,6 @@
 # DeLib
 
-Simple framework for Ethereum that lets you interact with smart contracts using its CLI and spawn your own Ethereum private blockchains.
+Simple framework for Ethereum. Interact with smart contracts using its CLI and create your own Ethereum private blockchains.
 
 DeLib's features include:
 

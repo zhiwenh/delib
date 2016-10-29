@@ -11,6 +11,7 @@ const buildContracts = require('./buildContracts');
 const optionsMerge = require('./utils/optionsMerge');
 const optionsFilter = require('./utils/optionsFilter');
 const optionsFormat = require('./utils/optionsFormat');
+const coder = require('./web3/solidity/coder');
 
 // Model
 const Contracts = require('./../models/Contracts.js');
@@ -90,6 +91,7 @@ function Ethereum() {
     else
       contractPath = path.join(RELATIVE_PATH, config.contracts.built, contractName + '.sol.js');
     try {
+      console.log(contractPath);
       contract = require(contractPath);
     } catch (e) {
       throw new Error('Built contract "' + contractName + '" could not be found');
@@ -265,7 +267,6 @@ function Ethereum() {
     options = this.optionsUtil(this.options, options);
     const contract = this._getBuiltContract(contractName);
     contract.setProvider(this.provider);
-
     var self = this;
 
     return promisify(callback => {
@@ -325,16 +326,38 @@ function Ethereum() {
         .then(block => {
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
-          transactionOptions.data = contract.unlinked_binary;
+          let bytes = contract.unlinked_binary;
+
+          bytes += (args) ? encodeConstructorParams(contract.abi, args) : '';
+          transactionOptions.data = bytes;
           return promisify(this.web3.eth.estimateGas)(transactionOptions);
         })
         .then(gasEstimate => {
+          console.log('Deploy gas estimate', gasEstimate);
           callback(null, gasEstimate);
         })
         .catch(err => {
           callback(err, null);
         });
     })();
+
+    /**
+     * Called to encode constructor params. Taken from web3 library
+     * @method encodeConstructorParams
+     * @param {Array} abi - contract.abi
+     * @param {Array} constructor params
+     */
+    function encodeConstructorParams(abi, params) {
+      return abi.filter(function (json) {
+        return json.type === 'constructor' && json.inputs.length === params.length;
+      }).map(function (json) {
+        return json.inputs.map(function (input) {
+          return input.type;
+        });
+      }).map(function (types) {
+        return coder.encodeParams(types, params);
+      })[0] || '';
+    }
   };
 
   /**
