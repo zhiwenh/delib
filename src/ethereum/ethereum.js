@@ -3,8 +3,8 @@ const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
 
-const init = require('./init.js');
-const initIPC = require('./initIPC.js');
+const init = require('./init');
+const initIPC = require('./initIPC');
 const createAccount = require('./createAccount');
 const unlockAccount = require('./unlockAccount');
 const buildContracts = require('./buildContracts');
@@ -45,7 +45,7 @@ function Ethereum() {
   this._rpcProvider; // RPC connection to Ethereum geth node
   this._ipcProvider;
 
-  this.defaultAccount = 0; // The default account index used for methods
+  this.accountIndex = 0; // The default account index used for methods
 
   /** The transaction options allowed for Ethereum */
   this.options = {
@@ -91,7 +91,6 @@ function Ethereum() {
     else
       contractPath = path.join(RELATIVE_PATH, config.contracts.built, contractName + '.sol.js');
     try {
-      console.log(contractPath);
       contract = require(contractPath);
     } catch (e) {
       throw new Error('Built contract "' + contractName + '" could not be found');
@@ -104,10 +103,11 @@ function Ethereum() {
    * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
    */
   this._checkConnectionError = (type) => {
-    if (this.connectionType === null) {
+    if (!this.connectionType) {
       throw new Error ('Not connected to any provider');
     }
     type = type || this.connectionType;
+    type = type.toLowerCase();
     if (!this.checkConnection(type)) {
       throw new Error('Invalid ' + type + ' connection');
     }
@@ -178,10 +178,11 @@ function Ethereum() {
   this.checkConnection = (type) => {
     // If type is undefined check current type being used
     type = type || this.connectionType;
-    if (type === 'rpc' || type === 'RPC') {
+    type = type.toLowerCase();
+    if (type === 'rpc') {
       return this.web3RPC ? this.web3RPC.isConnected() : false;
     }
-    if (type === 'ipc' || type === 'IPC') {
+    if (type === 'ipc') {
       if (!this.web3IPC) return false;
       let status;
       try {
@@ -264,6 +265,7 @@ function Ethereum() {
    */
   this.deploy = (contractName, args, options) => {
     this._checkConnectionError();
+    args = Array.isArray(args) ? args : [args];
     options = this.optionsUtil(this.options, options);
     const contract = this._getBuiltContract(contractName);
     contract.setProvider(this.provider);
@@ -288,8 +290,7 @@ function Ethereum() {
       function deployInstance(deployOptions) {
         promisify(self.web3.eth.getAccounts)()
           .then(accounts => {
-            deployOptions.from = deployOptions.from || accounts[self.defaultAccount];
-            console.log(deployOptions);
+            deployOptions.from = deployOptions.from || accounts[self.accountIndex];
             contract.defaults(deployOptions);
             const contractInstance = contract.new.apply(contract, args);
             return contractInstance;
@@ -314,13 +315,14 @@ function Ethereum() {
    */
   this.deploy.estimate = (contractName, args, options) => {
     this._checkConnectionError();
+    args = Array.isArray(args) ? args : [args];
     options = this.optionsUtil(this.options, options);
     const contract = this._getBuiltContract(contractName);
     contract.setProvider(this.provider);
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
-          options.from = options.from || accounts[this.defaultAccount];
+          options.from = options.from || accounts[this.accountIndex];
           return promisify(this.web3.eth.getBlock)('latest');
         })
         .then(block => {
@@ -333,7 +335,6 @@ function Ethereum() {
           return promisify(this.web3.eth.estimateGas)(transactionOptions);
         })
         .then(gasEstimate => {
-          console.log('Deploy gas estimate', gasEstimate);
           callback(null, gasEstimate);
         })
         .catch(err => {
@@ -365,9 +366,9 @@ function Ethereum() {
    * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
    * @return {Contract} Contract object that you can call methods with.
    */
-  this.exec = (contractName, options) => {
+  this.exec = (contractName) => {
     const contractAddress = Contracts.get(contractName);
-    return this.execAt(contractName, contractAddress, options);
+    return this.execAt(contractName, contractAddress);
   };
 
   /**
@@ -410,7 +411,7 @@ function Ethereum() {
           return promisify(callback => {
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = options.from || accounts[this.defaultAccount];
+                options.from = options.from || accounts[this.accountIndex];
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
@@ -449,9 +450,7 @@ function Ethereum() {
             // Get the estimate transaction options. Set gas at the gas limit
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                console.log(options);
-                options.from = options.from || accounts[this.defaultAccount];
-                console.log(options);
+                options.from = options.from || accounts[this.accountIndex];
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
@@ -552,69 +551,32 @@ function Ethereum() {
   };
 
   /**
-   * Get the Ether balance of an account in Ether denomination.
+   * Get the balance of an account.
    * @param {number} index - Index of the account to check the balance of in Ether.
+   * @param {string} type - The denomination. Default: 'ether'
    * @return {number} The amount of Ether contained in the account.
    */
-  this.getBalanceEther = (index) => {
+  this.getBalance = (index, type) => {
+    type = type || 'ether';
     this._checkConnectionError();
-    index = (index && index >= 0 && index < this.accounts.length) ? index : 0;
     if (this.connectionType === 'ipc') {
       return promisify(callback => {
-        promisify(this.web3.eth.getBalance)(this.accounts[index])
+        promisify(this.web3.eth.getAccounts)()
+          .then(accounts => {
+            index = (index && index >= 0 && index < accounts.length) ? index : 0;
+            return promisify(this.web3.eth.getBalance)(accounts[index]);
+          })
           .then(amount => {
-            callback(null, Number(this.web3.fromWei(amount, 'ether').toString()));
+            callback(null, Number(this.web3.fromWei(amount, type).toString()));
           })
           .catch(err => {
             callback(err , null);
           });
       })();
     }
-    const amount = this.web3.eth.getBalance(this.accounts[index]);
-    return Number(this.web3.fromWei(amount, 'ether').toString());
-  };
-
-  /**
-   * Get the Ether balance of an account in Wei denomination. 1 Ether = 1,000,000,000,000,000,000 wei
-   * @param {number} index - Index of the account to check the balance of inWei.
-   * @return {number} The amount of Ether in Wei contained in the account.
-   */
-  this.getBalanceWei = (index) => {
-    this._checkConnectionError();
-    index = (index && index >= 0 && index < this.accounts.length) ? index : 0;
-    if (this.connectionType === 'ipc') {
-      return promisify(callback => {
-        promisify(this.web3.eth.getBalance)(this.accounts[index])
-          .then(amount => {
-            callback(null, Number(amount.toString()));
-          })
-          .catch(err => {
-            callback(err , null);
-          });
-      })();
-    }
-    const amount = this.web3.eth.getBalance(this.accounts[index]);
-    return Number(this.web3.fromWei(amount, 'ether').toString());
-  };
-
-  /**
-   * Convert an Ether amount to Wei
-   * @param {number} amount - Amount to convert. Can also be a BigNumber object.
-   * @return {number} Converted Wei amount.
-   */
-  this.toWei = (amount) => {
-    this._checkConnectionError();
-    return Number(this.web3.toWei(amount, 'ether').toString());
-  };
-
-  /**
-   * Convert a Wei amount to Ether.
-   * @param {number} amount - Amount to convert. Can also be a BigNumber object.
-   * @return {number} Converted Ether amount.
-   */
-  this.toEther = (amount) => {
-    this._checkConnectionError();
-    return Number(this.web3.fromWei(amount, 'ether').toString());
+    index = (index && index >= 0 && index < this.web3.eth.accounts.length) ? index : 0;
+    const amount = this.web3.eth.getBalance(this.web3.eth.accounts[index]);
+    return Number(this.web3.fromWei(amount, type).toString());
   };
 
   /**
@@ -640,8 +602,9 @@ function Ethereum() {
   };
 
 
-
-  /** DEPRECATED */
+  /****************************************/
+  /************** DEPRECATED **************/
+  /****************************************/
 
   this.account;
   this.accounts = [];
@@ -676,7 +639,7 @@ function Ethereum() {
     if (index < 0 || index >= this.accounts.length) {
       return this.account;
     } else {
-      this.defaultAccount = index;
+      this.accountIndex = index;
       this.account = this.accounts[index];
       return this.account;
     }
@@ -694,6 +657,80 @@ function Ethereum() {
     }
 
     return this.web3RPC;
+  };
+
+  /**
+   * Convert an Ether amount to Wei
+   * @param {number} amount - Amount to convert. Can also be a BigNumber object.
+   * @return {number} Converted Wei amount.
+   */
+  this.toWei = (amount) => {
+    this._checkConnectionError();
+    return Number(this.web3.toWei(amount, 'ether').toString());
+  };
+
+  /**
+   * Convert a Wei amount to Ether.
+   * @param {number} amount - Amount to convert. Can also be a BigNumber object.
+   * @return {number} Converted Ether amount.
+   */
+  this.toEther = (amount) => {
+    this._checkConnectionError();
+    return Number(this.web3.fromWei(amount, 'ether').toString());
+  };
+
+  /**
+   * Get the Ether balance of an account in Ether denomination.
+   * @param {number} index - Index of the account to check the balance of in Ether.
+   * @return {number} The amount of Ether contained in the account.
+   */
+  this.getBalanceEther = (index) => {
+    this._checkConnectionError();
+    if (this.connectionType === 'ipc') {
+      return promisify(callback => {
+        promisify(this.web3.eth.getAccounts)()
+          .then(accounts => {
+            index = (index && index >= 0 && index < accounts.length) ? index : 0;
+            return promisify(this.web3.eth.getBalance)(accounts[index]);
+          })
+          .then(amount => {
+            callback(null, this.web3.fromWei(amount, 'ether').toNumber());
+          })
+          .catch(err => {
+            callback(err , null);
+          });
+      })();
+    }
+    index = (index && index >= 0 && index < this.web3.eth.accounts.length) ? index : 0;
+    const amount = this.web3.eth.getBalance(this.web3.eth.accounts[index]);
+    return this.web3.fromWei(amount, 'ether').toNumber();
+  };
+
+  /**
+   * Get the Ether balance of an account in Wei denomination. 1 Ether = 1,000,000,000,000,000,000 wei
+   * @param {number} index - Index of the account to check the balance of inWei.
+   * @return {number} The amount of Ether in Wei contained in the account.
+   */
+  this.getBalanceWei = (index) => {
+    this._checkConnectionError();
+    if (this.connectionType === 'ipc') {
+      return promisify(callback => {
+        promisify(this.web3.eth.getAccounts)()
+          .then(accounts => {
+            index = (index && index >= 0 && index < accounts.length) ? index : 0;
+            return promisify(this.web3.eth.getBalance)(accounts[index]);
+          })
+          .then(amount => {
+            callback(null, amount.toNumber());
+          })
+          .catch(err => {
+            callback(err , null);
+          });
+      })();
+    }
+    index = (index && index >= 0 && index < this.web3.eth.accounts.length) ? index : 0;
+    const amount = this.web3.eth.getBalance(this.web3.eth.accounts[index]);
+    return this.web3.fromWei(amount, 'wei').toNumber();
   };
 }
 module.exports = new Ethereum();

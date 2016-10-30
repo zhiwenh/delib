@@ -11,7 +11,6 @@ const options = {
 };
 
 /**
-* NEED TO CALL PROCESS.EXIT() in callback
 * @password {String} - password for account
 * @returns {String} - promise with a response thats the account number
 **/

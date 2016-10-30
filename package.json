@@ -19,7 +19,7 @@
     "delib": "./bin/delib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node ./testing/test.js",
     "docs": "jsdoc2md src/**/*.js > api.md"
   },
   "dependencies": {
