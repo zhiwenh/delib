@@ -1,7 +1,7 @@
 const delib = require('./../index');
 
 // delib.eth.init();
-// delib.eth.initIPC();
+delib.eth.initIPC();
 
 // delib.eth.exec('Events').estimate.getNumber({gas: 0, gasPrice: 50})
 //   .then(num => {
@@ -14,22 +14,22 @@ const delib = require('./../index');
 
 // console.log('connection type', delib.eth.connectionType);
 
-delib.eth.getBalanceEther(0)
+delib.eth.getBalance(0, 'ether')
   .then(ether => {
-    console.log('getBalanceEther', ether);
+    console.log('getBalance', ether);
   })
   .catch(err => {
     console.error(err);
   });
 
-delib.eth.getBalanceWei(0)
-  .then(wei => {
-    console.log(delib.eth.toEther(wei));
-    console.log('getBalanceWei', wei);
-  })
-  .catch(err => {
-    console.error(err);
-  });
+// delib.eth.getBalanceWei(0)
+//   .then(wei => {
+//     console.log(delib.eth.toEther(wei));
+//     console.log('getBalanceWei', wei);
+//   })
+//   .catch(err => {
+//     console.error(err);
+//   });
 
 delib.eth.deploy.estimate('Test', 5)
   .then(gasEstimate => {

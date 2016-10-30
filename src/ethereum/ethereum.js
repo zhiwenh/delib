@@ -151,7 +151,9 @@ function Ethereum() {
     this._ipcProvider = this.web3IPC.currentProvider;
 
     if (this._init === false) {
-      this._checkConnectionError('ipc');
+      if (!this.checkConnection('ipc')) {
+        throw new Error('Unable to connect to IPC provider');
+      }
       this.changeProvider('ipc');
       this._init = true;
       this.web3 = this.web3IPC;
@@ -650,7 +652,9 @@ function Ethereum() {
     this._rpcProvider = this.web3RPC.currentProvider;
 
     if (this._init === false) {
-      this._checkConnectionError('rpc'); // Check error only if init
+      if (!this.checkConnection('ipc')) {
+        throw new Error('Unable to connect to IPC provider');
+      }
       this.changeProvider('rpc');
       this.accounts = this.web3RPC.eth.accounts; // GET THIS TO WORK WITH IPC
       this._init = true;
