@@ -524,7 +524,7 @@ function Ethereum() {
                   for (let key in filter.args) {
                     if (log.args[key] === undefined || filter.args[key] === null) continue;
                     if (typeof filter.args[key] === 'function') {
-                      if (filter.args[key](log.args[key]) === false) return false;
+                      if (filter.args[key](log.args[key]) !== true) return false;
                     } else if (filter.args[key] !== log.args[key]) {
                       return false;
                     }
@@ -534,7 +534,7 @@ function Ethereum() {
                 // If filter value is a function pass log value in as callback for filter
                 if (log[key] === undefined || filter[key] === null) continue;
                 if (typeof filter[key] === 'function') {
-                  if (filter[key](log[key]) === false) return false;
+                  if (filter[key](log[key]) !== true) return false;
                 } else if (filter[key] !== log[key]) {
                   return false;
                 }
@@ -598,9 +598,9 @@ function Ethereum() {
    * @param {number} timeLength - Time in seconds to have account remain unlocked for.
    * @return {boolean} Status if account was sucessfully unlocked.
    */
-  this.unlockAccount = (address, password, timeLength) => {
+  this.unlockAccount = (index, password, timeLength) => {
     this._checkConnectionError('ipc');
-    return unlockAccount(address, password, timeLength, this.web3IPC);
+    return unlockAccount(index, password, timeLength, this.web3IPC);
   };
 
 

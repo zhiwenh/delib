@@ -16,13 +16,20 @@ const options = {
 * @password {String} - password for account
 * @returns {Bool} - promise with a response of success or fail
 **/
-module.exports = promisify((account, password, timeLength, web3IPC, callback) => {
+module.exports = promisify((index, password, timeLength, web3IPC, callback) => {
   if (!web3IPC) web3IPC = Web3IPC.create(options);
-  return web3IPC.personal.unlockAccount(account, password, timeLength, (err, res) => {
-    if (err) {
+  promisify(web3IPC.eth.getAccounts)()
+    .then(accounts => {
+      if (index < 0 || index >= accounts.length) {
+        throw new Error('Invalid account index');
+      }
+      console.log(accounts);
+      return promisify(web3IPC.personal.unlockAccount)(accounts[index], password, timeLength);
+    })
+    .then(address => {
+      callback(null, address);
+    })
+    .catch(err => {
       callback(err, null);
-    } else {
-      callback(null, res);
-    }
-  });
+    });
 });

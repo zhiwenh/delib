@@ -16,8 +16,7 @@ function optionsFormat(options, configOptions) {
   if (options.value) options.value = delib.eth.toWei(options.value);
   const newObject = Object.assign(configOptions, options);
   const index = newObject.from;
-  delib.eth.defaultAccount = index;
-  // newObject.from = delib.eth.accounts[index];
+  delib.eth.accountIndex = index;
   return newObject;
 }
 
@@ -212,7 +211,7 @@ program
     delib.eth.init();
     delib.eth.initIPC();
     time = time || 60 * 60 * 24;
-    delib.eth.unlockAccount(delib.eth.accounts[index], password, time)
+    delib.eth.unlockAccount(index, password, time)
       .then(bool => {
         delib.eth.closeIPC();
       })

@@ -112,13 +112,10 @@ Your project's ```delib.js``` config file lets you set up your connection option
 const delib = require('delib');
 
 /** Initialize default connections to a geth node */
-delib.eth.init(); // By default sets up a RPC connection to port 8545 and IPC connection to '<path to project>/devchain/geth.ipc' if RPC can't connect
-
-/** Choose your RPC provider */
-delib.eth.initRPC('localhost', 8000);
+delib.eth.init(); // By default sets up a RPC connection to port 8545
 
 /** Choose your IPC provider */
-delib.eth.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider you will need to switch providers
+delib.eth.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform transaction you will need to changeProviders
 
 /** Switch providers */
 delib.eth.changeProvider('ipc'); // or 'rpc'
@@ -131,17 +128,22 @@ delib.eth.closeIPC();
 ### Build contracts
 Pass in a file name or an array of file names you wish you build from your projects `contracts/` folder.
 ```
-delib.eth.build('Test');
+delib.eth.build('Test')
   .then(contracts => {
     console.log(contracts); // An array of all the contracts built.
   });
 ```
 
 ### Adjust transaction options
-These are the options the all of your transactions will be using by default. You can override them by putting in your own custom options object into your deploy or contract method calls.
+Choose the default account index to use for transactions. The index corresponds to the `web3.eth.accounts` array. By default the index is 0.
+```
+delib.eth.accountIndex = 1;
+```
+
+The options your transactions will be using by default. Options passed into deploy or contract method calls will overwrite these.
 ```
 delib.eth.options = {
-  from: this.account, // By default this is your first account
+  from: null, // Leave at null to use delib.eth.accountIndex
   to: null, // Automatically takes on the address of the contract you're calling
   value: 0,
   gas: 0, // If gas is set at 0 or null the gas cost is estimated
@@ -151,11 +153,16 @@ delib.eth.options = {
 }
 ```
 
-### Deploy contract
-The addresses of the deployed contract is saved in your project directory. This address is used when you try and call methods on the contract with the library or CLI. The options parameter is optional, and will override the ones in `delib.eth.options`.
+If gas is set at 0 or null then it will be estimated for you.
 
-The promise returns an instance of the contract.
+### Deploy contract
+The addresses of your deployed contracts are saved in your project's `addresses/` folder. You can pass in an array of arguments for the constructor. The options parameter is optional. The promise returns an instance of the contract.
 ```
+options = {
+  gas: 1000000,
+  value: 50 // wei
+}
+
 delib.eth.deploy('Test', [arg1, arg2, arg3], options)
   .then(instance => {
     const address = instance.address;
@@ -172,11 +179,15 @@ delib.eth.deploy('Test', [arg1, arg2, arg3], options)
 
 ### Call a contract method
 
-The method will determine if it will perform a transaction (which requires gas) or if it will just call by whether or not you labeled your function with constant in your Solidity contract. Calls return a value. The options parameter is optional, and will override the ones in `delib.eth.options`
+It will perform a transaction (which requires gas) or if it will just call and return a value by whether or not you labeled your function with constant in your Solidity contract.
 
-To call a contract at the address saved when you deployed it:
+To call a contract at the address you last deployed it:
 
 ```
+options = {
+  gas: 0 // Gas set at 0 will be estimated
+};
+
 delib.eth.exec('Test').testMethod(arg1, arg2, options)
   .then(tx => {
 
@@ -188,6 +199,10 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
 
 To call a contract method at a specified address:
 ```
+options = {
+  gas: 1000000
+};
+
 delib.eth.execAt('Test', '0xd023633dbf0d482884be40adad5ecc0851015d9b').testMethod(arg1, arg2, options)
   .then(tx => {
 
@@ -199,11 +214,17 @@ delib.eth.execAt('Test', '0xd023633dbf0d482884be40adad5ecc0851015d9b').testMetho
 
 ### Get event logs
 
-The code below gets the logs of an event starting from block 5 up to the latest, filters the logs for a name of 'James', and returns an array of matching logs.
+The code below gets the logs from testEvent on the contract Test. It searches the last 100 blocks and only returns the even numbered blocks and with the name of James.
 
 ```
-delib.eth.events('Test', 'testEvent', 5, {
-    name: 'James'
+delib.eth.events('Test', 'testEvent', 100, {
+    blockNumber: function(number) {
+      if (number % 2 === 0) return true;
+      else return false;
+    },
+    args: { // the property args contains the actual log values
+      name: 'James'
+    }
   })
   .then(logs => {
 
@@ -260,14 +281,14 @@ Call the method `testMethod` on the deployed contract and pass in two arguments.
 ```
 
 ### Get the logs of an event
-**delib events `<contractName> <eventName> [fromBlock]`**
+**delib events `<contractName> <eventName> [blocksBack]`**
 
 Get all the logs of an event called `eventName`
 ```
--> delib events TestContract eventName
+-> delib events TestContract eventName all
 ```
 
-Get logs starting from block 10
+Get logs from the last 10 blocks
 ```
 -> delib events TestContract eventName 10
 ```
@@ -421,9 +442,17 @@ blockchain: {
 
 ## To connect with other private blockchains
 
-Get the geth enode addresses you wish to connect with and add it to ```{ blockchain: {staticNodes: [ ] } } ``` in ```delib.js```. If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
+Get the geth enode addresses you wish to connect with and add it to the staticNodes array in in `delib.js`.
+ ```
+ {
+   blockchain: {
+     staticNodes: [ ]
+   }
+ }
+ ```
+If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
 
-Your enode address is shown when you start up the development blockchain. It will look like this: *enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303*
+Your enode address is shown when you start up the development blockchain. It will look like this: *enode://pubkey@ip:port*
 
 You can have multiple blockchains synced on your computer by configuring them with an unique RPC port and network p2p port. By default these are 8545 and 30303 respectively.
 
@@ -489,7 +518,6 @@ delib.eth.init();
 
 // Adjust the transaction options
 delib.eth.options = {
-  from: delib.eth.accounts[0],
   value: 0,
   gas: 100000,
 };
@@ -497,7 +525,7 @@ delib.eth.options = {
 delib.eth.exec('Example').getMessage()
   .then(message => {
     console.log(message); // -> hello
-    return delib.eth.exec.setMessage('coffee'); // chain promise calls
+    return delib.eth.exec('Example').setMessage('coffee'); // chain promise calls
   })
   .then(tx => {
     console.log(tx); // displays the transaction receipt
@@ -527,7 +555,7 @@ More examples are coming!
 <a name="support"></a>
 # Support
 
-If you found DeLib useful please leave a star on [GitHub](https://github.com/DeStore/delib) and give feedback!
+If you found DeLib useful please leave a star on [GitHub](https://github.com/zhiwenhuang/delib) and give feedback!
 
 # API Reference
 
@@ -553,51 +581,108 @@ Create the config file ```delib.js```, development blockchain genesis file ```de
 #### delib build `<fileName>`
 Compile and build a Solidity smart contract ```.sol``` (contracts folder) into a JavaScript file ```.sol.js``` (built folder) that you can require. The paths are set in the ```delib.js``` file under  ```{contracts: {paths: '<path to .sol contracts>', built: '<path to .sol.js built contracts>' }}```
 
+| Params | Type | Description |
+| --- | --- | --- |
+| `<fileName>` | `string` | Name of Solidity contract |
+
 <a name="Cli+deploy"></a>
 #### delib deploy `<contractName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`
 Deploy a built Solidity smart contract located in the path set in the ```delib.js``` file under ```{contracts: {built: '<path to built contract'>}}```. The options refer to the transaction options available.
+
+| Params | Type | Description |
+| --- | --- | --- |
+| `<contractName>` | `string` | Name of built contract |
+| `[...args]` | `strings` | Arguments to pass into method |
+| `-f --from` | `<index>` | Transaction option `from`. Index of the account |
+| `-t --to` | `<address>` | Transaction option `to` |
+| `-v --value` | `<ether>` | Transaction option `value` |
+| `-g --gas` | `<number>` | Transaction option `gas`. It gets estimated if set to 0 |
+| `-p --gasPrice` | `<number>` | Transaction option `gasPrice` |
+| `-n --nonce` | `<number>` | Transaction option `nonce` |
 
 <a name="Cli+set"></a>
 #### delib set `<contractName> <contractAddress>`
 Set the address of contract to be used with the CLI exec method and also with the delib.exec() library method. It is saved in the addresses folder, and the path can be set in the ```delib.js``` file under  ```{contracts: {paths: '.sol contracts', address: '<path to contract addresses>' }}```
 
+| Params | Type | Description |
+| --- | --- | --- |
+| `<contractName>` | `string` | Name of built contract |
+| `<contractAddress>` | `string` | The address to bind to the contract |
+
 <a name="Cli+exec"></a>
 #### delib exec `<contractName> <methodName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`
 Call a deployed contract method with the provided arguments. The options refer to the transaction options available.
 
+| Params | Type | Description |
+| --- | --- | --- |
+| `<contractName>` | `string` | Name of built contract |
+| `<methodName>` | `string` | Contract method name |
+| `[...args]` | `strings` | Arguments to pass into method |
+| `-f --from` | `<index>` | Transaction option `from`. Index of the account |
+| `-t --to` | `<address>` | Transaction option `to` |
+| `-v --value` | `<ether>` | Transaction option `value` |
+| `-g --gas` | `<number>` | Transaction option `gas`. It gets estimated if set to 0 |
+| `-p --gasPrice` | `<number>` | Transaction option `gasPrice` |
+| `-n --nonce` | `<number>` | Transaction option `nonce` |
+
+
+
+
 <a name="Cli+events"></a>
-#### delib events `<contractName> <eventName> [fromBlock]`
-Get the logs of a deployed contract's event from a block number. By default fromBlock is 0, so it gets all the logs of a particular event.
+#### delib events `<contractName> <eventName> [blocksBack]`
+Get the logs of a deployed contract's event.
+
+| Params | Type | Description |
+| --- | --- | --- |
+| `<contractName>` | `number` | Name of built contract |
+| `<eventName>` | `string` | Contract event name |
+| `[blocksBack]` | `number` | Number of blocks back to get logs from |
+
 
 <a name="Cli+balance"></a>
 #### delib balance `<accountIndex>`
 Get the balance of one of your account by its account index.
 
+| Params | Type | Description |
+| --- | --- | --- |
+| `<accountIndex>` | `number` | Index of account |
+
+
 <a name="Cli+create"></a>
 #### delib create `<password>`
 Create a new Ethereum account.
+
+| Params | Type | Description |
+| --- | --- | --- |
+| `<password>` | `string` | Account password |
 
 <a name="Cli+unlock"></a>
 #### delib unlock `<accountIndex> <password> [unlockTime]`
 Unlock an Ethereum account. `unlockTime` defaults to a day.
 
+| Params | Type | Description |
+| --- | --- | --- |
+| `<accountIndex>` | `number` | Index of account |
+| `<password>` | `string` | Account password |
+| `[unlockTime]` | `number` | Time to leave account unlocked in seconds |
+
 <a name="Cli+devchain"></a>
 #### delib devchain `--reset --off --accounts <amount> --password <value> --identity <value> --datadir <path> --port <number> --rpchost <value> --rpcport <number> --verbosity <number> --rpccorsdomain <value>`
 Start up a geth node running the [development private blockchain](#devchain).
 
-| Options   | Type | Description |
+| Params | Type | Description |
 | --- | --- | --- |
-| `reset` | `-- `| Reset the blockchain data directory |
-| `off` | `--`  | Turn off automatic mining |
-| `accounts` | `<amount>` | Number of accounts to create if creating or resetting the blockchain |
-| `password` | `<value>` |  Password to give and unlock the accounts automatically created |
-| `identity ` | `<value>` | Geth node identity name. Default is "delib" |
-| `datadir` | `<path>` | Relative path to blockchain data. Creates the folder if it\'s not there. Default is your projects `devchain/` folder file or where this command is run |
-| `port` | `<number>` | Geth server network p2p port. Default is 30303 |
-| `rpchost` | `<value>` | Geth server HTTP-RPC host. Default is 'localhost' |
-| `rpcport` | `<number>` | Geth server HTTP-RPC port. Default is 8545 |
-| `verbosity` | `<number>`  | Logging verbosity: 0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=detail. Default is 3 |
-| `rpccorsdomain` | `<value>` | Comma separated list of domains from which to accept cross origin requests. Default is * |
+| `--reset` | `-- `| Reset the blockchain data directory |
+| `--off` | `--`  | Turn off automatic mining |
+| `--accounts` | `<amount>` | Number of accounts to create if creating or resetting the blockchain |
+| `--password` | `<value>` |  Password to give and unlock the accounts automatically created |
+| `--identity ` | `<value>` | Geth node identity name. Default is "delib" |
+| `--datadir` | `<path>` | Relative path to blockchain data. Creates the folder if it\'s not there. Default is your projects `devchain/` folder file or where this command is run |
+| `--port` | `<number>` | Geth server network p2p port. Default is 30303 |
+| `--rpchost` | `<value>` | Geth server HTTP-RPC host. Default is 'localhost' |
+| `--rpcport` | `<number>` | Geth server HTTP-RPC port. Default is 8545 |
+| `--verbosity` | `<number>`  | Logging verbosity: 0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=detail. Default is 3 |
+| `--rpccorsdomain` | `<value>` | Comma separated list of domains from which to accept cross origin requests. Default is * |
 
 
 <a name="Ethereum+api"></a>
@@ -626,7 +711,7 @@ Start up a geth node running the [development private blockchain](#devchain).
     * [.changeAccount(index)](#Ethereum+changeAccount) ⇒ <code>string</code>
     * [.getBalance(index, type)](#Ethereum+getBalance) ⇒ <code>number</code>
     * [.createAccount(password)](#Ethereum+createAccount) ⇒ <code>Promise</code> ⇒ <code>string</code>
-    * [.unlockAccount(address, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>boolean</code>
+    * [.unlockAccount(index, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>boolean</code>
 
 
 
@@ -790,17 +875,16 @@ Gets the event logs for an event.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
+| contractName | <code>string</code> | Name of built contract. |
 | contractAddress | <code>string</code> | Address of the contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| blocksBack | <code>number</code> | The blocks back to get logs for. 'all' gets all blocks. Defaults to 'all'|
-| filter | <code>Object</code> | Options to filter the events. You can also pass a callback function into a property. Optional. Defaults to: { address: contractAddress }. |
-
+| blocksBack | <code>number</code> | The number of blocks back to get logs for. 'all' gets all blocks. Defaults to 'all'|
+| filter | <code>Object</code> | Object to filter the event logs. If a property in the filter object also exists in the log objects, they must match. A property can also contain a callback function that takes in the property value. It must return true. Default: { address: contractAddress }. |
 
 <a name="Ethereum+createAccount"></a>
 #### delib.eth.createAccount(password) ⇒ <code>Promise</code>
-Creates a new Ethereum account. The account will be located in your geth Ethereum directory in a JSON file encrypted with the password provided.
-**Returns**: <code>Promise</code> - Promise return is a string with the newly created account's address.  
+Creates a new Ethereum account.
+**Returns**: <code>Promise</code> => <code>string</code> Promise return is a string of the newly created account address.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -808,14 +892,14 @@ Creates a new Ethereum account. The account will be located in your geth Ethereu
 
 
 <a name="Ethereum+unlockAccount"></a>
-#### delib.eth.unlockAccount(address, password, timeLength) ⇒ <code>boolean</code>
+#### delib.eth.unlockAccount(index, password, timeLength) ⇒ <code>boolean</code>
 Unlocks an Ethereum account.
 
 **Returns**: <code>boolean</code> - Status if account was successfully unlocked.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| address | <code>string</code> | The address of the account. |
+| index | <code>number</code> | The index of the account. |
 | password | <code>string</code> | Password of account. |
 | timeLength | <code>number</code> | Time in seconds to have account remain unlocked for. |
 
