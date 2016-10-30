@@ -157,6 +157,20 @@ If gas is set at 0 or null then it will be estimated for you.
 
 ### Deploy contract
 The addresses of your deployed contracts are saved in your project's `addresses/` folder. You can pass in an array of arguments for the constructor. The options parameter is optional. The promise returns an instance of the contract.
+
+To estimate gas usage:
+
+```
+delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
+  .then(gasEstimate => {
+
+  })
+  .catch(err => {
+
+  })
+```
+
+
 ```
 options = {
   gas: 1000000,
@@ -180,6 +194,18 @@ delib.eth.deploy('Test', [arg1, arg2, arg3], options)
 ### Call a contract method
 
 It will perform a transaction (which requires gas) or if it will just call and return a value by whether or not you labeled your function with constant in your Solidity contract.
+
+To estimate gas usage:
+
+```
+delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
+  .then(gasEstimate => {
+
+  })
+  .catch(err => {
+
+  })
+```
 
 To call a contract at the address you last deployed it:
 
