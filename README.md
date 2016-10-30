@@ -608,59 +608,56 @@ Start up a geth node running the [development private blockchain](#devchain).
     * [.web3RPC](#)
     * [.web3IPC](#)
     * [.contractOptions](#Ethereum+contractOptions)
-    * [.account](#Ethereum+account)
-    * [.accounts](#Ethereum+accounts)
+    * [.accountIndex](#Ethereum+accountIndex)
     * [.options](#Ethereum+options)
     * [.checkConnection](#Ethereum+checkConnection) ⇒ <code>boolean</code>
     * [.changeProvider](#Ethereum+changeProvider) ⇒ <code>boolean</code>
-    * [.init(rpcHost, rpcPort, ipcPath)](#Ethereum+init) ⇒ <code>Web3</code>
+    * [.init(rpcHost, rpcPort)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.check()](#Ethereum+check) ⇒ <code>boolean</code>
-    * [.buildContracts(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
+    * [.build(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>Contract</code>
+    * [.deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>Contract</code>
     * [.exec(contractName)](#Ethereum+exec) ⇒ <code>Contract</code>
+    * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>Contract</code>
     * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
-    * [.events(contractName, contractAddress, eventName, fromBlock, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
+    * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>Contract</code>
+    * [.events(contractName, contractAddress, eventName, blocksBack, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.changeAccount(index)](#Ethereum+changeAccount) ⇒ <code>string</code>
+    * [.getBalance(index, type)](#Ethereum+getBalance) ⇒ <code>number</code>
     * [.createAccount(password)](#Ethereum+createAccount) ⇒ <code>Promise</code> ⇒ <code>string</code>
     * [.unlockAccount(address, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>boolean</code>
-    * [.getBalanceEther(index)](#Ethereum+getBalanceEther) ⇒ <code>number</code>
-    * [.getBalanceWei(index)](#Ethereum+getBalanceWei) ⇒ <code>number</code>
-    * [.toWei(amount)](#Ethereum+toWei) ⇒ <code>number</code>
-    * [.toEther(amount)](#Ethereum+toEther) ⇒ <code>number</code>
+
+
 
 
 <a name="Ethereum+contractOptions"></a>
 #### delib.eth.contractOptions
 An object that contains the relative path to the contracts, built contracts, and contract addresses. Use if you don't want to create a project or if you want to customize the paths.
 
-<a name="Ethereum+account"></a>
-#### delib.eth.account
-The Ethereum account being used by delib. Set this as the from property in delib.eth.options. The account is changed when you call ```delib.eth.changeAccount()```.
-
-
-<a name="Ethereum+accounts"></a>
-#### delib.eth.accounts
-An array of your Ethereum accounts.
+<a name="Ethereum+accountIndex"></a>
+#### delib.eth.accountIndex
+The index of the default account used for transactions. The index is used for web3.eth.accounts. This can be overwritten by setting an address in `delib.eth.options.from` or passing it in as a transaction option.
 
 <a name="Ethereum+options"></a>
 #### delib.eth.options
-The transaction options to be used. Change this in-between your contract deployments or contract method calls. If gas is at 0 or null then it will be estimated automatically for each transaction.
+The default transaction options for `delib.eth` methods. If gas is 0 or null then it will be estimated automatically for each transaction. Leave `from` null to base the address off of `delib.eth.accountIndex`.
 
 ```
 {
-  from: // The address of the account being used
-  to: // (Optional) Destination address for this transaction
-  value: // (Optional) Value transferred in wei
-  gas: // (Optional) Amount of gas to use for transaction
-  gasPrice: // (Optional) Price of gas to be used for transaction in wei. Defaults to mean network gas price
-  nonce: // (Optional)
+  from: null, // The address of the account being used
+  to: null, // (Optional) Destination address for this transaction
+  value: null, // (Optional) Value transferred in wei
+  gas: 0, // (Optional) Amount of gas to use for transaction
+  gasPrice: null, // (Optional) Price of gas to be used for transaction in wei. Defaults to mean network gas price
+  data: null,
+  nonce: null // (Optional)
 }
 ```
 
 <a name="Ethereum+init"></a>
-#### delib.eth.init(rpcHost, rpcPort, ipcPath) ⇒ <code>Web3</code>
-Initializes a RPC connection with a geth node or an IPC provider if the RPC connection could not be made. The RPC provider and IPC provider can be set in the ```delib.js``` or you can pass it in as arguments. Need to call before using the delib.eth object. This returns a Web3 object of your current provider.
+#### delib.eth.init(rpcHost, rpcPort) ⇒ <code>Web3</code>
+Initializes a RPC connection with an Ethereum node. The RPC provider can be set in the ```delib.js``` or you can pass it in as arguments. Need to call before using any `delib.eth` method. This returns a Web3 object of your current provider.
 
 **Returns**: <code>Web3</code> - The Web3 object that delib.eth is using for its provider  
 
@@ -668,12 +665,12 @@ Initializes a RPC connection with a geth node or an IPC provider if the RPC conn
 | --- | --- | --- |
 | rpcHost | <code>string</code> | The host URL path to the RPC connection. Optional. If not given the rpcHost path will be taken from the config file. |
 | rpcPort | <code>number</code> | The port number to the RPC connection. Optional. If not given the rpcPort path will be taken from config file. |
-| ipcPath | <code>string</code> | Path to an IPC provider if the RPC connection could not be made. Optional. |
+
 
 <a name="Ethereum+initIPC"></a>
 
 #### delib.eth.initIPC(ipcPath) ⇒ <code>Web3</code>
-Initializes an IPC connection with a local Ethereum node. The IPC provider is set in the config file. Need to call before using the Ethereum object IPC methods. This returns a Web3 object connected via IPC that you call web3.personal and web3.admin tasks on.
+Initializes an IPC connection with a local Ethereum node. The IPC provider is set in the config file. Need to call before using the Ethereum object IPC methods. This returns a Web3 object connected via IPC that you call web3.personal and web3.admin methods on.
 
 **Returns**: <code>Web3</code> - The Web3 object delib.eth uses for its IPC connection.  
 
@@ -707,8 +704,6 @@ Change the provider to use (RPC or IPC). It checks the connection status before 
 
 **Returns** <code>boolean</code> If the change went thru.
 
-
-
 <a name="Ethereum+check"></a>
 
 #### delib.eth.check() ⇒ <code>bool</code>
@@ -718,9 +713,8 @@ Checks the connection to the provider being used.
 
 <a name="Ethereum+buildContracts"></a>
 
-#### delib.eth.buildContracts(contractFiles, contractPath, buildPath)
+#### delib.eth.build(contractFiles, contractPath, buildPath)
 Builds Solidity contracts.
-
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -752,6 +746,16 @@ Calls a deployed contract. Will take the address provided in the config file. If
 | --- | --- | --- |
 | contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
 
+<a name="Ethereum+exec+estimate"></a>
+#### delib.eth.exec(contractName).estimate ⇒ <code>Contract</code>
+Calls a deployed contract and methods called on the returned contract will return a estimated gas usage value.
+
+**Returns**: <code>Contract</code> - Contract object that you can call methods with.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
+
 <a name="Ethereum+execAt"></a>
 
 #### delib.eth.execAt(contractName, contractAddress) ⇒ <code>Contract</code>
@@ -764,9 +768,22 @@ Calls a deployed contract at a specific address. If you have `delib.eth.options`
 | contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
 | contractAddress | <code>string</code> | Address of the contract. |
 
+
+<a name="Ethereum+execAt+estimate"></a>
+#### delib.eth.execAt(contractName, contractAddress).estimate ⇒ <code>Contract</code>
+Calls a deployed contract at a specified address and methods called on the returned contract will return a estimated gas usage value.
+
+**Returns**: <code>Contract</code> - Contract object that you can call methods with.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
+| contractAddress | <code>string</code> | Address of the contract. |
+
+
 <a name="Ethereum+events"></a>
 
-#### delib.eth.events(contractName, eventName, fromBlock, filter) ⇒ <code>Promise</code>
+#### delib.eth.events(contractName, eventName, blocksBack, filter) ⇒ <code>Promise</code>
 Gets the event logs for an event.
 
 **Returns**: <code>Promise</code> - The response contains an array event logs.  
@@ -776,22 +793,11 @@ Gets the event logs for an event.
 | contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js. |
 | contractAddress | <code>string</code> | Address of the contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| fromBlock | <code>number</code> | The block number to start getting the event logs. Optional. Defaults to 0. |
-| filter | <code>Object</code> | Options to filter the events. Optional. Defaults to: { address: contractAddress }. |
+| blocksBack | <code>number</code> | The blocks back to get logs for. 'all' gets all blocks. Defaults to 'all'|
+| filter | <code>Object</code> | Options to filter the events. You can also pass a callback function into a property. Optional. Defaults to: { address: contractAddress }. |
 
-<a name="Ethereum+changeAccount"></a>
-
-#### delib.eth.changeAccount(index) ⇒ <code>string</code>
-Change the account address being used by the Ethereum object.
-
-**Returns**: <code>string</code> - The account address now being used.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| index | <code>number</code> | Index of the account address returned from web3.eth.accounts to change to. |
 
 <a name="Ethereum+createAccount"></a>
-
 #### delib.eth.createAccount(password) ⇒ <code>Promise</code>
 Creates a new Ethereum account. The account will be located in your geth Ethereum directory in a JSON file encrypted with the password provided.
 **Returns**: <code>Promise</code> - Promise return is a string with the newly created account's address.  
@@ -800,12 +806,12 @@ Creates a new Ethereum account. The account will be located in your geth Ethereu
 | --- | --- | --- |
 | password | <code>string</code> | The password to create the new account with. |
 
-<a name="Ethereum+unlockAccount"></a>
 
+<a name="Ethereum+unlockAccount"></a>
 #### delib.eth.unlockAccount(address, password, timeLength) ⇒ <code>boolean</code>
 Unlocks an Ethereum account.
 
-**Returns**: <code>boolean</code> - Status if account was sucessfully unlocked.  
+**Returns**: <code>boolean</code> - Status if account was successfully unlocked.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -814,8 +820,7 @@ Unlocks an Ethereum account.
 | timeLength | <code>number</code> | Time in seconds to have account remain unlocked for. |
 
 <a name="Ethereum+getBalanceEther"></a>
-
-#### delib.eth.getBalanceEther(index) ⇒ <code>number</code>
+#### delib.eth.getBalance(index, type) ⇒ <code>number</code>
 Get the Ether balance of an account in Ether denomination.
 
 **Returns**: <code>number</code> - The amount of Ether contained in the account.  
@@ -823,39 +828,8 @@ Get the Ether balance of an account in Ether denomination.
 | Param | Type | Description |
 | --- | --- | --- |
 | index | <code>number</code> | Index of the account to check the balance of in Ether. |
+| type | <code>string</code> | The denomination. Default: 'ether' |
 
-<a name="Ethereum+getBalanceWei"></a>
-
-#### delib.eth.getBalanceWei(index) ⇒ <code>number</code>
-Get the Ether balance of an account in Wei denomination. 1 Ether = 1,000,000,000,000,000,000 wei
-
-**Returns**: <code>number</code> - The amount of Ether in Wei contained in the account.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| index | <code>number</code> | Index of the account to check the balance. |
-
-<a name="Ethereum+toWei"></a>
-
-#### delib.eth.toWei(amount) ⇒ <code>number</code>
-Convert an Ether amount to Wei
-
-**Returns**: <code>number</code> - Converted Wei amount.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| amount | <code>number</code> | Amount to convert. Can also be a BigNumber object. |
-
-<a name="Ethereum+toEther"></a>
-
-#### delib.eth.toEther(amount) ⇒ <code>number</code>
-Convert a Wei amount to Ether.
-
-**Returns**: <code>number</code> - Converted Ether amount.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| amount | <code>number</code> | Amount to convert. Can also be a BigNumber object. |
 
 <a name="config"></a>
 ## Configuration File
