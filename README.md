@@ -1,6 +1,6 @@
 # DeLib
 
-Simple framework for Ethereum. Interact with smart contracts using its CLI and create your own Ethereum private blockchains.
+Simple Ethereum framework. Its CLI lets you interact with smart contracts and create your own private blockchains.
 
 DeLib's features include:
 
@@ -141,6 +141,9 @@ delib.eth.accountIndex = 1;
 ```
 
 The options your transactions will be using by default. Options passed into deploy or contract method calls will overwrite these.
+
+If gas is set at 0 or null then it will be estimated for you.
+
 ```
 delib.eth.options = {
   from: null, // Leave at null to use delib.eth.accountIndex
@@ -150,15 +153,13 @@ delib.eth.options = {
   gasValue: null,
   data: null,
   nonce: null
-}
+};
 ```
-
-If gas is set at 0 or null then it will be estimated for you.
 
 ### Deploy contract
 The addresses of your deployed contracts are saved in your project's `addresses/` folder. You can pass in an array of arguments for the constructor. The options parameter is optional. The promise returns an instance of the contract.
 
-To estimate gas usage:
+To estimate deployment gas usage:
 
 ```
 delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
@@ -167,8 +168,10 @@ delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
   })
   .catch(err => {
 
-  })
+  });
 ```
+
+To deploy contract and call a method on the instance:
 
 
 ```
@@ -188,7 +191,7 @@ delib.eth.deploy('Test', [arg1, arg2, arg3], options)
   })
   .catch(err => {
 
-  })
+  });
 ```
 
 ### Call a contract method
@@ -220,7 +223,7 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
   })
   .catch(err => {
 
-  })
+  });
 ```
 
 To call a contract method at a specified address:
@@ -235,7 +238,7 @@ delib.eth.execAt('Test', '0xd023633dbf0d482884be40adad5ecc0851015d9b').testMetho
   })
   .catch(err => {
 
-  })
+  });
 ```
 
 ### Get event logs
@@ -243,21 +246,23 @@ delib.eth.execAt('Test', '0xd023633dbf0d482884be40adad5ecc0851015d9b').testMetho
 The code below gets the logs from testEvent on the contract Test. It searches the last 100 blocks and only returns the even numbered blocks and with the name of James.
 
 ```
-delib.eth.events('Test', 'testEvent', 100, {
-    blockNumber: function(number) {
-      if (number % 2 === 0) return true;
-      else return false;
-    },
-    args: { // the property args contains the actual log values
-      name: 'James'
-    }
-  })
+filter = {
+  blockNumber: function(number) {
+    if (number % 2 === 0) return true;
+    else return false;
+  },
+  // the property args contains the actual log values
+  args: {
+    name: 'James'
+  }
+}
+delib.eth.events('Test', 'testEvent', 100, filter)
   .then(logs => {
 
   })
   .catch(err => {
 
-  })
+  });
 ```
 
 ## [Library API Link](#Ethereum+api)
@@ -730,9 +735,9 @@ Start up a geth node running the [development private blockchain](#devchain).
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>Contract</code>
     * [.deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>Contract</code>
     * [.exec(contractName)](#Ethereum+exec) ⇒ <code>Contract</code>
-    * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>Contract</code>
+      * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>Contract</code>
     * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
-    * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>Contract</code>
+      * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>Contract</code>
     * [.events(contractName, contractAddress, eventName, blocksBack, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.changeAccount(index)](#Ethereum+changeAccount) ⇒ <code>string</code>
     * [.getBalance(index, type)](#Ethereum+getBalance) ⇒ <code>number</code>

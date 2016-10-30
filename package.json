@@ -2,7 +2,7 @@
   "name": "delib",
   "author": "DeStore",
   "version": "1.5.0",
-  "description": "Simple framework for Ethereum. Interact with smart contracts using its CLI and create your own Ethereum private blockchains.",
+  "description": "Simple Ethereum framework. Its CLI lets you interact with smart contracts and create your own private blockchains.",
   "keywords": [
     "web3",
     "ethereum"
