@@ -97,6 +97,8 @@ program
 program
   .command('deploy <contractName> [args...]')
   .description('Deploy a built contract')
+  .option('--built <path>', 'Path to built contracts folder')
+  .option('--address <path>', 'Path to addresses folder')
   .option('-f --from <index>', 'From transaction option. Takes in the account index')
   .option('-t --to <address>', 'To transaction option. Takes in the actual account address')
   .option('-v --value <ether>', 'Value transaction option. Converts the value from Ether to wei')
@@ -106,6 +108,8 @@ program
   .action((contractName, args, options) => {
     delib.eth.init();
     options = optionsFormat(options, config.cli.options);
+    delib.eth.contractOptions.built = options.built || delib.eth.contractOptions.built;
+    config.contracts.address = options.address || delib.eth.contractOptions.address;
     delib.eth.deploy(contractName, args, options)
       .then(instance => {
         console.log('Deployed address:', instance.address);
@@ -131,6 +135,8 @@ program
 program
   .command('exec <contractName> <method> [args...]')
   .description('Call or make a transaction with a contract method')
+  .option('--built <path>', 'Path to built contracts folder')
+  .option('--address <path>', 'Path to addresses folder')
   .option('-f --from <index>', 'From transaction option. The account index')
   .option('-t --to <address>', 'To transaction option. The actual account address')
   .option('-v --value <ether>', 'Value transaction option. Converts it from Ether to wei')
@@ -139,6 +145,8 @@ program
   .option('-n --nonce <number>', 'Nonce transaction option')
   .action((contractName, method, args, options) => {
     delib.eth.init();
+    delib.eth.contractOptions.built = options.built || delib.eth.contractOptions.built;
+    config.contracts.address = options.address || config.contracts.address;
     const contractAddress = Contracts.get(contractName);
     options = optionsFormat(options, config.cli.options);
     const contract = delib.eth.execAt(contractName, contractAddress, options);
