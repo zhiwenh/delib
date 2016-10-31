@@ -74,9 +74,9 @@ function Ethereum() {
 
   // Paths to the contracts, built, and addresses
   this.contractOptions = {
-    path: null,
-    built: null,
-    address: null
+    path: config.contracts.path,
+    built: config.contracts.built,
+    address: config.contracts.address
   };
 
   /**
@@ -84,17 +84,8 @@ function Ethereum() {
    * @returns {Contract} The built contract
    */
   this._getBuiltContract = (contractName) => {
-    let contract;
-    let contractPath;
-    if (this.contractOptions.path)
-      contractPath = path.join(RELATIVE_PATH, this.contractOptions.path, contractName + '.sol.js');
-    else
-      contractPath = path.join(RELATIVE_PATH, config.contracts.built, contractName + '.sol.js');
-    try {
-      contract = require(contractPath);
-    } catch (e) {
-      throw new Error('Built contract "' + contractName + '" could not be found');
-    }
+    const contractPath = path.join(RELATIVE_PATH, this.contractOptions.built, contractName + '.sol.js');
+    const contract = require(contractPath);
     return contract;
   };
 
@@ -240,21 +231,8 @@ function Ethereum() {
    */
   this.build = (contractFiles, contractPath, buildPath) => {
     this._checkConnectionError('rpc');
-    if (!contractPath) {
-      if (this.contractOptions.path) {
-        contractPath = path.join(__dirname, RELATIVE_PATH, this.contractOptions.path);
-      } else {
-        contractPath = path.join(__dirname, RELATIVE_PATH, config.contracts.path);
-      }
-    }
-    if (!buildPath) {
-      if (this.contractOptions.built) {
-        buildPath = path.join(__dirname, RELATIVE_PATH, this.contractOptions.built);
-      }
-      else {
-        buildPath = path.join(__dirname, RELATIVE_PATH, config.contracts.built);
-      }
-    }
+    contractPath = (contractPath) ? path.join(__dirname, RELATIVE_PATH, contractPath) : path.join(__dirname, RELATIVE_PATH, this.contractOptions.path);
+    buildPath = (buildPath) ? path.join(__dirname, RELATIVE_PATH, buildPath) : path.join(__dirname, RELATIVE_PATH, this.contractOptions.built);
     return buildContracts(contractFiles, contractPath, buildPath);
   };
 
