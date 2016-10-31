@@ -226,7 +226,7 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
   });
 ```
 
-To call a contract method at a specified address:
+To call a contract method at a specified address. You can get an array off all the addresses of a contract with `delib.eth.address.getAll('contractName')`.
 ```
 options = {
   gas: 1000000
@@ -726,6 +726,8 @@ Start up a geth node running the [development private blockchain](#devchain).
     * [.contractOptions](#Ethereum+contractOptions)
     * [.accountIndex](#Ethereum+accountIndex)
     * [.options](#Ethereum+options)
+    * [.address](#Ethereum+addresss)
+      * [.getAll()](#Ethereum+address+getAll)
     * [.checkConnection](#Ethereum+checkConnection) ⇒ <code>boolean</code>
     * [.changeProvider](#Ethereum+changeProvider) ⇒ <code>boolean</code>
     * [.init(rpcHost, rpcPort)](#Ethereum+init) ⇒ <code>Web3</code>
@@ -770,6 +772,11 @@ The default transaction options for `delib.eth` methods. If gas is 0 or null the
   nonce: null // (Optional)
 }
 ```
+
+<a name="Ethereum+address"></a>
+<a name="Ethereum+address+getAll"></a>
+#### delib.eth.address
+The contract address model used by delib.eth. Get all addresses of a contract with `delib.eth.address.getAll('contractName')`
 
 <a name="Ethereum+init"></a>
 #### delib.eth.init(rpcHost, rpcPort) ⇒ <code>Web3</code>
