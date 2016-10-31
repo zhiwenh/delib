@@ -14,7 +14,7 @@ const optionsFormat = require('./utils/optionsFormat');
 const coder = require('./web3/solidity/coder');
 
 // Model
-const Contracts = require('./../models/Contracts.js');
+const Addresses = require('./../models/Addresses');
 
 const config = require('./../config/config.js');
 
@@ -71,6 +71,8 @@ function Ethereum() {
     options = optionsFilter(options);
     return options;
   };
+
+  this.address = Addresses;
 
   // Paths to the contracts, built, and addresses
   this.contractOptions = {
@@ -276,7 +278,7 @@ function Ethereum() {
             return contractInstance;
           })
           .then(instance => {
-            Contracts.set(contractName, instance.address);
+            Addresses.set(contractName, instance.address);
             callback(null, instance);
           })
           .catch(err => {
@@ -347,7 +349,7 @@ function Ethereum() {
    * @return {Contract} Contract object that you can call methods with.
    */
   this.exec = (contractName) => {
-    const contractAddress = Contracts.get(contractName);
+    const contractAddress = Addresses.get(contractName);
     return this.execAt(contractName, contractAddress);
   };
 
@@ -473,7 +475,7 @@ function Ethereum() {
   */
   this.events = (contractName, eventName, blocksBack, filter) => {
     this._checkConnectionError();
-    const contractAddress = Contracts.get(contractName);
+    const contractAddress = Addresses.get(contractName);
     const contract = this._getBuiltContract(contractName);
     contract.setProvider(this.provider);
     const contractInstance = contract.at(contractAddress);

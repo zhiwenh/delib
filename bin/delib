@@ -8,16 +8,18 @@ const spawn = require('child_process').spawn;
 const spawnSync = require('child_process').spawnSync;
 
 const delib = require('./../index.js');
-const Contracts = require('./../src/models/Contracts.js');
+const Addresses = require('./../src/models/Addresses');
 const config = require('./../src/config/config.js');
 
 /** Formats the options to include options and account index */
 function optionsFormat(options, configOptions) {
   if (options.value) options.value = delib.eth.toWei(options.value);
-  const newObject = Object.assign(configOptions, options);
-  const index = newObject.from;
-  delib.eth.accountIndex = index;
-  return newObject;
+  options = Object.assign(configOptions, options);
+  delib.eth.contractOptions.built = options.built || delib.eth.contractOptions.built;
+  config.contracts.address = options.address || config.contracts.address;
+  delib.eth.accountIndex = options.from;
+  options.from = null;
+  return options;
 }
 
 program
@@ -82,7 +84,7 @@ program
   .description('Build a solidity contract')
   .action((file) => {
     delib.eth.init();
-    delib.eth.buildContracts(file)
+    delib.eth.build(file)
       .then((contracts) => {
 
       })
@@ -108,8 +110,6 @@ program
   .action((contractName, args, options) => {
     delib.eth.init();
     options = optionsFormat(options, config.cli.options);
-    delib.eth.contractOptions.built = options.built || delib.eth.contractOptions.built;
-    config.contracts.address = options.address || config.contracts.address;
     delib.eth.deploy(contractName, args, options)
       .then(instance => {
         console.log('Deployed address:', instance.address);
@@ -128,7 +128,7 @@ program
   .description('Bind a built contract to an address to call methods with exec')
   .action((contractName, contractAddress, options) => {
     config.contracts.address = options.address || config.contracts.address;
-    Contracts.set(contractName, contractAddress);
+    Addresses.set(contractName, contractAddress);
   });
 
 /**
@@ -147,11 +147,9 @@ program
   .option('-n --nonce <number>', 'Nonce transaction option')
   .action((contractName, method, args, options) => {
     delib.eth.init();
-    delib.eth.contractOptions.built = options.built || delib.eth.contractOptions.built;
-    config.contracts.address = options.address || config.contracts.address;
-    const contractAddress = Contracts.get(contractName);
     options = optionsFormat(options, config.cli.options);
-    const contract = delib.eth.execAt(contractName, contractAddress, options);
+    args.push(options);
+    const contract = delib.eth.exec(contractName);
     contract[method].apply(this, args)
       .then(txRes => {
         console.log('Transaction response:', txRes);

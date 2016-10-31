@@ -2,6 +2,7 @@ const delib = require('./../index');
 
 delib.eth.init();
 // delib.eth.initIPC();
+console.log(delib.eth.address.getAll('Test'));
 
 // delib.eth.exec('Events').estimate.getNumber({gas: 0, gasPrice: 50})
 //   .then(num => {

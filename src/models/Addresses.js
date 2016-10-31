@@ -18,7 +18,6 @@ const ENDING = 'Address';
 module.exports = {
   set: (name, address) => {
     const pathway = path.join(__dirname, RELATIVE_PATH, config.contracts.address);
-    console.log(pathway);
     if (!pathExists(path.join(pathway))) {
       fs.mkdirSync(path.join(pathway));
     }
@@ -42,5 +41,11 @@ module.exports = {
     const addresses = addressesFile.split('\n');
     const address = addresses[index];
     return address.trim();
+  },
+  getAll: (name) => {
+    const pathway = path.join(__dirname, RELATIVE_PATH, config.contracts.address);
+    name = name + ENDING;
+    const addressesFile = fs.readFileSync(path.join(pathway, name), 'utf8');
+    return addressesFile.split('\n');
   }
 };
