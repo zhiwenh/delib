@@ -21,7 +21,7 @@ function optionsFormat(options, configOptions) {
 }
 
 program
-  .version('2.0.1');
+  .version('2.0.2');
 
 /**
  * Initializes DeLib by creating a configuration file and the contracts folder.
@@ -165,11 +165,11 @@ program
  * Show the logs of a contract event.
  */
 program
-  .command('events <contractName> <eventName> [fromBlock]')
+  .command('events <contractName> <eventName> [blocksBack]')
   .description('Show the logs of an event')
-  .action((contractName, eventName, fromBlock) => {
+  .action((contractName, eventName, blocksBack) => {
     delib.eth.init();
-    delib.eth.events(contractName, eventName, fromBlock)
+    delib.eth.events(contractName, eventName, blocksBack)
       .then(logs => {
         console.log('Event logs:');
         console.log(logs);
