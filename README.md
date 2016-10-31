@@ -295,7 +295,7 @@ The default transaction options for the CLI are located in the ```delib.js``` fi
 You can also pass in your own transaction options with the CLI commands.
 
 ### Deploy contract
-**delib deploy `<contractName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`**
+**delib deploy `<contractName> [...args], --built <path> --address <path>, -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`**
 
 
 Deploy a built contract with the name ```TestContract.sol.js```, and pass in two arguments for its constructor. If no gas option is passed it will be estimated for you.
@@ -304,7 +304,7 @@ Deploy a built contract with the name ```TestContract.sol.js```, and pass in two
 ```
 
 ### Call a contract method
-**delib exec `<contractName> <methodName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`**
+**delib exec `<contractName> <methodName> [...args], --built <path> --address <path>, -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`**
 
 Call the method `testMethod` on the deployed contract and pass in two arguments. Perform the transaction with 10000 gas and set the gas price to 50000.
 ```
@@ -411,11 +411,6 @@ Open up another private blockchain node
 -> delib devchain --datadir './relative/path/to/folder2/chaindata' --rpcport 8546 --port 30304
 ```
 
-And another:
-```
--> delib devchain --datadir './relative/path/to/folder3/chaindata' --rpcport 8547 --port 30305
-```
-
 ## Using the custom geth node
 If it is used within your project, the DeLib CLI and library will automatically connect to it via RPC and IPC. If it is not used in your project folders then the IPC host path will need to be set. The RPC port by default is opened up at 8545.
 
@@ -474,13 +469,13 @@ blockchain: {
 ## To connect with other private blockchains
 
 Get the geth enode addresses you wish to connect with and add it to the staticNodes array in in `delib.js`.
- ```
- {
-   blockchain: {
-     staticNodes: [ ]
-   }
+```
+{
+ blockchain: {
+   staticNodes: [ ]
  }
- ```
+}
+```
 If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
 
 Your enode address is shown when you start up the development blockchain. It will look like this: *enode://pubkey@ip:port*
@@ -595,9 +590,9 @@ If you found DeLib useful please leave a star on [GitHub](https://github.com/zhi
 * [delib](#Cli+build)
     * [init](#Cli+init)
     * [build `<fileName>`](#Cli+build)
-    * [deploy `<contractName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`](#Cli+deploy)
-    * [set `<contractName> <contractAddress>`](#Cli+set)
-    * [exec `<contractName> <methodName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`](#Cli+exec)
+    * [deploy `<contractName> [...args], --built, --address, -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`](#Cli+deploy)
+    * [set `<contractName> <contractAddress>, --address,`](#Cli+set)
+    * [exec `<contractName> <methodName> [...args], --built, --address, -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`](#Cli+exec)
     * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
     * [balance `<accountIndex>`](#Cli+balance)
     * [create `<password>`](#Cli+create)
@@ -624,6 +619,8 @@ Deploy a built Solidity smart contract located in the path set in the ```delib.j
 | --- | --- | --- |
 | `<contractName>` | `string` | Name of built contract |
 | `[...args]` | `strings` | Arguments to pass into method |
+| `--built` | `<path>` | Relative path to built contracts |
+| `--address` | `<path>` | Relative path to contract addresses |
 | `-f --from` | `<index>` | Transaction option `from`. Index of the account |
 | `-t --to` | `<address>` | Transaction option `to` |
 | `-v --value` | `<ether>` | Transaction option `value` |
@@ -639,6 +636,7 @@ Set the address of contract to be used with the CLI exec method and also with th
 | --- | --- | --- |
 | `<contractName>` | `string` | Name of built contract |
 | `<contractAddress>` | `string` | The address to bind to the contract |
+| `--address` | `<path>` | Relative path to contract addresses |
 
 <a name="Cli+exec"></a>
 #### delib exec `<contractName> <methodName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`
@@ -649,6 +647,8 @@ Call a deployed contract method with the provided arguments. The options refer t
 | `<contractName>` | `string` | Name of built contract |
 | `<methodName>` | `string` | Contract method name |
 | `[...args]` | `strings` | Arguments to pass into method |
+| `--built` | `<path>` | Relative path to built contracts |
+| `--address` | `<path>` | Relative path to contract addresses |
 | `-f --from` | `<index>` | Transaction option `from`. Index of the account |
 | `-t --to` | `<address>` | Transaction option `to` |
 | `-v --value` | `<ether>` | Transaction option `value` |

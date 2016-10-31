@@ -109,7 +109,7 @@ program
     delib.eth.init();
     options = optionsFormat(options, config.cli.options);
     delib.eth.contractOptions.built = options.built || delib.eth.contractOptions.built;
-    config.contracts.address = options.address || delib.eth.contractOptions.address;
+    config.contracts.address = options.address || config.contracts.address;
     delib.eth.deploy(contractName, args, options)
       .then(instance => {
         console.log('Deployed address:', instance.address);
@@ -124,8 +124,10 @@ program
  */
 program
   .command('set <contractName> <contractAddress>')
+  .option('--address <path>', 'Path to addresses folder')
   .description('Bind a built contract to an address to call methods with exec')
-  .action((contractName, contractAddress) => {
+  .action((contractName, contractAddress, options) => {
+    config.contracts.address = options.address || config.contracts.address;
     Contracts.set(contractName, contractAddress);
   });
 
