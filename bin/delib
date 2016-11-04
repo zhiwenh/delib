@@ -82,8 +82,10 @@ program
 program
   .command('build <file>')
   .description('Build a solidity contract')
-  .action((file) => {
-    delib.eth.init();
+  .option('-h --rpchost <value>', 'RPC host')
+  .option('-r --rpcport <port>', 'RPC port')
+  .action((file, options) => {
+    delib.eth.init(options.rpchost, options.rpcport);
     delib.eth.build(file)
       .then((contracts) => {
 
@@ -99,16 +101,18 @@ program
 program
   .command('deploy <contractName> [args...]')
   .description('Deploy a built contract')
-  .option('--built <path>', 'Path to built contracts folder')
-  .option('--address <path>', 'Path to addresses folder')
   .option('-f --from <index>', 'From transaction option. Takes in the account index')
   .option('-t --to <address>', 'To transaction option. Takes in the actual account address')
   .option('-v --value <ether>', 'Value transaction option. Converts the value from Ether to wei')
   .option('-g --gas <number>', 'Gas transaction option')
-  .option('-p --gasPrice <number>', 'Gas price transaction option')
+  .option('-p --gasprice <number>', 'Gas price transaction option')
   .option('-n --nonce <number>', 'Nonce transaction option')
+  .option('-h --rpchost <value>', 'RPC host')
+  .option('-r --rpcport <port>', 'RPC port')
+  .option('-b --built <path>', 'Path to built contracts folder')
+  .option('-a --address <path>', 'Path to addresses folder')
   .action((contractName, args, options) => {
-    delib.eth.init();
+    delib.eth.init(options.rpchost, options.rpcport);
     options = optionsFormat(options, config.cli.options);
     delib.eth.deploy(contractName, args, options)
       .then(instance => {
@@ -137,16 +141,18 @@ program
 program
   .command('exec <contractName> <method> [args...]')
   .description('Call or make a transaction with a contract method')
-  .option('--built <path>', 'Path to built contracts folder')
-  .option('--address <path>', 'Path to addresses folder')
   .option('-f --from <index>', 'From transaction option. The account index')
   .option('-t --to <address>', 'To transaction option. The actual account address')
   .option('-v --value <ether>', 'Value transaction option. Converts it from Ether to wei')
   .option('-g --gas <number>', 'Gas transaction option')
-  .option('-p --gasPrice <number>', 'Gas price transaction option')
+  .option('-p --gasprice <number>', 'Gas price transaction option')
   .option('-n --nonce <number>', 'Nonce transaction option')
+  .option('-h --rpchost <value>', 'RPC host')
+  .option('-r --rpcport <port>', 'RPC port')
+  .option('-b --built <path>', 'Path to built contracts folder')
+  .option('-a --address <path>', 'Path to addresses folder')
   .action((contractName, method, args, options) => {
-    delib.eth.init();
+    delib.eth.init(options.rpchost, options.rpcport);
     options = optionsFormat(options, config.cli.options);
     args.push(options);
     const contract = delib.eth.exec(contractName);
@@ -165,8 +171,10 @@ program
 program
   .command('events <contractName> <eventName> [blocksBack]')
   .description('Show the logs of an event')
-  .action((contractName, eventName, blocksBack) => {
-    delib.eth.init();
+  .option('-h --rpchost <value>', 'RPC host')
+  .option('-r --rpcport <port>', 'RPC port')
+  .action((contractName, eventName, blocksBack, options) => {
+    delib.eth.init(options.rpchost, options.rpcport);
     delib.eth.events(contractName, eventName, blocksBack)
       .then(logs => {
         console.log('Event logs:');
@@ -183,8 +191,10 @@ program
 program
   .command('balance <index>')
   .description('Get the balance of an Ethereum account by its index')
-  .action((index) => {
-    delib.eth.init();
+  .option('-h --rpchost <value>', 'RPC host')
+  .option('-r --rpcport <port>', 'RPC port')
+  .action((index, options) => {
+    delib.eth.init(options.rpchost, options.rpcport);
     const balance = delib.eth.getBalanceEther(index);
     console.log(balance);
   });
@@ -195,9 +205,12 @@ program
 program
   .command('create <password>')
   .description('Create an Ethereum account')
-  .action(password => {
-    delib.eth.init();
-    delib.eth.initIPC();
+  .option('-h --rpchost <value>', 'RPC host')
+  .option('-r --rpcport <port>', 'RPC port')
+  .option('-i --ipchost <path>', 'Relative path to IPC')
+  .action((password, options) => {
+    options.ipchost  = options.ipchost ? path.join(process.cwd(), options.ipchost, 'geth.ipc') : undefined;
+    delib.eth.initIPC(options.ipchost);
     delib.eth.createAccount(password)
       .then(res => {
         console.log(res);
@@ -215,9 +228,12 @@ program
 program
   .command('unlock <index> <password> [time]')
   .description('Unlock an Ethereum account')
-  .action((index, password, time) => {
-    delib.eth.init();
-    delib.eth.initIPC();
+  .option('-h --rpchost <value>', 'RPC host')
+  .option('-r --rpcport <port>', 'RPC port')
+  .option('-i --ipchost <path>', 'Relative path to IPC')
+  .action((index, password, time, options) => {
+    options.ipchost  = options.ipchost ? path.join(process.cwd(), options.ipchost, 'geth.ipc') : undefined;
+    delib.eth.initIPC(options.ipchost);
     time = time || 60 * 60 * 24;
     delib.eth.unlockAccount(index, password, time)
       .then(bool => {

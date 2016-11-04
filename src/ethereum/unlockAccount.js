@@ -23,7 +23,6 @@ module.exports = promisify((index, password, timeLength, web3IPC, callback) => {
       if (index < 0 || index >= accounts.length) {
         throw new Error('Invalid account index');
       }
-      console.log(accounts);
       return promisify(web3IPC.personal.unlockAccount)(accounts[index], password, timeLength);
     })
     .then(address => {
