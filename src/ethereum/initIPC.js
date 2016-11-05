@@ -1,7 +1,6 @@
 const Web3IPC = require('web3_ipc');
 const promisify = require('es6-promisify');
 const config = require('./../config/config.js');
-const path = require('path');
 
 const options = {
   host: null,
