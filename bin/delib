@@ -252,6 +252,7 @@ program
   .option('--off', 'Turn off automatic mining.')
   .option('--accounts <amount>', 'Number of accounts to create if creating the blockchain or reseting')
   .option('--password <value>', 'Password to give and unlock the accounts automatically created')
+  .option('--staticnodes <enodes>..<enodes>', 'Static nodes to connect with seperated by commas')
   .option('--identity <value>', 'Geth node identity name. Default is "delib".')
   .option('--datadir <path>', 'Relative path to blockchain data. Creates the folder if it\'s not there. Default is your projects devchain folder file or where this command is run')
   .option('--port <number>', 'Geth server network p2p port. Default is 30303')
@@ -265,6 +266,9 @@ program
     config.blockchain.path.dev = options.datadir ? path.join(process.cwd(), options.datadir) : config.blockchain.path.dev;
     config.blockchain.accountAmount = options.accounts || config.blockchain.accountAmount;
     config.blockchain.password = options.password || config.blockchain.password;
+    if (options.staticnodes) {
+      config.blockchain.staticNodes = config.blockchain.staticNodes.concat(options.staticnodes);
+    }
 
     // Check to see if a reset is needed
     if (pathExists(config.blockchain.path.dev) && options.reset) {
