@@ -474,8 +474,21 @@ function Ethereum() {
    * @return {Promise} The response contains an array event logs.
   */
   this.events = (contractName, eventName, blocksBack, filter) => {
-    this._checkConnectionError();
     const contractAddress = Addresses.get(contractName);
+    return this.eventsAt(contractName, contractAddress, eventName, blocksBack, filter);
+  };
+
+  /**
+   * Gets the event logs for an event at a specific addess
+   * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
+   * @param {string} contractAddress - Address of the contract.
+   * @param {string} eventName - The name of the event method.
+   * @param {number} blocksBack - The blocks back to get logs for. 'all' gets all blocks.
+   * @param {Object} filter - Options to filter the events. Optional. Defaults to: { address: contractAddress }.
+   * @return {Promise} The response contains an array event logs.
+  */
+  this.eventsAt = (contractName, contractAddress, eventName, blocksBack, filter) => {
+    this._checkConnectionError();
     const contract = this._getBuiltContract(contractName);
     contract.setProvider(this.provider);
     const contractInstance = contract.at(contractAddress);
@@ -529,7 +542,6 @@ function Ethereum() {
           callback(err, null);
         });
     })();
-
   };
 
   /**

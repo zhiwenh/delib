@@ -657,8 +657,6 @@ Call a deployed contract method with the provided arguments. The options refer t
 | `-n --nonce` | `<number>` | Transaction option `nonce` |
 
 
-
-
 <a name="Cli+events"></a>
 #### delib events `<contractName> <eventName> [blocksBack]`
 Get the logs of a deployed contract's event.
@@ -741,7 +739,8 @@ Start up a geth node running the [development private blockchain](#devchain).
       * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
     * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
       * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
-    * [.events(contractName, contractAddress, eventName, blocksBack, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
+    * [.events(contractName, eventName, blocksBack, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
+    * [.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)](#Ethereum+eventsAt) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.changeAccount(index)](#Ethereum+changeAccount) ⇒ <code>string</code>
     * [.getBalance(index, type)](#Ethereum+getBalance) ⇒ <code>number</code>
     * [.createAccount(password)](#Ethereum+createAccount) ⇒ <code>Promise</code> ⇒ <code>string</code>
@@ -918,8 +917,20 @@ Calls a deployed contract at a specified address and methods called on the retur
 
 
 <a name="Ethereum+events"></a>
-
 #### delib.eth.events(contractName, eventName, blocksBack, filter) ⇒ <code>Promise</code>
+Gets the event logs for an event.
+
+**Returns**: <code>Promise</code> - The response contains an array event logs.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contractName | <code>string</code> | Name of built contract. |
+| eventName | <code>string</code> | The name of the event method. |
+| blocksBack | <code>number</code> | The number of blocks back to get logs for. 'all' gets all blocks. Defaults to 'all'|
+| filter | <code>Object</code> | Object to filter the event logs. If a property in the filter object also exists in the log objects, they must match. A property can also contain a callback function that takes in the property value. It must return true. Default: { address: contractAddress }. |
+
+<a name="Ethereum+eventsAt"></a>
+#### delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack, filter) ⇒ <code>Promise</code>
 Gets the event logs for an event.
 
 **Returns**: <code>Promise</code> - The response contains an array event logs.  
