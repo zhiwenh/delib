@@ -1,12 +1,8 @@
 
 /** Configuration options for DeLib */
 
-/** Make sure not to remove any of the options */
 
 module.exports = {
-  /** Development mode status. If true it sets up IPC host to the development blockchain path */
-  dev: true,
-
   /** Contract file paths */
   contracts: {
     path: './contracts/', // Relative path to Solidity contracts
@@ -14,51 +10,41 @@ module.exports = {
     address: './addresses/' // Relative path to deployed contract addresses
   },
 
-  /** Transaction options for CLI. */
-  /** If you want to change the options then you will need to re-save this file for each CLI transaction */
-  cli: {
-    options: {
-      from: 0, // Account index
-      value: 0,
-      gas: 0 // Set to 0 to estimate the gas value for transactions
-    }
-  },
-
-  /** The RPC connection options that the library and CLI will use to connect to a geth node */
+  /** RPC connection options */
   rpc: {
     host: 'localhost',
     port: 8545,
   },
 
-  /** The IPC host absolute path. If not specified the path will be taken from blockchain.path.dev */
+  /** The IPC host path. If null it will be devchain.path */
   ipc: {
     host: null
   },
 
-  blockchain: {
-    /** IPC host connection is based off these paths */
-    path: {
-      dev: './devchain/', // Relative path to the development blockchain for this project
-      production: process.env.HOME + '/Library/Ethereum/' // Path used if dev is set to false. This is the directory that geth uses for the actual Ethereum blockchain on Mac OSX
-    },
+  /** Devchain options */
+  devchain: {
+    path: './devchain/', // Relative path to development blockchain data
 
-    /** Development blockchain options */
-    autoMine: true, // Status of toggling mining if there are transactions pending and whether to keep coinbank topped off at a minimum amount
+    autoMine: true, // Auto mining status
     accountAmount: 3, // Number of accounts to create
     password: '', // Password to create accounts with
-    minAmount: 50, // Amount for coinbank to mine to
-    distributeAmount: 10, // Ether amount to distribute to accounts after mining
+    minAmount: 50, // Ether amount to keep coinbank topped off at
+    distributeAmount: 10, // Ether amount to distribute to all accounts
 
-    /** Geth node start arguments */
+    /** Custom geth node start options */
     identity: 'delib', // RPC identity name
     rpcaddr: 'localhost', // RPC host
-    rpcport: 8545, // RPC port to open for web3 calls
-    port: 30303, // Geth p2p network listening port. Allows other nodes to connect
+    rpcport: 8545, // RPC port
+    port: 30303, // Geth p2p network listening port
+    staticNodes: [] // Geth enode addresses to connect with
+  },
 
-    /** Addresses of nodes to connect to */
-    staticNodes: [
-      // If the nodes have same genesis file and identities as yours then syncing will begin. Example enodes:
-      // "enode://f4642fa65af50cfdea8fa7414a5def7bb7991478b768e296f5e4a54e8b995de102e0ceae2e826f293c481b5325f89be6d207b003382e18a8ecba66fbaf6416c0@33.4.2.1:30303", "enode://pubkey@ip:port"
-    ]
+  /** Default transaction options for CLI. */
+  cli: {
+    options: {
+      from: 0, // Account index
+      value: 0,
+      gas: 0 // Set at 0 to estimate gas value
+    }
   }
 };

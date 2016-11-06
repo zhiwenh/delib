@@ -260,7 +260,7 @@ delib.help = function() {
   var pendingBlock; // to make sure transactions are only displayed after another block is mined
 
   console.log('');
-  delib.log('Path to blockchain data:', delib.path.dev);
+  delib.log('Path to blockchain data:', delib.path);
   console.log('');
   delib.log('Node address:', web3.admin.nodeInfo.enode);
   console.log('');

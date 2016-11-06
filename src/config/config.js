@@ -43,15 +43,8 @@ function findConfig(originalDirectory, levels) {
 const originalDirectory = process.cwd();
 const config = findConfig(originalDirectory, 10);
 
-config.blockchain.path.dev = path.join(config.projectRoot, config.blockchain.path.dev);
-
-// If no IPC host path is given
-if (!config.ipc.host) {
-  if (config.dev === true) {
-    config.ipc.host = path.join(config.blockchain.path.dev, 'geth.ipc');
-  } else {
-    config.ipc.host = path.join(config.blockchain.path.production, 'geth.ipc');
-  }
-}
+// Sets devchain data absolute path
+config.devchain.path = path.join(config.projectRoot, config.devchain.path);
+config.ipc.host = config.ipc.host || path.join(config.devchain.path, 'geth.ipc');
 
 module.exports = config;

@@ -226,13 +226,17 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
   });
 ```
 
-To call a contract method at a specified address. You can get an array off all the addresses of a contract with `delib.eth.address.getAll('contractName')`.
+You can get an array of previously deployed addressed with `delib.eth.address.getAll('contractName')`.
+
+To call a contract method at a previously deployed address:
 ```
 options = {
   gas: 1000000
 };
 
-delib.eth.execAt('Test', '0xd023633dbf0d482884be40adad5ecc0851015d9b').testMethod(arg1, arg2, options)
+const addresses = delib.eth.address.getAll('Test'); // Array of Test addresses
+
+delib.eth.execAt('Test', addresses[1]).testMethod(arg1, arg2, options)
   .then(tx => {
 
   })
@@ -476,7 +480,14 @@ Get the geth enode addresses you wish to connect with and add it to the staticNo
  }
 }
 ```
-If they are running a blockchain with the same identity and genesis file as you, then syncing will begin.
+
+You can also pass the enode addresses in as an option when you call the `devchain` command.
+
+```
+-> delib devchain --staticnodes enode://pubkey1@ip:port, enode://pubkey2@ip:port
+```
+
+If the other geth nodes are running a blockchain with the same identity and genesis file as you, then syncing will begin.
 
 Your enode address is shown when you start up the development blockchain. It will look like this: *enode://pubkey@ip:port*
 
