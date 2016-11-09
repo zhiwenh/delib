@@ -23,7 +23,7 @@ function optionsFormat(options, configOptions) {
 }
 
 program
-  .version('2.0.2');
+  .version('2.1.0');
 
 /**
  * Initializes DeLib by creating a configuration file and the contracts folder.
