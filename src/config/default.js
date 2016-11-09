@@ -1,6 +1,4 @@
-
 /** Configuration options for DeLib */
-
 
 module.exports = {
   /** Contract file paths */
@@ -23,7 +21,7 @@ module.exports = {
 
   /** Devchain options */
   devchain: {
-    path: './devchain/', // Relative path to development blockchain data
+    path: './devchain/', // Relative path to devchain data
 
     autoMine: true, // Auto mining status
     accountAmount: 3, // Number of accounts to create

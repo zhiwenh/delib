@@ -223,7 +223,6 @@ function Ethereum() {
     }
   };
 
-
   /**
    * Builds Solidity contracts.
    * @param {array} contractFiles Array of contract file names in the directory path provided in Ethereum.config.contracts
