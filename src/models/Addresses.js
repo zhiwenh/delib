@@ -15,9 +15,11 @@ const ADDRESSES_AMOUNT = 50;
 
 const ENDING = 'Address';
 
-module.exports = {
-  set: (name, address) => {
-    const pathway = path.join(__dirname, RELATIVE_PATH, config.contracts.address);
+function Addresses() {
+  this.path = config.paths.address; // To set the path to the addresses
+
+  this.set = (name, address) => {
+    const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
     if (!pathExists(path.join(pathway))) {
       fs.mkdirSync(path.join(pathway));
     }
@@ -32,20 +34,26 @@ module.exports = {
       addressesFile = addresses.join('\n');
       fs.writeFileSync(path.join(pathway, name), addressesFile);
     }
-  },
-  get: (name, index) => {
-    const pathway = path.join(__dirname, RELATIVE_PATH, config.contracts.address);
+    return addresses.length - 1;
+  };
+
+  this.get = (name, index) => {
+    const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
     index = index || 0;
     name = name + ENDING;
     const addressesFile = fs.readFileSync(path.join(pathway, name), 'utf8');
     const addresses = addressesFile.split('\n');
     const address = addresses[index];
     return address.trim();
-  },
-  getAll: (name) => {
-    const pathway = path.join(__dirname, RELATIVE_PATH, config.contracts.address);
+  };
+
+  this.getAll = (name) => {
+    const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
     name = name + ENDING;
     const addressesFile = fs.readFileSync(path.join(pathway, name), 'utf8');
     return addressesFile.split('\n');
-  }
-};
+  };
+
+}
+
+module.exports = new Addresses();

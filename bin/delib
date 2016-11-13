@@ -4,54 +4,30 @@ const program = require('commander');
 const path = require('path');
 const fs = require('fs-extra');
 const pathExists = require('path-exists').sync;
-const spawn = require('child_process').spawn;
-const spawnSync = require('child_process').spawnSync;
 
 const delib = require('./../index.js');
 const Addresses = require('./../src/models/Addresses');
 const config = require('./../src/config/config.js');
 
-/** Formats the options to include options and account index */
-function optionsFormat(options, configOptions) {
-  if (options.value) options.value = delib.eth.toWei(options.value);
-  options = Object.assign(configOptions, options);
-  delib.eth.contractOptions.built = options.built || delib.eth.contractOptions.built;
-  config.contracts.address = options.address || config.contracts.address;
-  delib.eth.accountIndex = options.from;
-  options.from = null;
-  return options;
-}
-
 program
-  .version('2.1.0');
+  .version('3.0.0');
 
-/**
- * Initializes DeLib by creating a configuration file and the contracts folder.
- */
+/** Initializes DeLib by creating a configuration file and the contracts folder. */
 program
   .command('init')
   .description('Create configuration file, genesis file, and necessary folders')
   .action(() => {
     const configPath = path.join(process.cwd(), 'delib.js');
-    const genesisPath = path.join(process.cwd(), 'devgenesis.json');
     const contractsFolderPath = path.join(process.cwd(), 'contracts');
     const builtFolderPath = path.join(process.cwd(), 'built');
     const addressFolderPath = path.join(process.cwd(), 'addresses');
-    const devChainFolderPath = path.join(process.cwd(), 'devchain');
 
-    // const genesisPath = path.join(process.cwd(), 'devgenesis.json')
     if (!pathExists(configPath)) {
       const defaultConfig = fs.readFileSync(path.join(__dirname, '/../src/config/default.js'));
       fs.writeFileSync(configPath, defaultConfig);
       console.log('Created config file delib.js');
     } else {
-      console.log('DeLib config already initalized');
-    }
-
-    if (!pathExists(genesisPath)) {
-      const genesisFile = fs.readFileSync(path.join(__dirname, '/../src/devchain/devgenesis.json'));
-      fs.writeFileSync(genesisPath, genesisFile);
-      console.log('Created genesis file devgenesis.json');
+      console.log('Already created delib.js');
     }
 
     if (!pathExists(contractsFolderPath)) {
@@ -68,23 +44,18 @@ program
       fs.mkdirSync(addressFolderPath);
       console.log('Created contract addresses folder');
     }
-
-    if (!pathExists(devChainFolderPath)) {
-      fs.mkdirSync(devChainFolderPath);
-      console.log('Created devchain folder');
-    }
-
   });
 
-/**
- * Build a Solidity contract from paths in delib configuration file. Default is './contracts/'
- */
+/** Build a Solidity contract from paths in delib configuration file. Default is './contracts/' */
 program
   .command('build <file>')
-  .description('Build a solidity contract')
+  .description('Build a Solidity contract')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
+  .option('-c --contract <path>', 'Relative path to contracts folder')
+  .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((file, options) => {
+    options = optionActions(options);
     delib.eth.init(options.rpchost, options.rpcport);
     delib.eth.build(file)
       .then((contracts) => {
@@ -95,9 +66,7 @@ program
       });
   });
 
-/**
- * Deploy a Solidity contract from paths in delib configuration file. Default is './contracts/'.
- */
+/** Deploy a Solidity contract from paths in delib configuration file. Default is './contracts/'. */
 program
   .command('deploy <contractName> [args...]')
   .description('Deploy a built contract')
@@ -109,11 +78,11 @@ program
   .option('-n --nonce <number>', 'Nonce transaction option')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
-  .option('-b --built <path>', 'Path to built contracts folder')
-  .option('-a --address <path>', 'Path to addresses folder')
+  .option('-b --built <path>', 'Relative path to built contracts folder')
+  .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, args, options) => {
+    options = optionActions(options);
     delib.eth.init(options.rpchost, options.rpcport);
-    options = optionsFormat(options, config.cli.options);
     delib.eth.deploy(contractName, args, options)
       .then(instance => {
         console.log('Deployed address:', instance.address);
@@ -123,21 +92,7 @@ program
       });
   });
 
-/**
- * Set the address of a particular contract when called with exec.
- */
-program
-  .command('set <contractName> <contractAddress>')
-  .option('--address <path>', 'Path to addresses folder')
-  .description('Bind a built contract to an address to call methods with exec')
-  .action((contractName, contractAddress, options) => {
-    config.contracts.address = options.address || config.contracts.address;
-    Addresses.set(contractName, contractAddress);
-  });
-
-/**
- * Executes a deployed contract with specified method and provided arguments.
- */
+/** Executes a deployed contract with specified method and provided arguments. */
 program
   .command('exec <contractName> <method> [args...]')
   .description('Call or make a transaction with a contract method')
@@ -149,11 +104,11 @@ program
   .option('-n --nonce <number>', 'Nonce transaction option')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
-  .option('-b --built <path>', 'Path to built contracts folder')
-  .option('-a --address <path>', 'Path to addresses folder')
+  .option('-b --built <path>', 'Relative path to built contracts folder')
+  .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, method, args, options) => {
+    options = optionActions(options);
     delib.eth.init(options.rpchost, options.rpcport);
-    options = optionsFormat(options, config.cli.options);
     args.push(options);
     const contract = delib.eth.exec(contractName);
     contract[method].apply(this, args)
@@ -165,15 +120,16 @@ program
       });
   });
 
-/**
- * Show the logs of a contract event.
- */
+/** Show the logs of a contract event. */
 program
   .command('events <contractName> <eventName> [blocksBack]')
   .description('Show the logs of an event')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
+  .option('-b --built <path>', 'Relative path to built contracts folder')
+  .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
+    options = optionActions(options);
     delib.eth.init(options.rpchost, options.rpcport);
     delib.eth.events(contractName, eventName, blocksBack)
       .then(logs => {
@@ -185,9 +141,17 @@ program
       });
   });
 
-/**
- * Get the balance of a particular Ethereum account based on account index.
- */
+/** Set the address of a contract to call methods on */
+program
+  .command('set <contractName> <contractAddress>')
+  .option('-a --address <path>', 'Relative path to addresses folder')
+  .description('Set the address of a contract to use')
+  .action((contractName, contractAddress, options) => {
+    options = optionActions(options);
+    delib.eth.contracts.addresses.set(contractName, contractAddress);
+  });
+
+/** Get the balance of a particular Ethereum account based on account index. */
 program
   .command('balance <index>')
   .description('Get the balance of an Ethereum account by its index')
@@ -199,15 +163,11 @@ program
     console.log(balance);
   });
 
-/**
- * Create a new Ethereum account.
- */
+/** Create a new Ethereum account. */
 program
   .command('create <password>')
   .description('Create an Ethereum account')
-  .option('-h --rpchost <value>', 'RPC host')
-  .option('-r --rpcport <port>', 'RPC port')
-  .option('-i --ipchost <path>', 'Relative path to IPC')
+  .option('-i --ipchost <path>', 'Relative path to IPC host')
   .action((password, options) => {
     options.ipchost  = options.ipchost ? path.join(process.cwd(), options.ipchost, 'geth.ipc') : undefined;
     delib.eth.initIPC(options.ipchost);
@@ -222,15 +182,11 @@ program
       });
   });
 
-/**
- * Unlocks an Ethereum account.
- */
+/** Unlocks an Ethereum account. */
 program
   .command('unlock <index> <password> [time]')
   .description('Unlock an Ethereum account')
-  .option('-h --rpchost <value>', 'RPC host')
-  .option('-r --rpcport <port>', 'RPC port')
-  .option('-i --ipchost <path>', 'Relative path to IPC')
+  .option('-i --ipchost <path>', 'Relative path to IPC host')
   .action((index, password, time, options) => {
     options.ipchost  = options.ipchost ? path.join(process.cwd(), options.ipchost, 'geth.ipc') : undefined;
     delib.eth.initIPC(options.ipchost);
@@ -245,95 +201,17 @@ program
       });
   });
 
-program
-  .command('devchain')
-  .description('Start up a node for a dev blockchain. Creates devgenesis.json if it\'s not available')
-  .option('-r --reset', 'Reset the blockchain data directory')
-  .option('--off', 'Turn off automatic mining.')
-  .option('--accounts <amount>', 'Number of accounts to create if creating the blockchain or reseting')
-  .option('--password <value>', 'Password to give and unlock the accounts automatically created')
-  .option('--staticnodes <enodes>..<enodes>', 'Static nodes to connect with seperated by commas')
-  .option('--identity <value>', 'Geth node identity name. Default is "delib".')
-  .option('--datadir <path>', 'Relative path to blockchain data. Creates the folder if it\'s not there. Default is your projects devchain folder file or where this command is run')
-  .option('--port <number>', 'Geth server network p2p port. Default is 30303')
-  .option('--rpchost <value>', 'Geth server HTTP-RPC host. Default is localhost')
-  .option('--rpcport <number>', 'Geth server HTTP-RPC port. Default is 8545')
-  .option('--verbosity <number>', 'Logging verbosity: 0=silent, 1=error, 2=warn, 3=info, 4=core, 5=debug, 6=detail. Default is 3')
-  .option('--rpccorsdomain <value>', 'Comma separated list of domains from which to accept cross origin requests. Default is *')
-  .action(options => {
-    // Set custom geth options based on options
-    config.devchain.autoMine = (options.off) ? false : config.devchain.autoMine;
-    config.devchain.path = options.datadir ? path.join(process.cwd(), options.datadir) : config.devchain.path;
-    config.devchain.accountAmount = options.accounts || config.devchain.accountAmount;
-    config.devchain.password = options.password || config.devchain.password;
-    if (options.staticnodes) {
-      config.devchain.staticNodes = config.devchain.staticNodes.concat(options.staticnodes);
-    }
-
-    // Check to see if a reset is needed
-    if (pathExists(config.devchain.path) && options.reset) {
-      fs.removeSync(config.devchain.path);
-      gethInit();
-    } else if (!pathExists(path.join(config.devchain.path, 'chaindata'))) {
-      options.reset = true;
-      gethInit();
-    } else {
-      gethStart();
-    }
-
-    function gethInit() {
-      config.devchain.reset = true;
-
-      // Looks for the genesis file in project root folder, where command was called, or one directory above the blockchain data if --datadir is specified.
-      let genesisPath = options.datadir ?  path.join(process.cwd(), options.datadir, '..', 'devgenesis.json') : path.join(config.projectRoot, 'devgenesis.json');
-
-      // Only reset or create devchain folder if there's a genesis file avaliable
-      if (pathExists(genesisPath)) {
-        const initArgs = [
-          '--datadir', config.devchain.path,
-          'init', genesisPath
-        ];
-        spawnSync('geth', initArgs, { stdio: 'inherit' });
-        gethStart();
-      } else {
-        const genesisFile = fs.readFileSync(path.join(__dirname, '/../src/devchain/devgenesis.json'));
-        fs.writeFileSync(genesisPath, genesisFile);
-        console.log('Created devchain genesis file at', genesisPath);
-        console.log('Call commmand again to start the blockchain using the genesis file');
-      }
-    }
-
-    function gethStart() {
-      // Add the config object to the preload script
-      const configString = 'var CONFIG = ' + JSON.stringify(config.devchain, 2) + '; \n';
-      const preloadFile = fs.readFileSync(path.join(__dirname, './../src/devchain/preload.js'));
-      const pathToBuiltPreload = path.join(__dirname, './../src/devchain/devchain.js');
-      fs.writeFileSync(pathToBuiltPreload, configString);
-      fs.appendFileSync(pathToBuiltPreload, preloadFile);
-
-      // Add the static-nodes.json file to chain folder if the config file contains enodes
-      if (config.devchain.staticNodes.length > 0) {
-        const staticNodesString = JSON.stringify(config.devchain.staticNodes);
-        fs.writeFileSync(path.join(config.devchain.path, 'static-nodes.json'), staticNodesString);
-      }
-
-      // Start the development chain
-      const startArgs = [
-        '--identity', options.identity || config.devchain.identity,
-        '--datadir', options.datadir || config.devchain.path,
-        '--port', options.port || config.devchain.port,
-        '--rpcaddr', options.rpchost || config.devchain.rpcaddr,
-        '--rpcport', options.rpcport || config.devchain.rpcport,
-        '--verbosity', options.verbosity || 3,
-        '--rpccorsdomain', options.rpccorsdomain || '*',
-        '--rpc',
-        '--nodiscover',
-        '--preload', path.join(__dirname, './../src/devchain/devchain.js'),
-        'console',
-      ];
-      spawn('geth', startArgs, { stdio: 'inherit'});
-    }
-  });
-
-
 program.parse(process.argv);
+
+/** Formats the options to include options and account index */
+function optionActions(options) {
+  options = Object.assign(config.cli.options, options);
+  if (options.value) options.value = delib.eth.toWei(options.value);
+  delib.eth.account = options.from || delib.eth.account;
+
+  delib.eth.contracts.paths.contract = options.contract || delib.eth.contracts.paths.contract;
+  delib.eth.contracts.paths.built = options.built || delib.eth.contracts.paths.built;
+  delib.eth.contracts.paths.address = options.address || delib.eth.contracts.paths.address;
+
+  return options;
+}

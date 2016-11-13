@@ -2,8 +2,7 @@
 const fs = require('fs');
 const solc = require('solc'); // https://github.com/ethereum/solc-js
 const path = require('path');
-const contractsConfig = require('./../config/config.js').contracts;
-
+const config = require('./../config/config.js');
 /**
 * Creates object containing necessary information for web3 contract creation, writes it to a JSON file, and also for ether-pudding building
 * @contractFiles {String} or {Array} - the contract names to build
@@ -15,7 +14,7 @@ module.exports = (contractFiles, directoryPath) => {
   if (typeof contractFiles === 'string') {
     contractFiles = [contractFiles];
   }
-  if (!directoryPath) directoryPath = contractsConfig.path;
+  if (!directoryPath) directoryPath = config.paths.contract;
   if (directoryPath[directoryPath.length - 1] !== '/') directoryPath += '/';
 
   const input = {};

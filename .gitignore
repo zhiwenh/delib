@@ -3,3 +3,5 @@ node_modules
 npm-debug.log
 src/devchain/devchain.js
 backup
+TODO
+testing

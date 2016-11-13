@@ -3,6 +3,7 @@ const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
 
+const contracts = require('./contracts');
 const init = require('./init');
 const initIPC = require('./initIPC');
 const createAccount = require('./createAccount');
@@ -12,10 +13,6 @@ const optionsMerge = require('./utils/optionsMerge');
 const optionsFilter = require('./utils/optionsFilter');
 const optionsFormat = require('./utils/optionsFormat');
 const coder = require('./web3/solidity/coder');
-
-// Model
-const Addresses = require('./../models/Addresses');
-
 const config = require('./../config/config.js');
 
 // Path from this file to your project's root or from where you run your script.
@@ -35,19 +32,15 @@ function Ethereum() {
   this.web3; // Web3 object used by library
   this.web3RPC; // Web3 RPC object
   this.web3IPC; // Web3 IPC object
-
   this._init = false; // If RPC or IPC has been initialized
   this._initRPC = false;
   this._initIPC = false;
   this.connectionType;
-
   this.provider; // Provider to use for methods
   this._rpcProvider; // RPC connection to Ethereum geth node
   this._ipcProvider;
 
-  this.accountIndex = 0; // The default account index used for methods
-
-  /** The transaction options allowed for Ethereum */
+  /** Default transaction options */
   this.options = {
     from: null,
     to: null,
@@ -58,60 +51,17 @@ function Ethereum() {
     nonce: null
   };
 
-  /** THe options ulti methods */
-  this.optionsMerge = optionsMerge;
-  this.optionsFormat = optionsFormat;
-  this.optionsFilter = optionsFilter;
+  /** Account index used for transactions */
+  this.account = 0;
 
-  /** Does the necessary option adjustments */
-  this.optionsUtil = (mergeOptions, options) => {
-    options = Object.assign({}, options);
-    options = optionsMerge(mergeOptions, options);
-    options = optionsFormat(options);
-    options = optionsFilter(options);
-    return options;
-  };
-
-  this.address = Addresses;
-
-  // Paths to the contracts, built, and addresses
-  this.contractOptions = {
-    path: config.contracts.path,
-    built: config.contracts.built,
-    address: config.contracts.address
-  };
+  /** Contains contract related properties and methods */
+  this.contracts = contracts;
 
   /**
-   * @param {string} contractName Name of contract in the directory path provided in Ethereum.contract.build
-   * @returns {Contract} The built contract
-   */
-  this._getBuiltContract = (contractName) => {
-    const contractPath = path.join(RELATIVE_PATH, this.contractOptions.built, contractName + '.sol.js');
-    const contract = require(contractPath);
-    return contract;
-  };
-
-  /**
-   * Check the status of a certain connection type and throws error if not connected
-   * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
-   */
-  this._checkConnectionError = (type) => {
-    if (!this.connectionType) {
-      throw new Error ('Not connected to any provider');
-    }
-    type = type || this.connectionType;
-    type = type.toLowerCase();
-    if (!this.checkConnection(type)) {
-      throw new Error('Invalid ' + type + ' connection');
-    }
-  };
-
-
-  /**
-   * Sets up connection to RPC and IPC providers. Initializes the RPC and IPC connection with a local Ethereum node. The RPC provider is set in Ethereum.config.rpc.port. Need to call before using the Ethereum object. If RPC connection is already initalized and valid the RPC connection will be set to the current provider.
-   * @param {string} rpcHost - The host URL path to the RPC connection. Optional. If not given the rpcHost path will be taken from Ethereum.config.rpc.host.
-   * @param {number} rpcPort - The port number to the RPC connection. Optional. If not given the rpcPort path will be taken from Ethereum.config.rpc.port.
-   * @returns {Web3} The Web3 object Ethereum uses set up to the RPC provider
+   *
+   * @param {string} rpcHost
+   * @param {number} rpcPort
+   * @returns {Web3}
    */
   this.init = (rpcHost, rpcPort) => {
     if (this._init === false) {
@@ -123,8 +73,6 @@ function Ethereum() {
         this.web3 = this.web3RPC;
         this.connectionType = 'rpc';
         this.provider = this.web3RPC.currentProvider;
-        this.accounts = this.web3RPC.eth.accounts; // GET THIS TO WORK WITH IPC
-        this.account = this.accounts[0];
       } else { // try and connect via ipc if rpc doesn't work
         throw new Error('Unable to connect to RPC provider');
       }
@@ -135,9 +83,9 @@ function Ethereum() {
 
 
   /**
-   * Initializes an IPC connection with a local Ethereum node. The IPC provider is set in Ethereum.config.ipc.host. Need to call before using the Ethereum object IPC methods.
-   * @param {string} ipcPath Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'
-   * @returns {Web3} The Web3 object delib.eth uses for its IPC connection.
+   *
+   * @param {string} ipcPath
+   * @returns {Web3}
    */
   this.initIPC = (ipcPath) => {
     this.web3IPC = initIPC(ipcPath) || this.web3IPC;
@@ -155,8 +103,8 @@ function Ethereum() {
   };
 
   /**
-   * Closes the IPC connection
-   * @returns {boolean} - Status of the IPC connection
+   *
+   * @returns {boolean}
    */
   this.closeIPC = () => {
     if (this.checkConnection('ipc')) {
@@ -167,8 +115,8 @@ function Ethereum() {
   };
 
   /**
-   * Check the status of a certain connection type.
-   * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
+   *
+   * @param {string} type
    */
   this.checkConnection = (type) => {
     // If type is undefined check current type being used
@@ -191,9 +139,9 @@ function Ethereum() {
   };
 
   /**
-   * Change the provider to use
-   * @param {string} type - The provider to change to. Options are 'rpc' or 'ipc'
-   * @returns {bool} - If the change went thru. True/false
+   *
+   * @param {string} type
+   * @returns {bool}
    */
   this.changeProvider = (type) => {
     if (type === 'rpc' || type === 'RPC' && this.checkConnection('rpc')) {
@@ -212,42 +160,30 @@ function Ethereum() {
   };
 
   /**
-   * Checks the connection to the RPC provider
-   * @return {bool} The true or false status of the RPC connection
-   */
-  this.check = () => {
-    if (!this.web3) {
-      return false;
-    } else {
-      return this.web3.isConnected();
-    }
-  };
-
-  /**
    * Builds Solidity contracts.
-   * @param {array} contractFiles Array of contract file names in the directory path provided in Ethereum.config.contracts
-   * @param {string} contractPath Optional. Directory path where contract files are located. If none is given the directory path will be retrieved from config.path.
-   * @param {string} buildPath Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from config.built.
-   * @returns {Promise} - Promise returns an array he contract names built.
+   * @param {array} contractFiles
+   * @param {string} contractPath
+   * @param {string} buildPath
+   * @returns {Promise}
    */
   this.build = (contractFiles, contractPath, buildPath) => {
     this._checkConnectionError('rpc');
-    contractPath = (contractPath) ? path.join(__dirname, RELATIVE_PATH, contractPath) : path.join(__dirname, RELATIVE_PATH, this.contractOptions.path);
-    buildPath = (buildPath) ? path.join(__dirname, RELATIVE_PATH, buildPath) : path.join(__dirname, RELATIVE_PATH, this.contractOptions.built);
+    contractPath = (contractPath) ? path.join(__dirname, RELATIVE_PATH, contractPath) : path.join(__dirname, RELATIVE_PATH, this.contracts.paths.contract);
+    buildPath = (buildPath) ? path.join(__dirname, RELATIVE_PATH, buildPath) : path.join(__dirname, RELATIVE_PATH, this.contracts.paths.built);
     return buildContracts(contractFiles, contractPath, buildPath);
   };
 
   /**
    * Deploy a built contract.
-   * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
-   * @param {Array} args - Arguments to be passed into the deployed contract as initial parameters.
-   * @param {Object} options - Transaction options. Options are: {from: contract address, value: number, gas: number, gasValue: number}.
-   * @return {Promise} The response is a Contract object of the deployed instance.
+   * @param {string} contractName
+   * @param {Array} args
+   * @param {Object} options
+   * @return {Promise}
    */
   this.deploy = (contractName, args, options) => {
     this._checkConnectionError();
     args = Array.isArray(args) ? args : [args];
-    options = this.optionsUtil(this.options, options);
+    options = this._optionsUtil(this.options, options);
     const contract = this._getBuiltContract(contractName);
     contract.setProvider(this.provider);
     var self = this;
@@ -271,13 +207,13 @@ function Ethereum() {
       function deployInstance(deployOptions) {
         promisify(self.web3.eth.getAccounts)()
           .then(accounts => {
-            deployOptions.from = deployOptions.from || accounts[self.accountIndex];
+            deployOptions.from = deployOptions.from || accounts[self.account];
             contract.defaults(deployOptions);
             const contractInstance = contract.new.apply(contract, args);
             return contractInstance;
           })
           .then(instance => {
-            Addresses.set(contractName, instance.address);
+            self.contracts.addresses.set(contractName, instance.address);
             callback(null, instance);
           })
           .catch(err => {
@@ -289,21 +225,21 @@ function Ethereum() {
 
   /**
    * Estimates the gas usage for a deployed contract
-   * @param {string} contractName - Name of the built contract located in this.contracts.built
-   * @param {Array} args - An array of arugments for the constructor of the deployed contract
-   * @param {Object} options - The options for the transaction. Gas cost used for deployment will be the gas limit.
-   * @returns {number} The estimated gas of deployment.
+   * @param {string} contractName
+   * @param {Array} args
+   * @param {Object} options
+   * @returns {number}
    */
   this.deploy.estimate = (contractName, args, options) => {
     this._checkConnectionError();
     args = Array.isArray(args) ? args : [args];
-    options = this.optionsUtil(this.options, options);
+    options = this._optionsUtil(this.options, options);
     const contract = this._getBuiltContract(contractName);
     contract.setProvider(this.provider);
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
-          options.from = options.from || accounts[this.accountIndex];
+          options.from = options.from || accounts[this.account];
           return promisify(this.web3.eth.getBlock)('latest');
         })
         .then(block => {
@@ -344,19 +280,19 @@ function Ethereum() {
 
   /**
    * Calls a deployed contract. Will take the address provided in the config address
-   * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
-   * @return {Contract} Contract object that you can call methods with.
+   * @param {string} contractName
+   * @return {Contract}
    */
   this.exec = (contractName) => {
-    const contractAddress = Addresses.get(contractName);
+    const contractAddress = this.contracts.addresses.get(contractName);
     return this.execAt(contractName, contractAddress);
   };
 
   /**
    * Calls a deployed contract at a specific address.
-   * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
-   * @param {string} contractAddress - Address of the contract.
-   * @return {Contract} Contract object that you can call methods with.
+   * @param {string} contractName
+   * @param {string} contractAddress
+   * @return {Contract} Contract
    */
   this.execAt = (contractName, contractAddress) => {
     this._checkConnectionError();
@@ -383,16 +319,15 @@ function Ethereum() {
         mockContract.estimate[methodName] = (...args) => {
           let options = this.options;
           if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
-            options = this.optionsUtil(options, args[args.length - 1]);
+            options = this._optionsUtil(options, args[args.length - 1]);
             args.pop();
           } else {
-            options = this.optionsUtil(options, {});
-
+            options = this._optionsUtil(options, {});
           }
           return promisify(callback => {
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = options.from || accounts[this.accountIndex];
+                options.from = options.from || accounts[this.account];
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
@@ -416,10 +351,10 @@ function Ethereum() {
           let options = this.options;
           // Checks to see if a transaction object got put into method call
           if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
-            options = this.optionsUtil(options, args[args.length - 1]);
+            options = this._optionsUtil(options, args[args.length - 1]);
             args.pop();
           } else {
-            options = this.optionsUtil(options, {});
+            options = this._optionsUtil(options, {});
           }
           // Only estimate gas if it doesn't exist or if its 0
           if (options.gas && options.gas != 0) {
@@ -431,7 +366,7 @@ function Ethereum() {
             // Get the estimate transaction options. Set gas at the gas limit
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = options.from || accounts[this.accountIndex];
+                options.from = options.from || accounts[this.account];
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
@@ -465,26 +400,27 @@ function Ethereum() {
 
   /**
    * Gets the event logs for an event
-   * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
-   * @param {string} contractAddress - Address of the contract.
-   * @param {string} eventName - The name of the event method.
-   * @param {number} blocksBack - The blocks back to get logs for. 'all' gets all blocks.
-   * @param {Object} filter - Options to filter the events. Optional. Defaults to: { address: contractAddress }.
-   * @return {Promise} The response contains an array event logs.
+   * @param {string} contractName
+   * @param {string} contractAddress
+   * @param {string} eventName
+   * @param {number} blocksBack
+   * @param {Object} filter
+   * @return {Promise}
   */
   this.events = (contractName, eventName, blocksBack, filter) => {
-    const contractAddress = Addresses.get(contractName);
+    const addressPath = path.join(__dirname, RELATIVE_PATH, this.contracts.paths.address);
+    const contractAddress = this.contracts.addresses.get(contractName);
     return this.eventsAt(contractName, contractAddress, eventName, blocksBack, filter);
   };
 
   /**
-   * Gets the event logs for an event at a specific addess
-   * @param {string} contractName - Name of built contract located in the directory provided in Ethereum.config.built.
-   * @param {string} contractAddress - Address of the contract.
-   * @param {string} eventName - The name of the event method.
-   * @param {number} blocksBack - The blocks back to get logs for. 'all' gets all blocks.
-   * @param {Object} filter - Options to filter the events. Optional. Defaults to: { address: contractAddress }.
-   * @return {Promise} The response contains an array event logs.
+   *
+   * @param {string} contractName
+   * @param {string} contractAddress -
+   * @param {string} eventName
+   * @param {number} blocksBack
+   * @param {Object} filter
+   * @return {Promise}
   */
   this.eventsAt = (contractName, contractAddress, eventName, blocksBack, filter) => {
     this._checkConnectionError();
@@ -544,10 +480,10 @@ function Ethereum() {
   };
 
   /**
-   * Get the balance of an account.
-   * @param {number} index - Index of the account to check the balance of in Ether.
-   * @param {string} type - The denomination. Default: 'ether'
-   * @return {number} The amount of Ether contained in the account.
+   *
+   * @param {number} index
+   * @param {string}
+   * @return {number}
    */
   this.getBalance = (index, type) => {
     type = type || 'ether';
@@ -573,9 +509,9 @@ function Ethereum() {
   };
 
   /**
-   * Creates a new Ethereum account. The account will be located in your geth Ethereum directory in a JSON file encrpyted with the password provided. process.exit() needs to be called in Promise or the method will run indefinately. Don't use process.exit() if using method in Electron.
-   * @param {string} password - The password to create the new account with.
-   * @return {Promise} Promise return is a string with the newly created account's address.
+   *
+   * @param {string}
+   * @return {Promise}
    */
   this.createAccount = (password) => {
     this._checkConnectionError('ipc');
@@ -583,149 +519,54 @@ function Ethereum() {
   };
 
   /**
-   * Unlocks an Ethereum account. process.exit() needs to be called in Promise or the method will run indefinately. Don't use process.exit() if using method in Electron.
-   * @param {string} address - The address of the account.
-   * @param {string} password - Password of account.
-   * @param {number} timeLength - Time in seconds to have account remain unlocked for.
-   * @return {boolean} Status if account was sucessfully unlocked.
+   *
+   * @param {string} address
+   * @param {string} password
+   * @param {number} timeLength
+   * @return {boolean}
    */
   this.unlockAccount = (index, password, timeLength) => {
     this._checkConnectionError('ipc');
     return unlockAccount(index, password, timeLength, this.web3IPC);
   };
 
-
-  /****************************************/
-  /************** DEPRECATED **************/
-  /****************************************/
-
-  this.account;
-  this.accounts = [];
-
-  /** Depreciated version of build */
-  this.buildContracts = (contractFiles, contractPath, buildPath) => {
-    this._checkConnectionError('rpc');
-    if (!contractPath) {
-      if (this.contractOptions.path) {
-        contractPath = path.join(__dirname, RELATIVE_PATH, this.contractOptions.path);
-      } else {
-        contractPath = path.join(__dirname, RELATIVE_PATH, config.contracts.path);
-      }
-    }
-    if (!buildPath) {
-      if (this.contractOptions.built) {
-        buildPath = path.join(__dirname, RELATIVE_PATH, this.contractOptions.built);
-      }
-      else {
-        buildPath = path.join(__dirname, RELATIVE_PATH, config.contracts.built);
-      }
-    }
-    return buildContracts(contractFiles, contractPath, buildPath);
+  /** Performs necessary option adjustments
+   * @param {Object} mergeOptions
+   * @param {Object} options
+   * @returns {Object}
+   */
+  this._optionsUtil = (mergeOptions, options) => {
+    options = Object.assign({}, options);
+    options = optionsMerge(mergeOptions, options);
+    options = optionsFormat(options);
+    options = optionsFilter(options);
+    return options;
   };
 
   /**
-   * Change the account address being used by the Ethereum object.
-   * @param {number} index Index of the account address returned from web3.eth.accounts to change to.
-   * @return {string} The account address now being used.
+   * @param {string} contractName
+   * @returns {Contract}
    */
-  this.changeAccount = (index) => {
-    if (index < 0 || index >= this.accounts.length) {
-      return this.account;
-    } else {
-      this.accountIndex = index;
-      this.account = this.accounts[index];
-      return this.account;
-    }
-  };
-
-  this.initRPC = (rpcHost, rpcPort) => {
-    this.web3RPC = init(rpcHost, rpcPort) || this.web3RPC;
-    this._rpcProvider = this.web3RPC.currentProvider;
-
-    if (this._init === false) {
-      if (!this.checkConnection('ipc')) {
-        throw new Error('Unable to connect to IPC provider');
-      }
-      this.changeProvider('rpc');
-      this.accounts = this.web3RPC.eth.accounts; // GET THIS TO WORK WITH IPC
-      this._init = true;
-    }
-
-    return this.web3RPC;
+  this._getBuiltContract = (contractName) => {
+    const contractPath = path.join(RELATIVE_PATH, this.contracts.paths.built, contractName + '.sol.js');
+    const contract = require(contractPath);
+    return contract;
   };
 
   /**
-   * Convert an Ether amount to Wei
-   * @param {number} amount - Amount to convert. Can also be a BigNumber object.
-   * @return {number} Converted Wei amount.
+   * Check the status of a certain connection type and throws error if not connected
+   * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
    */
-  this.toWei = (amount) => {
-    this._checkConnectionError();
-    return Number(this.web3.toWei(amount, 'ether').toString());
-  };
-
-  /**
-   * Convert a Wei amount to Ether.
-   * @param {number} amount - Amount to convert. Can also be a BigNumber object.
-   * @return {number} Converted Ether amount.
-   */
-  this.toEther = (amount) => {
-    this._checkConnectionError();
-    return Number(this.web3.fromWei(amount, 'ether').toString());
-  };
-
-  /**
-   * Get the Ether balance of an account in Ether denomination.
-   * @param {number} index - Index of the account to check the balance of in Ether.
-   * @return {number} The amount of Ether contained in the account.
-   */
-  this.getBalanceEther = (index) => {
-    this._checkConnectionError();
-    if (this.connectionType === 'ipc') {
-      return promisify(callback => {
-        promisify(this.web3.eth.getAccounts)()
-          .then(accounts => {
-            index = (index && index >= 0 && index < accounts.length) ? index : 0;
-            return promisify(this.web3.eth.getBalance)(accounts[index]);
-          })
-          .then(amount => {
-            callback(null, this.web3.fromWei(amount, 'ether').toNumber());
-          })
-          .catch(err => {
-            callback(err , null);
-          });
-      })();
+  this._checkConnectionError = (type) => {
+    if (!this.connectionType) {
+      throw new Error ('Not connected to any provider');
     }
-    index = (index && index >= 0 && index < this.web3.eth.accounts.length) ? index : 0;
-    const amount = this.web3.eth.getBalance(this.web3.eth.accounts[index]);
-    return this.web3.fromWei(amount, 'ether').toNumber();
+    type = type || this.connectionType;
+    type = type.toLowerCase();
+    if (!this.checkConnection(type)) {
+      throw new Error('Invalid ' + type + ' connection');
+    }
   };
 
-  /**
-   * Get the Ether balance of an account in Wei denomination. 1 Ether = 1,000,000,000,000,000,000 wei
-   * @param {number} index - Index of the account to check the balance of inWei.
-   * @return {number} The amount of Ether in Wei contained in the account.
-   */
-  this.getBalanceWei = (index) => {
-    this._checkConnectionError();
-    if (this.connectionType === 'ipc') {
-      return promisify(callback => {
-        promisify(this.web3.eth.getAccounts)()
-          .then(accounts => {
-            index = (index && index >= 0 && index < accounts.length) ? index : 0;
-            return promisify(this.web3.eth.getBalance)(accounts[index]);
-          })
-          .then(amount => {
-            callback(null, amount.toNumber());
-          })
-          .catch(err => {
-            callback(err , null);
-          });
-      })();
-    }
-    index = (index && index >= 0 && index < this.web3.eth.accounts.length) ? index : 0;
-    const amount = this.web3.eth.getBalance(this.web3.eth.accounts[index]);
-    return this.web3.fromWei(amount, 'wei').toNumber();
-  };
 }
 module.exports = new Ethereum();

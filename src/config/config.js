@@ -36,6 +36,7 @@ function findConfig(originalDirectory, levels) {
     configContents.projectRoot = originalDirectory;
     return configContents;
   }
+
   levels--;
   return findConfig(originalDirectory, levels);
 }
@@ -43,8 +44,7 @@ function findConfig(originalDirectory, levels) {
 const originalDirectory = process.cwd();
 const config = findConfig(originalDirectory, 10);
 
-// Sets devchain data absolute path
-config.devchain.path = path.join(config.projectRoot, config.devchain.path);
-config.ipc.host = config.ipc.host || path.join(config.devchain.path, 'geth.ipc');
+// To create the ipc host relative path
+config.ipc.host = config.ipc.host ? path.join(config.projectRoot, config.ipc.host) : config.ipc.host;
 
 module.exports = config;
