@@ -8,7 +8,7 @@ const init = require('./init');
 const initIPC = require('./initIPC');
 const createAccount = require('./createAccount');
 const unlockAccount = require('./unlockAccount');
-const buildContracts = require('./buildContracts');
+const build = require('./build');
 const optionsMerge = require('./utils/optionsMerge');
 const optionsFilter = require('./utils/optionsFilter');
 const optionsFormat = require('./utils/optionsFormat');
@@ -46,7 +46,7 @@ function Ethereum() {
     to: null,
     value: null,
     gas: 0,
-    gasValue: null,
+    gasPrice: null,
     data: null,
     nonce: null
   };
@@ -170,7 +170,7 @@ function Ethereum() {
     this._checkConnectionError('rpc');
     contractPath = (contractPath) ? path.join(__dirname, RELATIVE_PATH, contractPath) : path.join(__dirname, RELATIVE_PATH, this.contracts.paths.contract);
     buildPath = (buildPath) ? path.join(__dirname, RELATIVE_PATH, buildPath) : path.join(__dirname, RELATIVE_PATH, this.contracts.paths.built);
-    return buildContracts(contractFiles, contractPath, buildPath);
+    return build(contractFiles, contractPath, buildPath);
   };
 
   /**

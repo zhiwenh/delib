@@ -109,7 +109,6 @@ program
   .action((contractName, method, args, options) => {
     options = optionActions(options);
     delib.eth.init(options.rpchost, options.rpcport);
-    args.push(options);
     const contract = delib.eth.exec(contractName);
     contract[method].apply(this, args)
       .then(txRes => {
@@ -203,12 +202,16 @@ program
 
 program.parse(process.argv);
 
-/** Formats the options to include options and account index */
+/** Performs adjustments based on the options */
 function optionActions(options) {
   options = Object.assign(config.cli.options, options);
-  if (options.value) options.value = delib.eth.toWei(options.value);
+
+  /** Transaction option adjustments */
+  delib.eth.options.value = options.value ? delib.eth.toWei(options.value) : delib.eth.options.value; // Adjust Ether to wei
+  delib.eth.options.gas = options.gas || delib.eth.options.gas;
   delib.eth.account = options.from || delib.eth.account;
 
+  /** Path adjustments */
   delib.eth.contracts.paths.contract = options.contract || delib.eth.contracts.paths.contract;
   delib.eth.contracts.paths.built = options.built || delib.eth.contracts.paths.built;
   delib.eth.contracts.paths.address = options.address || delib.eth.contracts.paths.address;

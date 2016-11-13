@@ -8,7 +8,7 @@ DeLib's features include:
   * A CLI that lets you compile, build, deploy, call methods on, and get event logs from smart contracts.
   * Option to automatically estimate your transaction gas costs.
   * The ability to save the address of deployed contracts to call later.
-  * Creating and unlocking Ethereum accounts with IPC
+  * Creating and unlocking Ethereum accounts with IPC.
 
 ## Table of Contents
   * [Requirements](#requirements)
@@ -19,7 +19,6 @@ DeLib's features include:
   * [Support](#support)
   * [CLI API](#Cli+api)
   * [Library API](#Ethereum+api)
-  * [Configuration File](#config)
 
 <a name="requirements"></a>
 
@@ -72,9 +71,42 @@ project/
 ```
 The library can be used without creating a project. You will need to pass connection arguments into [delib.eth.init()](#Ethereum+init). To use the IPC methods you will need to pass in an IPC path into [delib.eth.initIPC()](#Ethereum+initIPC).
 
-### Configuration File
+### Config File
 
-The configuration options are located in ```delib.js```. [Click here](#config) to see the options.
+The file `delib.js` contains the config options. Here's a breakdown of the options in the file.
+
+```
+{
+  /** Project file paths */
+  paths: {
+    contract: './contracts', // Relative path to Solidity contracts
+    built: './built', // Relative path to built contracts
+    address: './addresses' // Relative path to deployed contract addresses
+  },
+
+  /** RPC connection options */
+  rpc: {
+    host: 'localhost',
+    port: 8545,
+  },
+
+  /** IPC connection options */
+  ipc: {
+    host: null // Relative path to IPC host
+  },
+
+  /** CLI options */
+  cli: {
+    /** Default transaction options */
+    options: {
+      from: 0, // Account index
+      value: 0,
+      gas: 0 // Set at 0 to estimate gas value
+    }
+  }
+};
+
+```
 
 ### Development Node
 
@@ -120,8 +152,20 @@ delib.eth.closeIPC();
 
 ```
 
+### File paths
+If you wish to specify your own paths to the solidity contracts, built contracts, and contract addresses you can by using the `delib.eth.contracts.paths` object.
+
+```
+delib.eth.contracts.paths.contract = {
+  contract: 'relative path to contract folder',
+  built: 'relative path to built folder',
+  address: 'relative path to addresses folder'
+};
+```
+
 ### Build contracts
-Pass in a file name or an array of file names you wish you build from your projects `contracts/` folder.
+Pass in a file name or an array of file names you wish you build from your projects `contracts/` folder to your project's `built/` folder.
+
 ```
 delib.eth.build('Test')
   .then(contracts => {
@@ -135,39 +179,24 @@ Choose the default account index to use for transactions. The index corresponds 
 delib.eth.account = 1;
 ```
 
-The options your transactions will be using by default. Options passed into deploy or contract method calls will overwrite these.
-
-If gas is set at 0 or null then it will be estimated for you.
+`delib.eth.options` contains the options your transactions will be using by default. Options passed into deploy or contract method calls will overwrite these. If gas is set at 0 or null then it will be estimated for you.
 
 ```
 delib.eth.options = {
-  from: null, // Leave at null to use delib.eth.account
+  from: null, // Leave at null to use the delib.eth.account index
   to: null, // Automatically takes on the address of the contract you're calling
-  value: 0,
+  value: 0, // Value in wei to send
   gas: 0, // If gas is set at 0 or null the gas cost is estimated
-  gasValue: null,
-  data: null,
-  nonce: null
+  gasPrice: null, // If not specified it is the network mean gas value
+  data: null, // Not used for delib methods
+  nonce: null // Not used for delib methods
 };
 ```
 
 ### Deploy contract
-The addresses of your deployed contracts are saved in your project's `addresses/` folder. You can pass in an array of arguments for the constructor. The options parameter is optional. The promise returns an instance of the contract.
-
-To estimate deployment gas usage:
-
-```
-delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
-  .then(gasEstimate => {
-
-  })
-  .catch(err => {
-
-  });
-```
+The addresses of your deployed contracts are saved in your project's `addresses/` folder. You can pass in an array of arguments for the constructor. The options parameter is optional. The promise returns an instance of the contract. You can use that instance to make method calls.
 
 To deploy contract and call a method on the instance:
-
 
 ```
 options = {
@@ -189,21 +218,21 @@ delib.eth.deploy('Test', [arg1, arg2, arg3], options)
   });
 ```
 
-### Call a contract method
-
-It will perform a transaction (which requires gas) or if it will just call and return a value by whether or not you labeled your function with constant in your Solidity contract.
-
-To estimate gas usage:
+To estimate deployment gas usage:
 
 ```
-delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
+delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
   .then(gasEstimate => {
 
   })
   .catch(err => {
 
-  })
+  });
 ```
+
+### Call a contract method
+
+It will perform a transaction (which requires gas) or if it will just call and return a value by whether or not you labeled your function with constant in your Solidity contract.
 
 To call a contract at the address you last deployed it:
 
@@ -221,7 +250,19 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
   });
 ```
 
-You can get an array of previously deployed addressed with `delib.eth.address.getAll('contractName')`.
+To estimate gas usage:
+
+```
+delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
+  .then(gasEstimate => {
+
+  })
+  .catch(err => {
+
+  })
+```
+
+You can get an array of previously deployed addresses with `delib.eth.contracts.addresses.getAll('contractName')`. The most recently deployed address is at index 0.
 
 To call a contract method at a previously deployed address:
 ```
@@ -229,7 +270,7 @@ options = {
   gas: 1000000
 };
 
-const addresses = delib.eth.address.getAll('Test'); // Array of Test addresses
+const addresses = delib.eth.contracts.addresses.getAll('Test'); // Array of Test addresses
 
 delib.eth.execAt('Test', addresses[1]).testMethod(arg1, arg2, options)
   .then(tx => {
@@ -241,7 +282,22 @@ delib.eth.execAt('Test', addresses[1]).testMethod(arg1, arg2, options)
 ```
 
 ### Get event logs
-The code below gets the logs from testEvent on the contract Test. It searches the last 100 blocks and only returns the even numbered blocks and with the name of James.
+The code below gets the logs from an event called testEvent on the contract Test. It searches the last 100 blocks. To have it search all blocks pass in `'all'` instead of a number.
+
+```
+delib.eth.events('Test', 'testEvent', 100)
+  .then(logs => {
+
+  })
+  .catch(err => {
+
+  });
+```
+
+#### Filter object
+You can pass in a filter object to filter your result. If filter object contains a key that's also in the event log object, the values will need to be the same or the log is filtered. Additionally, you can pass in a callback as a filter value. The callback takes in the value of the event log object, and gets filtered if it returns anything other than true. Click [here](#https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events) to see the properties of the event log object.
+
+The following code searches all blocks and only returns the even numbered blocks containing the event argument with a name of James.
 
 ```
 filter = {
@@ -253,8 +309,9 @@ filter = {
   args: {
     name: 'James'
   }
-}
-delib.eth.events('Test', 'testEvent', 100, filter)
+};
+
+delib.eth.events('Test', 'testEvent', 'all', filter)
   .then(logs => {
 
   })
@@ -268,7 +325,7 @@ delib.eth.events('Test', 'testEvent', 100, filter)
 <a name="Cli"></a>
 # CLI
 
-The CLI lets you compile and build Solidity contracts into a JavaScript file that you can then require. You can deploy the contract onto the blockchain to call methods and get event logs from. It integrates with the library, and uses the most recently deployed address of a particular contract. If you want use a specific address you can set it as well. The contract, built, and address paths are taken from the `delib.js` config file or can be set as a command option.
+The CLI lets you compile and build Solidity contracts into a JavaScript file that you can then require. You can deploy the contract onto the blockchain to call methods and get event logs. It integrates with the library, and uses the most recently deployed address of a particular contract. If you want use a specific address you can set it as well. The contract, built, and address paths are taken from the `delib.js` config file or can be set as a command option.
 
 ## Usage
 
@@ -286,7 +343,7 @@ The default transaction options for the CLI are located in the ```delib.js``` fi
 {
   cli: {
     from: 0, // The account index of the account
-    value: 0,
+    value: 0, // Value in Ether. It gets converted to wei
     gas: 0 // Set to 0 to estimate the gas value for transactions
   }
 }
@@ -878,41 +935,3 @@ Get the Ether balance of an account in Ether denomination.
 | --- | --- | --- |
 | index | <code>number</code> | Index of the account to check the balance of in Ether. |
 | type | <code>string</code> | The denomination. Default: 'ether' |
-
-
-<a name="config"></a>
-## Configuration File
-The configuration file is called ```delib.js```. Here is a breakdown of what each of the options do. Make sure to not remove any of these properties from the file.
-
-```
-{
-  /** Project file paths */
-  paths: {
-    contract: './contracts', // Relative path to Solidity contracts
-    built: './built', // Relative path to built contracts
-    address: './addresses' // Relative path to deployed contract addresses
-  },
-
-  /** RPC connection options */
-  rpc: {
-    host: 'localhost',
-    port: 8545,
-  },
-
-  /** IPC connection options */
-  ipc: {
-    host: null // Relative path to IPC host
-  },
-
-  /** CLI options */
-  cli: {
-    /** Default transaction options */
-    options: {
-      from: 0, // Account index
-      value: 0,
-      gas: 0 // Set at 0 to estimate gas value
-    }
-  }
-};
-
-```

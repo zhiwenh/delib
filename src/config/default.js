@@ -24,8 +24,9 @@ module.exports = {
     /** Default transaction options */
     options: {
       from: 0, // Account index
-      value: 0,
+      value: 0, // Value in Ether. It gets converted to wei
       gas: 0 // Set at 0 to estimate gas value
+
     }
   }
 };
