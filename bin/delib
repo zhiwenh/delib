@@ -10,7 +10,7 @@ const Addresses = require('./../src/models/Addresses');
 const config = require('./../src/config/config.js');
 
 program
-  .version('3.0.0');
+  .version('3.0.1');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
 program

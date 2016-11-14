@@ -212,7 +212,9 @@ Choose the default account index to use for transactions. The index corresponds 
 delib.eth.account = 1;
 ```
 
-`delib.eth.options` contains the options your transactions will be using by default. Options passed into deploy or contract method calls will overwrite these. If gas is set at 0 or null then it will be estimated for you.
+`delib.eth.options` contains the default options for your transactions. Options passed into deploy or contract method calls will overwrite these.
+
+If a gas option of 0, in either the default options or passed in, is given gas usage will be automatically estimated for you.  
 
 ```
 delib.eth.options = {
@@ -265,10 +267,8 @@ delib.eth.deploy('Test', [arg1, arg2, arg3], options)
   });
 ```
 
-### Estimate gas usage
+You can estimate the gas usage for deploying a contract.
 **delib.eth.deploy.estimate(contractName, args, options)**
-
-Gas gets automatically estimated for you if you specified a gas amount of 0.
 
 ```
 delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
@@ -306,11 +306,10 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
   });
 ```
 
-### Estimate gas usage
+You can estimate the gas usage for calling a contract method.
+
 **delib.eth.exec(contractName).estimate**  
 **delib.eth.execAt(contractName, contractAddress).estimate**
-
-Gas gets automatically estimated for you if you specified a gas amount of 0.
 
 ```
 delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
@@ -600,16 +599,16 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
 
 <a name=Cli+api></a>
 ## CLI
-* [delib](#Cli+build)
+* [delib](#Cli+api)
     * [init](#Cli+init)
-    * [build `<file> -h --rpchost <value>, -r --rpcport <port>, -c --contract <path>, -b --built <path>`](#Cli+build)
-    * [deploy `<contractName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`](#Cli+deploy)
-    * [exec `<contractName> <methodName> [...args], -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`](#Cli+exec)
-    * [events `<contractName> <eventName> [fromBlock], -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`](#Cli+events)
-    * [set `<contractName> <contractAddress>, -a --address <path>`](#Cli+set)
-    * [balance `<accountIndex>, -h --rpchost <value>, -r --rpcport <port>`](#Cli+balance)
-    * [create `<password>, -i --ipchost <path>`](#Cli+create)
-    * [unlock `<accountIndex> <password> [time], -i --ipchost <path>`](#Cli+unlock)
+    * [build `<file>`](#Cli+build)
+    * [deploy `<contractName> [...args]`](#Cli+deploy)
+    * [exec `<contractName> <methodName> [...args]`](#Cli+exec)
+    * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
+    * [set `<contractName> <contractAddress>`](#Cli+set)
+    * [balance `<accountIndex>`](#Cli+balance)
+    * [create `<password>`](#Cli+create)
+    * [unlock `<accountIndex> <password> [time]`](#Cli+unlock)
 
 <a name="Cli+init"></a>
 #### delib init
@@ -667,7 +666,7 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 | `--address` | `<path>` | Relative path to contract addresses |
 
 <a name="Cli+events"></a>
-#### delib events `<contractName> <eventName> [blocksBack], -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>``
+#### delib events `<contractName> <eventName> [blocksBack], -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`
 Get the logs of a deployed contract's event. By default it gets all logs starting from block 0. You can pass in how many blocks back you wish to get logs from.
 
 | Params | Type | Description |
