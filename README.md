@@ -1,14 +1,14 @@
-# DeLib
+# Delib
 
-Ethereum library and a CLI that allows smart contract interaction
+Simple Ethereum framework for DApps and contract management
 
-DeLib's features include:
+Delib's features include:
 
   * A promise based library that provides the core abstractions needed for building DApps on Ethereum.
-  * A CLI that lets you compile, build, deploy, call methods on, and get event logs from smart contracts.
-  * Option to automatically estimate your transaction gas costs.
-  * The ability to save the address of deployed contracts to call later.
-  * Creating and unlocking Ethereum accounts with IPC.
+  * CLI that lets you compile, build, deploy, call methods, and get events from smart contracts.
+  * Option to automatically estimate your transaction gas costs for contract deployment and methods.
+  * The saving of deployed contract addresses to use or reference later.
+  * The ability to create/unlock Ethereum accounts with the library and CLI
 
 ## Table of Contents
   * [Requirements](#requirements)
@@ -140,9 +140,7 @@ The library and CLI integrate together. Project file paths set in `delib.js` are
 
 This library gives you the freedom to customize your DApp development to fit your specific needs. You can easily write your own migration scripts, interact with smart contracts, and create tests.
 
-## Usage
-
-### File paths
+## File paths
 The library uses the paths provided in `delib.js`. If you wish to specify your own paths use the `delib.eth.contracts.paths` object.
 
 ```
@@ -153,10 +151,10 @@ delib.eth.contracts.paths.built = 'relative path to built folder';
 delib.eth.contracts.paths.address = relative path to addresses folder';
 ```
 
-### Connection
+## Connection
 Your project's `delib.js` file sets up your RPC and IPC connections. You can also pass in connection options as arguments.
 
-#### RPC provider
+### RPC provider
 **delib.eth.init(rpcHost, rpcPort)**
 
 To connect with the options in `delib.js`:
@@ -172,7 +170,7 @@ delib.eth.init('localhost', 8000);
 
 ```
 
-#### IPC provider
+### IPC provider
 **delib.eth.initIPC(ipcPath)**
 
 To connect with the options in `delib.js`:
@@ -193,7 +191,7 @@ The IPC connection remains on until you close it. To close it use:
 delib.eth.closeIPC();
 ```
 
-#### Switching providers
+### Switching providers
 **delib.eth.changeProvider(type)**
 
 The provider is set to the first one initialized. To switch between the two:
@@ -204,7 +202,7 @@ delib.eth.changeProvider('rpc');
 delib.eth.changeProvider('ipc');
 ```
 
-### Adjust transaction options
+## Adjust transaction options
 **delib.eth.account**  
 **delib.eth.options**
 
@@ -228,7 +226,7 @@ delib.eth.options = {
 };
 ```
 
-### Build contracts
+## Build contracts
 **delib.eth.build(contractFiles, contractPath, buildPath)**
 
 Pass in a file name or an array of file names you wish you build from your project's `contracts/` folder to your project's `built/` folder.
@@ -240,7 +238,7 @@ delib.eth.build('Test')
   });
 ```
 
-### Deploy contracts
+## Deploy contracts
 **delib.eth.deploy(contractName, args, options)**
 
 The addresses of your deployed contracts are saved in your project's `addresses/` folder. You can pass in an array of arguments for the constructor. The options parameter is optional. The promise returns an instance of the contract. You can use that instance to make method calls.
@@ -267,7 +265,7 @@ delib.eth.deploy('Test', [arg1, arg2, arg3], options)
   });
 ```
 
-#### Estimate gas usage
+### Estimate gas usage
 **delib.eth.deploy.estimate(contractName, args, options)**
 
 Gas gets automatically estimated for you if you specified a gas amount of 0.
@@ -282,11 +280,11 @@ delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
   });
 ```
 
-#### Contract addresses
+### Contract addresses
 You can get an array of all previously deployed addresses with `delib.eth.contracts.addresses.getAll('contractName')`. The most recently deployed address is at index 0. Using this will allow you to call previously deployed contracts.
 
 
-### Call contract methods
+## Call contract methods
 **delib.eth.exec(contractName)**  
 **delib.eth.execAt(contractName, contractAddress)**
 
@@ -308,7 +306,7 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
   });
 ```
 
-#### Estimate gas usage
+### Estimate gas usage
 **delib.eth.exec(contractName).estimate**  
 **delib.eth.execAt(contractName, contractAddress).estimate**
 
@@ -324,7 +322,7 @@ delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
   })
 ```
 
-### Get event logs
+## Get event logs
 **delib.eth.events(contractName, eventName, blocksBack, filter)**  
 **delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)**
 
@@ -340,7 +338,7 @@ delib.eth.events('Test', 'testEvent', 100)
   });
 ```
 
-#### Filter object
+### Filter object
 You can pass in a filter object to filter your result. If filter object contains a key that's also in the event log object, the values will need to be the same or the log is filtered. Additionally, you can pass in a callback as a filter value. The callback's parameter is the value of the event log object, and gets filtered if it returns anything other than true. Click [here](#https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events) to see the properties of the event log object.
 
 The following code searches all blocks and only returns the even numbered blocks containing the event argument with a name of James.
@@ -366,7 +364,7 @@ delib.eth.events('Test', 'testEvent', 'all', filter)
   });
 ```
 
-### Account balance
+## Account balance
 **delib.eth.getBalance(index, type)**
 
 The method to get the balance of an account takes in the account index and the Ether denomination you would like the result to be in.
@@ -379,7 +377,7 @@ delib.eth.getBalance(0, 'Ether');
 delib.eth.getBalance(0, 'wei');
 ```
 
-### Create account
+## Create account
 **delib.eth.createAccount(password)**
 
 This only works with an IPC connection. It creates an encrpyted JSON file containing your public and private key in your Ethereum blockchain's data directory.
@@ -388,7 +386,7 @@ This only works with an IPC connection. It creates an encrpyted JSON file contai
 delib.eth.createAccount('hunter1');
 ```
 
-### Unlock account
+## Unlock account
 **delib.eth.unlockAccount(index, password, timeLength)**
 
 This only works with an IPC connection. Time length is in seconds.
@@ -405,9 +403,7 @@ delib.eth.unlockAccount(1, 'hunter2', 10000);
 
 The CLI lets you compile and build Solidity contracts into a JavaScript file that you can then require. You can deploy the contract onto the blockchain to call methods and get event logs. You can also create, unlock, and get the balance of your accounts.
 
-## Usage
-
-### Build contract
+## Build contract
 **delib build `<file> -h --rpchost <value>, -r --rpcport <port>, -c --contract <path>, -b --built <path>`**
 
 Build a Solidity contract with the file name ```Contract.sol```.
@@ -415,7 +411,7 @@ Build a Solidity contract with the file name ```Contract.sol```.
 -> delib build Contract
 ```
 
-### Adjust transaction options
+## Adjust transaction options
 The default transaction options for the CLI are located in the ```delib.js``` file.
 ```
 {
@@ -428,7 +424,7 @@ The default transaction options for the CLI are located in the ```delib.js``` fi
 ```
 You can also pass in your own transaction options with the CLI commands.
 
-### Deploy contract
+## Deploy contract
 **delib deploy `<contractName> [...args], --built <path> --address <path>, -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`**
 
 Deploy a contract and pass in two arguments for its constructor. If no gas amount is given it will be estimated for you.
@@ -436,7 +432,7 @@ Deploy a contract and pass in two arguments for its constructor. If no gas amoun
 -> delib deploy Contract hello 30
 ```
 
-### Call a contract method
+## Call a contract method
 **delib exec `<contractName> <methodName> [...args], --built <path> --address <path>, -f --from <index>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>`**
 
 Call the method `setNumbers` on a deployed contract and pass in two numbers. The transaction options of 10000 gas with a gas value of 50000 are set as options. If no gas amount is given it will be estimated for you.
@@ -444,7 +440,7 @@ Call the method `setNumbers` on a deployed contract and pass in two numbers. The
 -> delib exec Contract setNumbers 10 20 --gas 10000 --gasPrice 50000
 ```
 
-### Get the logs of an event
+## Get the logs of an event
 **delib events `<contractName> <eventName> [blocksBack] -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`**
 
 Get all the logs of an event called `numbersEvent`.
@@ -457,7 +453,7 @@ Get the logs from the last 10 blocks.
 -> delib events Contract numbersEvent 10
 ```
 
-### Set the address of a contract
+## Set the address of a contract
 **delib set `<contractName> <contractAddress>, -a --address <path>`**
 
 Set the address of a contract to use. This will set its address for both the delib CLI and library until another contract is deployed.
@@ -466,7 +462,7 @@ Set the address of a contract to use. This will set its address for both the del
 -> delib set Contract 0xa9b15bfe1d4e7bed407a011e54af36462fa0e067
 ```
 
-### Create an account
+## Create an account
 **delib create `<password> -i --ipchost <path>`**
 
 Create an account with the password "hunter1".
@@ -475,7 +471,7 @@ Create an account with the password "hunter1".
 -> delib create hunter1
 ```
 
-### Unlock an account
+## Unlock an account
 **delib unlock `<accountIndex> <password> [unlockTime] -i --ipchost <path>`**
 
 Unlock your first account for 10000 seconds.
@@ -484,7 +480,7 @@ Unlock your first account for 10000 seconds.
 -> delib unlock 0 hunter1 10000
 ```
 
-### Get account balance
+## Get account balance
 **delib balance `<accountIndex> -h --rpchost <value>, -r --rpcport <port>`**
 
 Get the Ether balance of your first account.
