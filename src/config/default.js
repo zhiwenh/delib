@@ -11,7 +11,7 @@ module.exports = {
   /** RPC connection options */
   rpc: {
     host: 'localhost',
-    port: 8545,
+    port: 8545
   },
 
   /** IPC connection options */
@@ -26,7 +26,6 @@ module.exports = {
       from: 0, // Account index
       value: 0, // Value in Ether. It gets converted to wei
       gas: 0 // Set at 0 to estimate gas value
-
     }
   }
 };
