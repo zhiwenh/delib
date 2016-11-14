@@ -13,7 +13,7 @@ const RELATIVE_PATH = path.relative(__dirname, config.projectRoot);
 // The amount of addresses per file
 const ADDRESSES_AMOUNT = 50;
 
-const ENDING = 'Address';
+const ENDING = 'Addresses';
 
 function Addresses() {
   this.path = config.paths.address; // To set the path to the addresses
