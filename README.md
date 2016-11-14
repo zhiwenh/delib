@@ -42,14 +42,21 @@ Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. De
 Install globally to use the CLI.
 
 ```
-npm install -g delib
+-> npm install -g delib
 ```
 
 ### Local install
 
 Install locally to require the library.
+
 ```
-npm install delib --save
+-> npm install delib --save
+```
+
+Then require the library in your scripts.
+
+```
+const delib = require('delib');
 ```
 
 ### Project creation
@@ -57,7 +64,7 @@ npm install delib --save
 To create the project structure call:
 
 ```
-delib init
+-> delib init
 ```
 <a name="projectStructure"></a>
 
@@ -69,11 +76,11 @@ project/
 ├── delib.js/         - (delib config file)
 
 ```
-The library can be used without creating a project. You will need to pass connection arguments into [delib.eth.init()](#Ethereum+init). To use the IPC methods you will need to pass in an IPC path into [delib.eth.initIPC()](#Ethereum+initIPC).
+The library can be used without creating a project. You can pass in custom connection options and project file paths. Look in the library usage to see how.
 
-### Config File
+### Config file
 
-The file `delib.js` contains the config options. Here's a breakdown of the options in the file.
+A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default CLI transaction options.
 
 ```
 {
@@ -108,7 +115,7 @@ The file `delib.js` contains the config options. Here's a breakdown of the optio
 
 ```
 
-### Development Node
+### Development node
 
 Before using the library or CLI you will need to connect to a development node.
 
@@ -124,6 +131,9 @@ Another option is [testrpc](https://github.com/ethereumjs/testrpc), which perfor
 npm install -g ethereumjs-testrpc
 ```
 
+### Basic usage
+The library and CLI integrate together. Project file paths set in `delib.js` are used in both the library and CLI. Building a contract with the CLI will allow it be accessible with the library. Also, deploying a contract using the library will make the following CLI contract calls refer to the library's deployed address, and vice versa. You can deploy contracts and then quickly test whether your methods are working with the CLI.  
+
 <a name="Ethereum"></a>
 
 # Library
@@ -132,49 +142,74 @@ This library gives you the freedom to customize your DApp development to fit you
 
 ## Usage
 
-### Connections
-Your project's ```delib.js``` config file lets you set up your connection options. You can also specify your own RPC and IPC provider, and change which provider to currently use for the connection.
-
-```
-const delib = require('delib');
-
-/** Initialize default connections to a geth node */
-delib.eth.init(); // By default sets up a RPC connection to port 8545
-
-/** Choose your IPC provider */
-delib.eth.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform transaction you will need to changeProviders
-
-/** Switch providers */
-delib.eth.changeProvider('ipc'); // or 'rpc'
-
-/** To turn off IPC socket */
-delib.eth.closeIPC();
-
-```
-
 ### File paths
-If you wish to specify your own paths to the solidity contracts, built contracts, and contract addresses you can by using the `delib.eth.contracts.paths` object.
+The library uses the paths provided in `delib.js`. If you wish to specify your own paths use the `delib.eth.contracts.paths` object.
 
 ```
-delib.eth.contracts.paths.contract = {
-  contract: 'relative path to contract folder',
-  built: 'relative path to built folder',
-  address: 'relative path to addresses folder'
-};
+delib.eth.contracts.paths.contract = 'relative path to contract folder';
+
+delib.eth.contracts.paths.built = 'relative path to built folder';
+
+delib.eth.contracts.paths.address = relative path to addresses folder';
 ```
 
-### Build contracts
-Pass in a file name or an array of file names you wish you build from your projects `contracts/` folder to your project's `built/` folder.
+### Connection
+Your project's `delib.js` file sets up your RPC and IPC connections. You can also pass in connection options as arguments.
+
+#### RPC provider
+**delib.eth.init(rpcHost, rpcPort)**
+
+To connect with the options in `delib.js`:
 
 ```
-delib.eth.build('Test')
-  .then(contracts => {
-    console.log(contracts); // An array of all the contracts built.
-  });
+delib.eth.init();
+
+```
+Specify your own connection arguments by passing in a RPC host and a RPC port number.
+
+```
+delib.eth.init('localhost', 8000);
+
+```
+
+#### IPC provider
+**delib.eth.initIPC(ipcPath)**
+
+To connect with the options in `delib.js`:
+
+```
+delib.eth.initIPC();
+```
+
+You can pass in an IPC path as an argument.
+
+```
+delib.eth.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform transaction you will need to changeProviders
+```
+
+The IPC connection remains on until you close it. To close it use:
+
+```
+delib.eth.closeIPC();
+```
+
+#### Switching providers
+**delib.eth.changeProvider(type)**
+
+The provider is set to the first one initialized. To switch between the two:
+
+```
+delib.eth.changeProvider('rpc');
+
+delib.eth.changeProvider('ipc');
 ```
 
 ### Adjust transaction options
+**delib.eth.account**  
+**delib.eth.options**
+
 Choose the default account index to use for transactions. The index corresponds to the `web3.eth.accounts` array. By default the index is 0.
+
 ```
 delib.eth.account = 1;
 ```
@@ -193,7 +228,21 @@ delib.eth.options = {
 };
 ```
 
-### Deploy contract
+### Build contracts
+**delib.eth.build(contractFiles, contractPath, buildPath)**
+
+Pass in a file name or an array of file names you wish you build from your project's `contracts/` folder to your project's `built/` folder.
+
+```
+delib.eth.build('Test')
+  .then(contracts => {
+    console.log(contracts); // An array of all the contracts built.
+  });
+```
+
+### Deploy contracts
+**delib.eth.deploy(contractName, args, options)**
+
 The addresses of your deployed contracts are saved in your project's `addresses/` folder. You can pass in an array of arguments for the constructor. The options parameter is optional. The promise returns an instance of the contract. You can use that instance to make method calls.
 
 To deploy contract and call a method on the instance:
@@ -218,7 +267,10 @@ delib.eth.deploy('Test', [arg1, arg2, arg3], options)
   });
 ```
 
-To estimate deployment gas usage:
+#### Estimate gas usage
+**delib.eth.deploy.estimate(contractName, args, options)**
+
+Gas gets automatically estimated for you if you specified a gas amount of 0.
 
 ```
 delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
@@ -230,7 +282,13 @@ delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
   });
 ```
 
-### Call a contract method
+#### Contract addresses
+You can get an array of all previously deployed addresses with `delib.eth.contracts.addresses.getAll('contractName')`. The most recently deployed address is at index 0. Using this will allow you to call previously deployed contracts.
+
+
+### Call contract methods
+**delib.eth.exec(contractName)**  
+**delib.eth.execAt(contractName, contractAddress)**
 
 It will perform a transaction (which requires gas) or if it will just call and return a value by whether or not you labeled your function with constant in your Solidity contract.
 
@@ -250,7 +308,11 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
   });
 ```
 
-To estimate gas usage:
+#### Estimate gas usage
+**delib.eth.exec(contractName).estimate**  
+**delib.eth.execAt(contractName, contractAddress).estimate**
+
+Gas gets automatically estimated for you if you specified a gas amount of 0.
 
 ```
 delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
@@ -262,26 +324,10 @@ delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
   })
 ```
 
-You can get an array of previously deployed addresses with `delib.eth.contracts.addresses.getAll('contractName')`. The most recently deployed address is at index 0.
-
-To call a contract method at a previously deployed address:
-```
-options = {
-  gas: 1000000
-};
-
-const addresses = delib.eth.contracts.addresses.getAll('Test'); // Array of Test addresses
-
-delib.eth.execAt('Test', addresses[1]).testMethod(arg1, arg2, options)
-  .then(tx => {
-
-  })
-  .catch(err => {
-
-  });
-```
-
 ### Get event logs
+**delib.eth.events(contractName, eventName, blocksBack, filter)**  
+**delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)**
+
 The code below gets the logs from an event called testEvent on the contract Test. It searches the last 100 blocks. To have it search all blocks pass in `'all'` instead of a number.
 
 ```
@@ -295,7 +341,7 @@ delib.eth.events('Test', 'testEvent', 100)
 ```
 
 #### Filter object
-You can pass in a filter object to filter your result. If filter object contains a key that's also in the event log object, the values will need to be the same or the log is filtered. Additionally, you can pass in a callback as a filter value. The callback takes in the value of the event log object, and gets filtered if it returns anything other than true. Click [here](#https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events) to see the properties of the event log object.
+You can pass in a filter object to filter your result. If filter object contains a key that's also in the event log object, the values will need to be the same or the log is filtered. Additionally, you can pass in a callback as a filter value. The callback's parameter is the value of the event log object, and gets filtered if it returns anything other than true. Click [here](#https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events) to see the properties of the event log object.
 
 The following code searches all blocks and only returns the even numbered blocks containing the event argument with a name of James.
 
@@ -320,12 +366,44 @@ delib.eth.events('Test', 'testEvent', 'all', filter)
   });
 ```
 
+### Account balance
+**delib.eth.getBalance(index, type)**
+
+The method to get the balance of an account takes in the account index and the Ether denomination you would like the result to be in.
+
+Get the balance of your first account in Ether and wei:
+
+```
+delib.eth.getBalance(0, 'Ether');
+
+delib.eth.getBalance(0, 'wei');
+```
+
+### Create account
+**delib.eth.createAccount(password)**
+
+This only works with an IPC connection. It creates an encrpyted JSON file containing your public and private key in your Ethereum blockchain's data directory.
+
+```
+delib.eth.createAccount('hunter1');
+```
+
+### Unlock account
+**delib.eth.unlockAccount(index, password, timeLength)**
+
+This only works with an IPC connection. Time length is in seconds.
+
+```
+delib.eth.unlockAccount(1, 'hunter2', 10000);
+```
+
+
 ## [Library API Link](#Ethereum+api)
 
 <a name="Cli"></a>
 # CLI
 
-The CLI lets you compile and build Solidity contracts into a JavaScript file that you can then require. You can deploy the contract onto the blockchain to call methods and get event logs. It integrates with the library, and uses the most recently deployed address of a particular contract. If you want use a specific address you can set it as well. The contract, built, and address paths are taken from the `delib.js` config file or can be set as a command option.
+The CLI lets you compile and build Solidity contracts into a JavaScript file that you can then require. You can deploy the contract onto the blockchain to call methods and get event logs. You can also create, unlock, and get the balance of your accounts.
 
 ## Usage
 
@@ -419,8 +497,6 @@ Get the Ether balance of your first account.
 
 <a name="examples"></a>
 # Examples
-
-Link to repo used for testing purposes: [delib-test](https://github.com/zhiwenhuang/delib-test)
 
 ## Example 1
 
@@ -664,8 +740,8 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
         * [.set(name, address)](#Ethereum+contracts+addresses+set) ⇒ <code>number</code>
         * [.get(name, index)](#Ethereum+contracts+addresses+get) ⇒ <code>string</code>
         * [.getAll(name)](#Ethereum+contracts+addresses+getAll) ⇒ <code>Array</code>
-    * [.checkConnection](#Ethereum+checkConnection) ⇒ <code>boolean</code>
-    * [.changeProvider](#Ethereum+changeProvider) ⇒ <code>boolean</code>
+    * [.checkConnection()](#Ethereum+checkConnection) ⇒ <code>boolean</code>
+    * [.changeProvider(type)](#Ethereum+changeProvider) ⇒ <code>boolean</code>
     * [.init(rpcHost, rpcPort)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
@@ -682,7 +758,7 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
     * [.unlockAccount(index, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>boolean</code>
 
 
-<a name="Ethereum+contracts+path"></a>
+<a name="Ethereum+contracts+paths"></a>
 #### delib.eth.contracts.paths
 An object that contains the paths to the solidity contracts, built contracts, and contract addresses. If using delib in a project these paths will be relative to your project root, otherwise they will be relative to your scripts. Assign paths to this object if you don't want to create a project or if you want to customize the paths.
 
