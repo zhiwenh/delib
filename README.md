@@ -1,6 +1,6 @@
 # Delib
 
-Simple Ethereum framework for DApps and contract management
+Simple Ethereum framework for DApps and smart contract management
 
 Delib's features include:
 
@@ -31,7 +31,7 @@ brew tap ethereum/ethereum
 brew install ethereum
 ```
 
-Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. DeLib installs it as a dependency and also as a peer dependency. The current web3 version is 0.17.0-beta.
+Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. Delib installs it as a dependency and also as a peer dependency. The current web3 version is 0.17.0-beta.
 
 <a name="install"></a>
 
@@ -594,7 +594,7 @@ apples
 <a name="support"></a>
 # Support
 
-If you found DeLib useful please leave a star on [GitHub](https://github.com/zhiwenhuang/delib) or give feedback!
+If you found Delib useful please leave a star on [GitHub](https://github.com/zhiwenhuang/delib) or give feedback!
 
 # API Reference
 

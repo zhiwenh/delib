@@ -1,8 +1,8 @@
 {
   "name": "delib",
-  "author": "zhiwenhuang",
+  "author": "Zhiwen Huang <zhiwen555@gmail.com>",
   "version": "2.1.0",
-  "description": "Ethereum library with a CLI that allows smart contract interaction",
+  "description": "Simple Ethereum framework for DApps and smart contract management",
   "keywords": [
     "web3",
     "ethereum"
