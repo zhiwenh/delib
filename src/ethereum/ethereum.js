@@ -194,6 +194,7 @@ function Ethereum() {
         return;
       }
       // Only estimate gas if options.gas is 0 or null
+      options.gas = undefined;
       self.deploy.estimate(contractName, args, options)
         .then(gasEstimate => {
           options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
@@ -244,7 +245,8 @@ function Ethereum() {
         })
         .then(block => {
           const transactionOptions = Object.assign({}, options);
-          transactionOptions.gas = Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+          // transactionOptions.gas = Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+          transactionOptions.gas = undefined;
           let bytes = contract.unlinked_binary;
 
           bytes += (args) ? encodeConstructorParams(contract.abi, args) : '';
@@ -332,6 +334,7 @@ function Ethereum() {
               })
               .then(block => {
                 options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+                options.gas = undefined;
                 args.push(options);
                 return contractInstance[methodName].estimateGas.apply(contractInstance, args);
               })
@@ -370,7 +373,8 @@ function Ethereum() {
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
-                options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+                // options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+                options.gas = undefined;
                 args.push(options);
                 return contractInstance[methodName].estimateGas.apply(contractInstance, args);
               })
