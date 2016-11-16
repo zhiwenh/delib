@@ -145,7 +145,7 @@ The CLI lets you compile and build Solidity contracts into a JavaScript file tha
 The default connection and file path options are taken from the `delib.js` config file. Outside a project all your paths will be relative to where you're calling the command, and the RPC connection will default to host: localhost and port: 8545. You can also pass them in as options.
 
 | Options | Type | Description |
-| -- | -- | -- |
+| --- | --- | --- |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `<path>` | Relative path to IPC host |
@@ -167,7 +167,7 @@ The default transaction options for the CLI are located in ```delib.js```.
 You can also pass in your own transaction options with the CLI commands.
 
 | Options | Type | Description |
-| -- | -- | -- |
+| --- | --- | --- |
 | `-i --account` | `<index>` | Account to use for transaction. Takes the account index |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
