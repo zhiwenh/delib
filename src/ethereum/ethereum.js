@@ -21,7 +21,7 @@ const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows bu
 // Percentage of gas to estimate above
 const EST_GAS_INCREASE = 0.05;
 // Percentage to round gas limit down
-const GAS_LIMIT_DECREASE = 0.03;
+const GAS_LIMIT_DECREASE = 0.06;
 
 
 /**
@@ -209,7 +209,7 @@ function Ethereum() {
         promisify(self.web3.eth.getAccounts)()
           .then(accounts => {
             deployOptions.from = deployOptions.from || accounts[self.account];
-            contract.defaults(deployOptions);
+            args.push(options);
             const contractInstance = contract.new.apply(contract, args);
             return contractInstance;
           })
@@ -248,7 +248,6 @@ function Ethereum() {
           // transactionOptions.gas = Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
           transactionOptions.gas = undefined;
           let bytes = contract.unlinked_binary;
-
           bytes += (args) ? encodeConstructorParams(contract.abi, args) : '';
           transactionOptions.data = bytes;
           return promisify(this.web3.eth.estimateGas)(transactionOptions);
@@ -373,7 +372,7 @@ function Ethereum() {
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
-                // options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+                options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
                 options.gas = undefined;
                 args.push(options);
                 return contractInstance[methodName].estimateGas.apply(contractInstance, args);
@@ -381,9 +380,9 @@ function Ethereum() {
               .then(gasEstimate => {
                 // Change options to the estimated gas price
                 options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
-                contract.defaults(options);
                 args.pop();
                 args.push(options);
+                console.log(args);
                 return contractInstance[methodName].apply(contractInstance, args);
               })
               .then(res => {
