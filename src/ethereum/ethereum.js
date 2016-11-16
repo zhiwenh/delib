@@ -39,6 +39,7 @@ function Ethereum() {
   this.provider; // Provider to use for methods
   this._rpcProvider; // RPC connection to Ethereum geth node
   this._ipcProvider;
+  this.rellative
 
   /** Default transaction options */
   this.options = {
@@ -373,7 +374,6 @@ function Ethereum() {
               })
               .then(block => {
                 options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
-                options.gas = undefined;
                 args.push(options);
                 return contractInstance[methodName].estimateGas.apply(contractInstance, args);
               })
@@ -382,7 +382,6 @@ function Ethereum() {
                 options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
                 args.pop();
                 args.push(options);
-                console.log(args);
                 return contractInstance[methodName].apply(contractInstance, args);
               })
               .then(res => {

@@ -52,17 +52,22 @@ program
   .description('Build a Solidity contract')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
+  .option('-c --ipchost <path>', 'Relative path to IPC host')
   .option('-o --contract <path>', 'Relative path to contracts folder')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((file, options) => {
-    delib.eth.init(options.rpchost, options.rpcport);
+    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
+    console.log('Contract path:', path.join(config.projectRoot, delib.eth.contracts.paths.contract, file + '.sol'));
     delib.eth.build(file)
       .then((contracts) => {
-
+        console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built));
+        console.log('Built contracts:', contracts.join(', '));
+        delib.eth.closeIPC();
       })
       .catch(err => {
         console.log(err);
+        delib.eth.closeIPC();
       });
   });
 
@@ -79,17 +84,22 @@ program
   .option('-n --nonce <number>', 'Nonce transaction option')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
+  .option('-c --ipchost <path>', 'Relative path to IPC host')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, args, options) => {
-    delib.eth.init(options.rpchost, options.rpcport);
+    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
+    console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js'));
     delib.eth.deploy(contractName, args, options)
       .then(instance => {
-        console.log('Deployed address:', instance.address);
+        console.log('Address path:', path.join(config.projectRoot, delib.eth.contracts.paths.address));
+        console.log('Deployed contract address:', instance.address);
+        delib.eth.closeIPC();
       })
       .catch(err => {
         console.error(err);
+        delib.eth.closeIPC();
       });
   });
 
@@ -106,18 +116,21 @@ program
   .option('-n --nonce <number>', 'Nonce transaction option')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
+  .option('-c --ipchost <path>', 'Relative path to IPC host')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, method, args, options) => {
-    delib.eth.init(options.rpchost, options.rpcport);
+    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
     const contract = delib.eth.exec(contractName);
     contract[method].apply(this, args)
       .then(txRes => {
         console.log('Transaction response:', txRes);
+        delib.eth.closeIPC();
       })
       .catch(err => {
         console.error(err);
+        delib.eth.closeIPC();
       });
   });
 
@@ -127,18 +140,21 @@ program
   .description('Show the logs of an event')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
+  .option('-c --ipchost <path>', 'Relative path to IPC host')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
-    delib.eth.init(options.rpchost, options.rpcport);
+    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
     delib.eth.events(contractName, eventName, blocksBack)
       .then(logs => {
         console.log('Event logs:');
         console.log(logs);
+        delib.eth.closeIPC();
       })
       .catch(err => {
         console.error(err);
+        delib.eth.closeIPC();
       });
   });
 
@@ -158,10 +174,12 @@ program
   .description('Get the balance of an Ethereum account by its index')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
+  .option('-c --ipchost <path>', 'Relative path to IPC host')
   .action((index, options) => {
-    delib.eth.init(options.rpchost, options.rpcport);
+    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     const balance = delib.eth.getBalanceEther(index);
     console.log(balance);
+    delib.eth.closeIPC();
   });
 
 /** Create a new Ethereum account. */
@@ -216,7 +234,7 @@ function optionActions(options) {
   deOptions.to = options.to || deOptions.to;
   deOptions.value = options.value ? Number(delib.eth.web3.toWei(options.value, 'ether').toString()) : deOptions.value; // Converts Ether to wei
   deOptions.gas = options.gas || deOptions.gas;
-  deOptions.gasPrice = options.gasprice || deOptions.gasPrice;
+  deOptions.gasPrice = options.gasPrice || deOptions.gasPrice;
   deOptions.data = options.data || deOptions.data;
   deOptions.nonce = options.nonce || deOptions.nonce;
 
@@ -224,7 +242,7 @@ function optionActions(options) {
   const dePaths = delib.eth.contracts.paths;
   dePaths.contract = options.contract || dePaths.contract;
   dePaths.built = options.built || dePaths.built;
-  dePaths.address = options.address || dePaths.address;
+  delib.eth.contracts.paths.address = options.address || delib.eth.contracts.paths.address;
 
   return options;
 }

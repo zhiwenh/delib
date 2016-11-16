@@ -12,8 +12,6 @@ const options = {
 
 module.exports = (ipcPath) => {
   options.host = ipcPath || config.ipc.host;
-
-  console.log('IPC path', options.host);
   let web3IPC;
   try {
     web3IPC = Web3IPC.create(options);
