@@ -80,12 +80,7 @@ if (isDefault === false) {
   if (typeof config.cli.options !== 'object' || Array.isArray(config.cli.options)) {
     config.cli.options = defaultConfig.cli.options;
   }
-  config.cli.options.from = config.cli.options.from || defaultConfig.cli.options.from;
-  config.cli.options.value = config.cli.options.value || defaultConfig.cli.options.value;
-  config.cli.options.gas = config.cli.options.gas || defaultConfig.cli.options.gas;
 }
-
-
 /***********/
 
 // To create the ipc host relative path

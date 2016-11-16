@@ -118,7 +118,7 @@ A file called `delib.js` gets made when you create a project. It contains your p
 Delib can be used outside a project. Outside a project file paths will be relative to your process point of entry. You can specify paths with the library and pass them in as options for the CLI. Connection options will also need to be specified.
 
 ### Development node
-Before using the library or CLI you will need to connect to a development node.
+Before using the library or CLI you will need to connect to an Ethereum node.
 
 I created a package called [devchain](https://www.npmjs.com/package/devchain) that allows you to create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it comes with a geth node that automates mining and account Ether distribution. To install:
 
@@ -142,7 +142,7 @@ Building a contract with the CLI will allow it be accessible with the library. A
 The CLI lets you compile and build Solidity contracts into a JavaScript file that you can then require. You can deploy the contract onto the blockchain to call methods and get event logs. You can also create, unlock, and get the balance of your accounts.
 
 ### Set connection options and project paths
-The default connection and file path options are taken from the `delib.js` config file. Outside a project all your paths will be relative to where you're calling the command, and the RPC connection will default to host: localhost and port: 8545. You can also pass them in as options.
+The default connection and file path options are taken from the `delib.js` config file. Outside a project all project paths will be relative to where you're calling the command, and the RPC connection will default to localhost at port 8545. You can also specify connection options and paths as options.
 
 | Options | Type | Description |
 | --- | --- | --- |
@@ -154,26 +154,16 @@ The default connection and file path options are taken from the `delib.js` confi
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 ### Adjust transaction options
-The default transaction options for the CLI are located in ```delib.js```.
-```
-{
-  cli: {
-    from: 0, // The account index of the account
-    value: 0, // Value in Ether. It gets converted to wei
-    gas: 0 // Set to 0 to estimate the gas value for transactions
-  }
-}
-```
-You can also pass in your own transaction options with the CLI commands.
+The default transaction options for the CLI are located in ```delib.js```. You can also pass in your own transaction options with the CLI commands.
 
 | Options | Type | Description |
 | --- | --- | --- |
-| `-i --account` | `<index>` | Account to use for transaction. Takes the account index |
+| `-i --account` | `<index>` | Account index to use for transaction |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
 | `-v --value` | `<ether>` | Value transaction option in Ether. Converts the value to wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
-| `-p --gasPrice` | `<number>` | Gas price transaction option |
+| `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
 
 ### Build contract
@@ -198,7 +188,7 @@ Deploy a contract and pass in two arguments for its constructor. If no gas amoun
 
 Call the method `setNumbers` on a deployed contract and pass in two numbers. The transaction options of 10000 gas with a gas value of 50000 are set as options. If no gas amount is given it will be estimated for you.
 ```
--> delib exec Contract setNumbers 10 20 --gas 10000 --gasPrice 50000
+-> delib exec Contract setNumbers 10 20 --gas 10000 --gasprice 50000
 ```
 
 ### Get the logs of an event
@@ -666,7 +656,7 @@ Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ``
 | `-b --built` | `<path>` | Path to build contracts folder |
 
 <a name="Cli+deploy"></a>
-#### delib deploy `<contractName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`
+#### delib deploy `<contractName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`
 Deploy a built Solidity smart contract and save its address for later use with the CLI or library. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `built/` and `addresses/` folders.
 
 | Params | Type | Description |
@@ -678,7 +668,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-t --to` | `<address>` | To transaction option' |
 | `-v --value` | `<ether>` | Value transaction option in Ether. Converts the value to wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
-| `-p --gasPrice` | `<number>` | Gas price transaction option |
+| `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
@@ -686,7 +676,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 <a name="Cli+exec"></a>
-#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasPrice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`
+#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -b --built <path>, -a --address <path>`
 Perform a transaction or call a deployed contract's method. You can pass in a list of arguments. The most recent deployed contract address or set command address will be used.
 
 | Params | Type | Description |
@@ -699,7 +689,7 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 | `-t --to` | `<address>` | To transaction option' |
 | `-v --value` | `<ether>` | Value transaction option in Ether. Converts the value to wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
-| `-p --gasPrice` | `<number>` | Gas price transaction option |
+| `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |

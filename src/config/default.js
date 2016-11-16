@@ -1,4 +1,4 @@
-/** Configuration options for delib */
+/** Configuration options for Delib */
 
 module.exports = {
   /** Project file paths */
@@ -23,9 +23,11 @@ module.exports = {
   cli: {
     /** Default transaction options */
     options: {
-      from: 0, // Account index
-      value: 0, // Value in Ether. It gets converted to wei
-      gas: 0 // Set at 0 to estimate gas value
+      account: 0, // Account index to use for transactions
+      from: null,  // Replaces account index
+      value: null, // Value in Ether. It gets converted to wei
+      gas: null, // Estimated if not specified
+      gasprice: null // Mean network gas price if not specified
     }
   }
 };
