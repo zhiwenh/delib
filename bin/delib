@@ -106,7 +106,7 @@ program
 /** Executes a deployed contract with specified method and provided arguments. */
 program
   .command('exec <contractName> <method> [args...]')
-  .description('Call or make a transaction with a contract method')
+  .description('Execute a contract method')
   .option('-i --account <index>', 'Account to use for transaction. Takes the account index')
   .option('-f --from <address>', 'From transaction option. Replaces --account')
   .option('-t --to <address>', 'To transaction option.')
@@ -137,7 +137,7 @@ program
 /** Show the logs of a contract event. */
 program
   .command('events <contractName> <eventName> [blocksBack]')
-  .description('Show the logs of an event')
+  .description('Get the logs of an event')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
   .option('-c --ipchost <path>', 'Relative path to IPC host')
