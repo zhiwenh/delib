@@ -330,12 +330,12 @@ delib.eth.checkConnection('ipc');
 Choose the default account index to use for transactions. The index corresponds to the `web3.eth.accounts` array. By default the index is 0.
 
 ```
-delib.eth.account = 1;
+delib.eth.account = 0;
 ```
 
 `delib.eth.options` contains the default options for your transactions. Options passed into deploy or contract method calls will overwrite these.
 
-If a gas option of 0, in either the default options or passed in, is given gas usage will be automatically estimated for you.  
+If a gas option of 0, as a default option or passed in as an argument, gas amount will be estimated for you.  
 
 ```
 delib.eth.options = {
@@ -364,14 +364,13 @@ delib.eth.build('Test')
 ### Deploy contracts
 **delib.eth.deploy(contractName, args, options)**
 
-The addresses of your deployed contracts are saved in your project's `addresses/` folder. You can pass in an array of arguments for the constructor. The options parameter is optional. The promise returns an instance of the contract. You can use that instance to make method calls.
+The addresses of your deployed contracts are saved in your project's `addresses/` folder. Passing in an array for the constructor arguments is optional, however to pass in an options object you will need to pass in an empty arguments array. The promise returns an instance of the contract which you can use to make method calls.
 
-To deploy contract and call a method on the instance:
+To deploy a contract, estimate gas amount, and call a method on the instance:
 
 ```
 options = {
-  gas: 1000000,
-  value: 50 // wei
+  gas: 0 // Set gas at 0 to have it estimated for you
 }
 
 delib.eth.deploy('Test', [arg1, arg2, arg3], options)

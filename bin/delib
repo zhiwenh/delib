@@ -13,6 +13,7 @@ program
   .version('3.1.1');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
+
 program
   .command('init')
   .description('Create configuration file, genesis file, and necessary folders')
@@ -91,7 +92,7 @@ program
     options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
     console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js'));
-    delib.eth.deploy(contractName, args, options)
+    delib.eth.deploy(contractName, args)
       .then(instance => {
         console.log('Address path:', path.join(config.projectRoot, delib.eth.contracts.paths.address));
         console.log('Deployed contract address:', instance.address);
@@ -233,10 +234,12 @@ function optionActions(options) {
   deOptions.from = options.from || deOptions.from;
   deOptions.to = options.to || deOptions.to;
   deOptions.value = options.value ? Number(delib.eth.web3.toWei(options.value, 'ether').toString()) : deOptions.value; // Converts Ether to wei
+  // deOptions.value = options.value ? options.value : deOptions.value;
   deOptions.gas = options.gas || deOptions.gas;
   deOptions.gasPrice = options.gasPrice || deOptions.gasPrice;
   deOptions.data = options.data || deOptions.data;
   deOptions.nonce = options.nonce || deOptions.nonce;
+  console.log(deOptions);
 
   /** Path adjustments */
   const dePaths = delib.eth.contracts.paths;

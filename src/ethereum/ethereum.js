@@ -39,7 +39,6 @@ function Ethereum() {
   this.provider; // Provider to use for methods
   this._rpcProvider; // RPC connection to Ethereum geth node
   this._ipcProvider;
-  this.rellative
 
   /** Default transaction options */
   this.options = {
@@ -319,21 +318,22 @@ function Ethereum() {
          * Creation of gas estimate method
          */
         mockContract.estimate[methodName] = (...args) => {
-          let options = this.options;
-          if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
-            options = this._optionsUtil(options, args[args.length - 1]);
-            args.pop();
-          } else {
-            options = this._optionsUtil(options, {});
-          }
           return promisify(callback => {
+            let options = this.options;
+            if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
+              options = this._optionsUtil(options, args[args.length - 1]);
+              args.pop();
+            } else {
+              options = this._optionsUtil(options, {});
+            }
+
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
                 options.from = options.from || accounts[this.account];
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
-                options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+                // options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
                 options.gas = undefined;
                 args.push(options);
                 return contractInstance[methodName].estimateGas.apply(contractInstance, args);
@@ -351,29 +351,38 @@ function Ethereum() {
          * Actual method. Estimates the gas cost if gas is 0 or not there.
          */
         mockContract[methodName] = (...args) => {
-          let options = this.options;
-          // Checks to see if a transaction object got put into method call
-          if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
-            options = this._optionsUtil(options, args[args.length - 1]);
-            args.pop();
-          } else {
-            options = this._optionsUtil(options, {});
-          }
-          // Only estimate gas if it doesn't exist or if its 0
-          if (options.gas && options.gas != 0) {
-            args.push(options);
-            return contractInstance[methodName].apply(contractInstance, args);
-          }
-
           return promisify((callback) => {
-            // Get the estimate transaction options. Set gas at the gas limit
+            let options = this.options;
+            // Checks to see if a transaction object got put into method call
+            if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
+              options = this._optionsUtil(options, args[args.length - 1]);
+              args.pop();
+            } else {
+              options = this._optionsUtil(options, {});
+            }
+
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
                 options.from = options.from || accounts[this.account];
+
+                // No gas estimate
+                if (options.gas && options.gas != 0) {
+                  args.push(options);
+                  return contractInstance[methodName].apply(contractInstance, args)
+                    .then(res => {
+                      callback(null, res);
+                    })
+                    .catch(err => {
+                      callback(err, null);
+                    });
+                }
+
+                // Gas estimate
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
-                options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+                // options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
+                options.gas = undefined;
                 args.push(options);
                 return contractInstance[methodName].estimateGas.apply(contractInstance, args);
               })
@@ -392,6 +401,7 @@ function Ethereum() {
               });
           })();
         };
+
       } else {
         // Re references all other properties
         mockContract[key] = contractInstance[key];
@@ -418,7 +428,7 @@ function Ethereum() {
   /**
    *
    * @param {string} contractName
-   * @param {string} contractAddress -
+   * @param {string} contractAddress
    * @param {string} eventName
    * @param {number} blocksBack
    * @param {Object} filter

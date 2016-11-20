@@ -17,7 +17,7 @@ const allowedOptions = {
  */
 module.exports = (options) => {
   for (let key in options) {
-    if (allowedOptions[key] !== true || options[key] === null) {
+    if (allowedOptions[key] !== true || !options[key]) {
       delete options[key];
     }
   }
