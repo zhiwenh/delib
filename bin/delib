@@ -10,7 +10,7 @@ const Addresses = require('./../src/models/Addresses');
 const config = require('./../src/config/config.js');
 
 program
-  .version('3.2.0');
+  .version('3.2.1');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
 
@@ -239,7 +239,6 @@ function optionActions(options) {
   deOptions.gasPrice = options.gasPrice || deOptions.gasPrice;
   deOptions.data = options.data || deOptions.data;
   deOptions.nonce = options.nonce || deOptions.nonce;
-  console.log(deOptions);
 
   /** Path adjustments */
   const dePaths = delib.eth.contracts.paths;
