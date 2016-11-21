@@ -19,8 +19,8 @@ const config = require('./../config/config.js');
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
 
 // Percentage of gas to estimate above
-const EST_GAS_INCREASE = 0.05;
-// Percentage to round gas limit down
+const EST_GAS_INCREASE = 0.10;
+// Percentage to round gas limit down. Not used at the moment
 const GAS_LIMIT_DECREASE = 0.06;
 
 
@@ -42,13 +42,13 @@ function Ethereum() {
 
   /** Default transaction options */
   this.options = {
-    from: null,
-    to: null,
-    value: null,
+    from: undefined,
+    to: undefined,
+    value: undefined,
     gas: 0,
-    gasPrice: null,
-    data: null,
-    nonce: null
+    gasPrice: undefined,
+    data: undefined,
+    nonce: undefined
   };
 
   /** Account index used for transactions */
@@ -361,23 +361,27 @@ function Ethereum() {
               options = this._optionsUtil(options, {});
             }
 
+            // No gas estimate
+            if (options.gas && options.gas != 0) {
+              args.push(options);
+              promisify(this.web3.eth.getAccounts)()
+                .then(accounts => {
+                  options.from = options.from || accounts[this.account];
+                  return contractInstance[methodName].apply(contractInstance, args);
+                })
+                .then(res => {
+                  callback(null, res);
+                })
+                .catch(err => {
+                  callback(err, null);
+                });
+              return;
+            }
+
+            // Gas estimate
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
                 options.from = options.from || accounts[this.account];
-
-                // No gas estimate
-                if (options.gas && options.gas != 0) {
-                  args.push(options);
-                  return contractInstance[methodName].apply(contractInstance, args)
-                    .then(res => {
-                      callback(null, res);
-                    })
-                    .catch(err => {
-                      callback(err, null);
-                    });
-                }
-
-                // Gas estimate
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
