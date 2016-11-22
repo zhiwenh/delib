@@ -1,7 +1,7 @@
 {
   "name": "delib",
   "author": "Zhiwen Huang <zhiwen555@gmail.com>",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Simple Ethereum framework for DApps and contract management",
   "keywords": [
     "web3",
