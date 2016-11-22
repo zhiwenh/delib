@@ -19,11 +19,13 @@ function Addresses() {
   this.path = config.paths.address; // To set the path to the addresses
 
   this.set = (name, address) => {
+    if (typeof address !== 'string' || address.length !== 42) {
+      throw new Error('Invalid contract address: ' + address);
+    }
     const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
     if (!pathExists(path.join(pathway))) {
       fs.mkdirSync(path.join(pathway));
     }
-
     address += '\n';
     name = name + ENDING;
     prepend(path.join(pathway, name), address);
@@ -43,15 +45,25 @@ function Addresses() {
     name = name + ENDING;
     const addressesFile = fs.readFileSync(path.join(pathway, name), 'utf8');
     const addresses = addressesFile.split('\n');
-    const address = addresses[index];
-    return address.trim();
+    let address;
+    // Make sure you get an address with a length of 42
+    for (let i = index; i < addresses.length; i++) {
+      if (addresses[i].length === 42) {
+        address = addresses[i].trim();
+        break;
+      }
+    }
+
+    return address;
   };
 
   this.getAll = (name) => {
     const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
     name = name + ENDING;
     const addressesFile = fs.readFileSync(path.join(pathway, name), 'utf8');
-    return addressesFile.split('\n');
+    return addressesFile.split('\n').filter(address => {
+      return address.length === 42;
+    });
   };
 
 }
