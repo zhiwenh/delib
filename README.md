@@ -93,7 +93,7 @@ A file called `delib.js` gets made when you create a project. It contains your p
   /** RPC connection options */
   rpc: {
     host: 'localhost',
-    port: 8545,
+    port: 8545
   },
 
   /** IPC connection options */
@@ -105,9 +105,12 @@ A file called `delib.js` gets made when you create a project. It contains your p
   cli: {
     /** Default transaction options */
     options: {
-      from: 0, // Account index
-      value: 0,
-      gas: 0 // Set at 0 to estimate gas value
+      account: 0, // Account index to use for transactions
+      from: null,  // Replaces account index
+      value: null, // Value in Ether. It gets converted to wei
+      gas: null, // Estimated if not specified
+      gasprice: null, // Mean network gas price if not specified
+      maxgas: null // Max gas allowed when estimating
     }
   }
 };
@@ -165,6 +168,8 @@ The default transaction options for the CLI are located in ```delib.js```. You c
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
+| `-m --maxgas` | `<number>` | Max gas allowed when estimating |
+
 
 ### Build contract
 **delib build `<file>`**
@@ -682,7 +687,7 @@ Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ``
 | `-b --built` | `<path>` | Path to build contracts folder |
 
 <a name="Cli+deploy"></a>
-#### delib deploy `<contractName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
+#### delib deploy `<contractName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Deploy a built Solidity smart contract and save its address for later use with the CLI or library. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `built/` and `addresses/` folders.
 
 | Params | Type | Description |
@@ -696,6 +701,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
+| `-m --maxgas` | `<number>` | Max gas allowed when estimating |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | `Relative path to IPC host` |
@@ -703,7 +709,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 <a name="Cli+exec"></a>
-#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
+#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Perform a transaction or call a deployed contract's method. You can pass in a list of arguments. The most recent deployed contract address or set command address will be used.
 
 | Params | Type | Description |
@@ -718,6 +724,7 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
+| `-m --maxgas` | `<number>` | Max gas allowed when estimating |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | `Relative path to IPC host` |

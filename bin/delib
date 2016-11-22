@@ -91,6 +91,7 @@ program
   .option('-g --gas <number>', 'Gas transaction option. Estimated if not given or set to 0')
   .option('-p --gasprice <number>', 'Gas price transaction option')
   .option('-n --nonce <number>', 'Nonce transaction option')
+  .option('-m --maxgas <number>', 'Max gas allowed when estimating')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
@@ -123,6 +124,7 @@ program
   .option('-g --gas <number>', 'Gas transaction option')
   .option('-p --gasprice <number>', 'Gas price transaction option')
   .option('-n --nonce <number>', 'Nonce transaction option')
+  .option('-m --maxgas <number>', 'Max gas allowed when estimating')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
@@ -246,23 +248,49 @@ program
 program.on('--help', () => {
   console.log('  Command Options:');
   console.log('  ');
-  console.log('    -h --help', '              Display available command options');
-  console.log('    -i --account <index>', '   Account to use for transaction. Takes the account index');
-  console.log('    -f --from <address>', '    From transaction option. Replaces --account');
-  console.log('    -t --to <address>', '      To transaction option');
-  console.log('    -v --value <ether>', '     Value transaction option in Ether. Converts the value to wei');
-  console.log('    -g --gas <number>', '      Gas transaction option. Estimated if not given or set to 0');
-  console.log('    -p --gasprice <number>', ' Gas price transaction option');
-  console.log('    -n --nonce <number>', '    Nonce transaction option');
-  console.log('    -h --rpchost <value>', '   RPC host');
-  console.log('    -r --rpcport <port>', '    RPC port');
-  console.log('    -c --ipchost [path]', '    Relative path to IPC host');
-  console.log('    -b --built <path>', '      Relative path to built contracts folder');
-  console.log('    -a --address <path>', '    Relative path to addresses folder');
+  console.log('    [command] -h --help', '  Display command description and available options');
+  console.log('    ');
+  console.log('    Transaction Options:');
+  console.log('      -i --account <index>', '   Account to use for transaction. Takes the account index');
+  console.log('      -f --from <address>', '    From transaction option. Replaces --account');
+  console.log('      -t --to <address>', '      To transaction option');
+  console.log('      -v --value <ether>', '     Value transaction option in Ether. Converts the value to wei');
+  console.log('      -g --gas <number>', '      Gas transaction option. If gas amount is not given it is estimated');
+  console.log('      -p --gasprice <number>', ' Gas price transaction option');
+  console.log('      -n --nonce <number>', '    Nonce transaction option');
+  console.log('      -m --maxgas <number>', '   Max gas allowed when estimating');
+  console.log('    ');
+  console.log('    Connections:');
+  console.log('      -h --rpchost <value>', '   RPC host');
+  console.log('      -r --rpcport <port>', '    RPC port');
+  console.log('      -c --ipchost [path]', '    Relative path to IPC host');
+  console.log('    ');
+  console.log('    Paths:');
+  console.log('      -o --contract <path>', '   Relative path to contracts folder');
+  console.log('      -b --built <path>', '      Relative path to built contracts folder');
+  console.log('      -a --address <path>', '    Relative path to addresses folder');
   console.log('  ');
+  console.log('  Examples:');
+  console.log('  ');
+  console.log('    Build a contract from a remote folder:');
+  console.log('      delib build Contract --contract ./../contracts');
+  console.log('  ');
+  console.log('    Deploy a contract from your 2nd account with gas amount estimated:');
+  console.log('      delib deploy Contract arg1 arg2 -i 1');
+  console.log('  ');
+  console.log('    Execute a contract method, choose gas amount, and send 5 Ether:');
+  console.log('      delib exec Contract method arg1 arg2 --gas 35000 --value 5');
+  console.log('');
 });
 
 program.parse(process.argv);
+
+/** Catch invalid commands */
+if (process.argv.length >= 3 && program._events[process.argv[2]] === undefined) {
+  console.log('');
+  console.log('  delib:  \'' + process.argv[2] + '\' is not a command. See \'delib --help\'.');
+  console.log('');
+}
 
 /** Default output is help */
 if (process.argv.length <= 2) {

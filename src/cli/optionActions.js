@@ -30,14 +30,16 @@ module.exports = function(rawOptions, ipc) {
   /** Transaction option adjustments */
   rawOptions = Object.assign({}, config.cli.options, rawOptions);
   const options = {};
-  eth.account = options.account || eth.account;
+
   if (rawOptions.from) options.from = rawOptions.from;
   if (rawOptions.to) options.to = rawOptions.to;
-  if (rawOptions.value) options.value = Number(eth.web3.toWei(rawOptions.value, 'ether').toString());
+  if (rawOptions.value) options.value = Number(eth.web3.toWei(rawOptions.value, 'ether').toString()); // Ether to wei
   if (rawOptions.gas) options.gas = rawOptions.gas;
   if (rawOptions.gasprice) options.gasPrice = rawOptions.gasprice;
   if (rawOptions.data) options.data = rawOptions.data;
   if (rawOptions.nonce) options.nonce = rawOptions.nonce;
+  if (rawOptions.account) options.account = rawOptions.account;
+  if (rawOptions.maxgas) options.maxGas = rawOptions.maxgas;
 
   return options;
 };
