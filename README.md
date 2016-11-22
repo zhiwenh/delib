@@ -148,7 +148,7 @@ The default connection and file path options are taken from the `delib.js` confi
 | --- | --- | --- |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `<path>` | Relative path to IPC host |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
 | `-o --contract` | `<path>` | Path to contracts folder |
 | `-b --built` | `<path>` | Relative path to built contracts folder |
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
@@ -655,7 +655,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
 Create the config file ```delib.js``` and the [project structure](#projectStructure).
 
 <a name="Cli+build"></a>
-#### delib build `<file> -h --rpchost <value>, -r --rpcport <port>, -c --ipchost <path>, -o --contract <path>, -b --built <path>`
+#### delib build `<file> -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -o --contract <path>, -b --built <path>`
 Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ```.sol.js``` that you can require. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `contracts/` and `built/` folders.
 
 | Params | Type | Description |
@@ -663,12 +663,12 @@ Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ``
 | `<file>` | `string` | Name of Solidity contract |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `<path>` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
 | `-o --contract` | `<path>` | Path to contracts folder |
 | `-b --built` | `<path>` | Path to build contracts folder |
 
 <a name="Cli+deploy"></a>
-#### delib deploy `<contractName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost <path>, -b --built <path>, -a --address <path>`
+#### delib deploy `<contractName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Deploy a built Solidity smart contract and save its address for later use with the CLI or library. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `built/` and `addresses/` folders.
 
 | Params | Type | Description |
@@ -684,12 +684,12 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-n --nonce` | `<number>` | Nonce transaction option |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `<path>` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
 | `-b --built` | `<path>` | Relative path to built contracts folder |
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 <a name="Cli+exec"></a>
-#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost <path>, -b --built <path>, -a --address <path>`
+#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Perform a transaction or call a deployed contract's method. You can pass in a list of arguments. The most recent deployed contract address or set command address will be used.
 
 | Params | Type | Description |
@@ -706,12 +706,12 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 | `-n --nonce` | `<number>` | Nonce transaction option |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `<path>` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
 | `-b --built` | `<path>` | Relative path to built contracts folder |
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 <a name="Cli+events"></a>
-#### delib events `<contractName> <eventName> [blocksBack], -h --rpchost <value>, -r --rpcport <port>, -c --ipchost <path>, -b --built <path>, -a --address <path>`
+#### delib events `<contractName> <eventName> [blocksBack], -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Get the logs of a deployed contract's event. By default it gets all logs starting from block 0. You can pass in how many blocks back you wish to get logs from.
 
 | Params | Type | Description |
@@ -721,6 +721,7 @@ Get the logs of a deployed contract's event. By default it gets all logs startin
 | `[blocksBack]` | `number` | Number of blocks back to get logs from |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
+| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
 
 <a name="Cli+set"></a>
 #### delib set `<contractName> <contractAddress>, -a --address <path>`
@@ -733,7 +734,7 @@ Set the address of a contract to use.
 | `-a --address` | `<path>` | Relative path to contract addresses |
 
 <a name="Cli+balance"></a>
-#### delib balance `<accountIndex> [denomination], -h --rpchost <value>, -r --rpcport <port>, -c --ipchost <path>`
+#### delib balance `<accountIndex> [denomination], -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path]`
 Get the balance of one of your account by its account index.
 
 | Params | Type | Description |
@@ -742,20 +743,19 @@ Get the balance of one of your account by its account index.
 | `[denomination]` | `string` | Denomination to get balance in. Defaults to 'ether' |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `<path>` | `Relative path to IPC host` |
-
+| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
 
 <a name="Cli+create"></a>
-#### delib create `<password>, -c --ipchost <path>`
+#### delib create `<password>, -c --ipchost [path]`
 Create a new Ethereum account.
 
 | Params | Type | Description |
 | --- | --- | --- |
 | `<password>` | `string` | Account password |
-| `-c --ipchost` | `<path>` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
 
 <a name="Cli+unlock"></a>
-#### delib unlock `<accountIndex> <password> [time], -c --ipchost <path>`
+#### delib unlock `<accountIndex> <password> [time], -c --ipchost [path]`
 Unlock an Ethereum account by its account index. The argument `time` defaults to a day.
 
 | Params | Type | Description |
@@ -763,7 +763,7 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
 | `<accountIndex>` | `number` | Index of account |
 | `<password>` | `string` | Account password |
 | `[time]` | `number` | Time to leave account unlocked in seconds |
-| `-c --ipchost` | `<path>` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
 
 <a name="Ethereum+api"></a>
 

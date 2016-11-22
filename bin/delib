@@ -61,7 +61,7 @@ program
   .description('Build a Solidity contract')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
-  .option('-c --ipchost <path>', 'Relative path to IPC host')
+  .option('-c --ipchost [path]', 'Relative path to IPC host')
   .option('-o --contract <path>', 'Relative path to contracts folder')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((file, options) => {
@@ -93,7 +93,7 @@ program
   .option('-n --nonce <number>', 'Nonce transaction option')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
-  .option('-c --ipchost <path>', 'Relative path to IPC host')
+  .option('-c --ipchost [path]', 'Relative path to IPC host')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, args, options) => {
@@ -125,7 +125,7 @@ program
   .option('-n --nonce <number>', 'Nonce transaction option')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
-  .option('-c --ipchost <path>', 'Relative path to IPC host')
+  .option('-c --ipchost [path]', 'Relative path to IPC host')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, method, args, options) => {
@@ -150,7 +150,7 @@ program
   .description('Get the logs of an event')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
-  .option('-c --ipchost <path>', 'Relative path to IPC host')
+  .option('-c --ipchost [path]', 'Relative path to IPC host')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
@@ -183,7 +183,7 @@ program
   .description('Get the balance of an Ethereum account by its index')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
-  .option('-c --ipchost <path>', 'Relative path to IPC host')
+  .option('-c --ipchost [path]', 'Relative path to IPC host')
   .action((index, denomination, options) => {
     optionActions(options);
     if (delib.eth.connectionType !== 'ipc') {
@@ -206,7 +206,7 @@ program
 program
   .command('create <password>')
   .description('Create an Ethereum account')
-  .option('-c --ipchost <path>', 'Relative path to IPC host')
+  .option('-c --ipchost [path]', 'Relative path to IPC host')
   .action((password, options) => {
     optionActions(options, true);
     delib.eth.createAccount(password)
@@ -224,7 +224,7 @@ program
 program
   .command('unlock <index> <password> [time]')
   .description('Unlock an Ethereum account')
-  .option('-c --ipchost <path>', 'Relative path to IPC host')
+  .option('-c --ipchost [path]', 'Relative path to IPC host')
   .action((index, password, time, options) => {
     optionActions(options, true);
     time = time || 60 * 60 * 24;
@@ -252,7 +252,7 @@ program.on('--help', () => {
   console.log('    -n --nonce <number>', '    Nonce transaction option');
   console.log('    -h --rpchost <value>', '   RPC host');
   console.log('    -r --rpcport <port>', '    RPC port');
-  console.log('    -c --ipchost <path>', '    Relative path to IPC host');
+  console.log('    -c --ipchost [path]', '    Relative path to IPC host');
   console.log('    -b --built <path>', '      Relative path to built contracts folder');
   console.log('    -a --address <path>', '    Relative path to addresses folder');
   console.log('  ');
