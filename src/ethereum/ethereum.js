@@ -19,7 +19,7 @@ const config = require('./../config/config.js');
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
 
 // Percentage of gas to estimate above
-const EST_GAS_INCREASE = 0.10;
+const EST_GAS_INCREASE = 0.1;
 // Percentage to round gas limit down. Not used at the moment
 const GAS_LIMIT_DECREASE = 0.06;
 
@@ -40,15 +40,20 @@ function Ethereum() {
   this._rpcProvider; // RPC connection to Ethereum geth node
   this._ipcProvider;
 
-  /** Default transaction options */
+  /** Default options */
   this.options = {
+    /** Default transaction options */
     from: undefined,
     to: undefined,
     value: undefined,
     gas: 0,
     gasPrice: undefined,
     data: undefined,
-    nonce: undefined
+    nonce: undefined,
+
+    /** Default delib options*/
+    account: undefined,
+    maxGas: undefined
   };
 
   /** Account index used for transactions */
@@ -198,6 +203,11 @@ function Ethereum() {
       self.deploy.estimate(contractName, args, options)
         .then(gasEstimate => {
           options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
+
+          // Throw error if est gas is greater than max gas
+          if (options.maxGas && options.gas > options.maxGas) {
+            throw new Error('Gas estimate of ' + options.gas + ' is greater than max gas allowed ' + options.maxGas);
+          }
           deployInstance(options);
         })
         .catch(err => {
@@ -208,8 +218,8 @@ function Ethereum() {
       function deployInstance(deployOptions) {
         promisify(self.web3.eth.getAccounts)()
           .then(accounts => {
-            deployOptions.from = deployOptions.from || accounts[self.account];
-            args.push(options);
+            deployOptions.from = deployOptions.from || accounts[deployOptions.account] || accounts[self.account];
+            args.push(deployOptions);
             const contractInstance = contract.new.apply(contract, args);
             return contractInstance;
           })
@@ -240,7 +250,7 @@ function Ethereum() {
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
-          options.from = options.from || accounts[this.account];
+          options.from = options.from || accounts[options.account] || accounts[this.account];
           return promisify(this.web3.eth.getBlock)('latest');
         })
         .then(block => {
@@ -329,7 +339,7 @@ function Ethereum() {
 
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = options.from || accounts[this.account];
+                options.from = options.from || accounts[options.account] || accounts[this.account];
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
@@ -366,7 +376,7 @@ function Ethereum() {
               args.push(options);
               promisify(this.web3.eth.getAccounts)()
                 .then(accounts => {
-                  options.from = options.from || accounts[this.account];
+                  options.from = options.from || accounts[options.account] || accounts[this.account];
                   return contractInstance[methodName].apply(contractInstance, args);
                 })
                 .then(res => {
@@ -381,7 +391,7 @@ function Ethereum() {
             // Gas estimate
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = options.from || accounts[this.account];
+                options.from = options.from || accounts[options.account] || accounts[this.account];
                 return promisify(this.web3.eth.getBlock)('latest');
               })
               .then(block => {
@@ -393,6 +403,12 @@ function Ethereum() {
               .then(gasEstimate => {
                 // Change options to the estimated gas price
                 options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
+
+                // Throw error if est gas is greater than max gas
+                if (options.maxGas && options.gas > options.maxGas) {
+                  throw new Error('Gas estimate of ' + options.gas + ' is greater than max gas allowed ' + options.maxGas);
+                }
+
                 args.pop();
                 args.push(options);
                 return contractInstance[methodName].apply(contractInstance, args);
@@ -565,7 +581,13 @@ function Ethereum() {
    */
   this._getBuiltContract = (contractName) => {
     const contractPath = path.join(RELATIVE_PATH, this.contracts.paths.built, contractName + '.sol.js');
-    const contract = require(contractPath);
+    let contract;
+    try {
+      contract = require(contractPath);
+    } catch (e) {
+      const absContractPath = path.resolve(contractPath);
+      throw new Error('Invalid built contract at: ' + absContractPath);
+    }
     return contract;
   };
 

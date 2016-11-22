@@ -1,13 +1,18 @@
 'use strict';
 
 const allowedOptions = {
+  /** Transaction options */
   from: true,
   to: true,
   value: true,
   gas: true,
   gasPrice: true,
   data: true,
-  nonce: true
+  nonce: true,
+
+  /** delib options */
+  account: true,
+  maxGas: true
 };
 
 /**

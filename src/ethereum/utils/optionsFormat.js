@@ -7,13 +7,18 @@
  */
 
 const optionsType = {
+  /** Transaction options */
   from: 'string',
   to: 'string',
   value: 'number',
   gas: 'number',
   gasPrice: 'number',
   data: 'string',
-  nonce: 'number'
+  nonce: 'number',
+
+  /** delib options */
+  account: 'number',
+  maxGas: 'number'
 };
 
 module.exports = (options) => {
@@ -21,11 +26,11 @@ module.exports = (options) => {
     // Put everything that needs to be numbers into numbers
     if (optionsType.hasOwnProperty(key) && typeof options[key] !== optionsType[key]) {
 
-      if (optionsType[key] === 'string' && optionsType[key] === 'number') {
+      if (options[key] === 'string' && optionsType[key] === 'number') {
         options[key] = Number(options[key]);
       }
 
-      if (optionsType[key] === 'number' && optionsType[key] === 'string') {
+      if (options[key] === 'number' && optionsType[key] === 'string') {
         options[key] = options[key].toString();
       }
     }

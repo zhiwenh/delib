@@ -329,29 +329,38 @@ delib.eth.checkConnection('rpc');
 delib.eth.checkConnection('ipc');
 ```
 
-### Adjust transaction options
+### Adjust options
 **delib.eth.account**  
 **delib.eth.options**
 
-Choose the default account index to use for transactions. The index corresponds to the `web3.eth.accounts` array. By default the index is 0.
+
+To chooose a default account index for transactions use `delib.eth.account`. The index corresponds to the `web3.eth.accounts` array. By default it is 0.
 
 ```
 delib.eth.account = 0;
 ```
 
-`delib.eth.options` contains the default options for your transactions. Options passed into deploy or contract method calls will overwrite these.
+`delib.eth.options` contains the default options for your transactions. It contains the Ethereum transaction options as well as delib options. These options can be passed into deploy or contract method calls, and they'll overwrite the defaults.
 
-If a gas option of 0, as a default option or passed in as an argument, gas amount will be estimated for you.  
+You can pass in an `account` option in your deploy or contract method call and it'll use that account index for your transaction.
+
+If a `gas` option of 0 is specified, gas will be estimated for you. `maxGas` is the max gas allowed in gas estimates.
+
 
 ```
 delib.eth.options = {
-  from: null, // Leave at null to use the delib.eth.account index
-  to: null, // Automatically takes on the address of the contract you're calling
-  value: 0, // Value in wei to send
-  gas: 0, // If gas is set at 0 or null the gas cost is estimated
-  gasPrice: null, // If not specified it is the network mean gas value
-  data: null, // Not used for delib methods
-  nonce: null // Not used for delib methods
+  /** Default transaction options */
+  from: undefined,
+  to: undefined,
+  value: undefined,
+  gas: 0,
+  gasPrice: undefined,
+  data: undefined,
+  nonce: undefined,
+
+  /** Default delib options*/
+  account: undefined,
+  maxGas: undefined  
 };
 ```
 
@@ -491,14 +500,19 @@ delib.eth.events('Test', 'testEvent', 'all', filter)
 ### Account balances
 **delib.eth.getBalance(index, type)**
 
-The method to get the balance of an account takes in the account index and the Ether denomination you would like the result to be in.
+The method to get the balance of an account takes in the account index and the Ether denomination you would like the result to be in. If using this with an IPC connection it will return a Promise.
 
-Get the balance of your first account in Ether and wei:
+Get the balance of your first account in Ether, switch to IPC, then get it in wei:
 
 ```
 delib.eth.getBalance(0, 'Ether');
 
-delib.eth.getBalance(0, 'wei');
+delib.eth.changeProvider('ipc');
+
+delib.eth.getBalance(0, 'wei')
+  .then(balance => {
+
+  })
 ```
 
 ### Create accounts
@@ -859,17 +873,22 @@ Get all the deployed addresses of a contract.
 
 <a name="Ethereum+options"></a>
 #### delib.eth.options
-The default transaction options for `delib.eth` methods. If gas is 0 or null then it will be estimated automatically for each transaction. Leave `from` null to base the address off of `delib.eth.account`.
+The default options for `delib.eth` methods. This object contains the default transaction options as well as the default delib options. If `gas` is 0 or null then it will be estimated automatically for each transaction. `maxGas` is the max gas allowed when estimating gas. Leave `from` null to get the address from `delib.eth.account` or `account`. You can pass any of these properties inside the options object for deploy or exec transactions.  
 
 ```
 {
-  from: null, // The address of the account being used
-  to: null, // (Optional) Destination address for this transaction
-  value: null, // (Optional) Value transferred in wei
-  gas: 0, // (Optional) Amount of gas to use for transaction
-  gasPrice: null, // (Optional) Price of gas to be used for transaction in wei. Defaults to mean network gas price
-  data: null,
-  nonce: null // (Optional)
+  /** Default transaction options */
+  from: undefined,
+  to: undefined,
+  value: undefined,
+  gas: 0,
+  gasPrice: undefined,
+  data: undefined,
+  nonce: undefined,
+
+  /** Default delib options*/
+  account: undefined,
+  maxGas: undefined
 }
 ```
 
