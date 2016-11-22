@@ -132,6 +132,10 @@ program
     options = optionActions(options);
     args.push(options);
     const contractInstance = delib.eth.exec(contractName);
+    if (!contractInstance.hasOwnProperty(method) || typeof contractInstance[method] !== 'function') {
+      console.log('Not a valid', contractName, 'method:', method);
+      return;
+    }
     contractInstance[method].apply(this, args)
       .then(txRes => {
         console.log('Response:', txRes);
