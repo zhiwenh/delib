@@ -19,15 +19,12 @@ const config = require('./../config/config.js');
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
 
 // Percentage of gas to estimate above
-const EST_GAS_INCREASE = 0.1;
-// Percentage to round gas limit down. Not used at the moment
-const GAS_LIMIT_DECREASE = 0.06;
+const EST_GAS_INCREASE = 0.05;
 
 
 /**
  * Create an Ethereum object. Will need to use Ethereum.init() to connect to the Web3 RPC provider and use the Ethereun object methods
  */
-
 function Ethereum() {
   this.web3; // Web3 object used by library
   this.web3RPC; // Web3 RPC object
@@ -251,11 +248,7 @@ function Ethereum() {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
           options.from = options.from || accounts[options.account] || accounts[this.account];
-          return promisify(this.web3.eth.getBlock)('latest');
-        })
-        .then(block => {
           const transactionOptions = Object.assign({}, options);
-          // transactionOptions.gas = Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
           transactionOptions.gas = undefined;
           let bytes = contract.unlinked_binary;
           bytes += (args) ? encodeConstructorParams(contract.abi, args) : '';
@@ -324,9 +317,8 @@ function Ethereum() {
         const methodName = key;
         // Re reference the default contract methods with __methodName
         mockContract['__' + key] = contractInstance[methodName];
-        /**
-         * Creation of gas estimate method
-         */
+
+        /** Gas estimate method */
         mockContract.estimate[methodName] = (...args) => {
           return promisify(callback => {
             let options = this.options;
@@ -340,10 +332,6 @@ function Ethereum() {
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
                 options.from = options.from || accounts[options.account] || accounts[this.account];
-                return promisify(this.web3.eth.getBlock)('latest');
-              })
-              .then(block => {
-                // options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
                 options.gas = undefined;
                 args.push(options);
                 return contractInstance[methodName].estimateGas.apply(contractInstance, args);
@@ -357,9 +345,7 @@ function Ethereum() {
           })();
         };
 
-        /**
-         * Actual method. Estimates the gas cost if gas is 0 or not there.
-         */
+        /** Actual method. Estimates the gas cost if gas is 0 or not there. */
         mockContract[methodName] = (...args) => {
           return promisify((callback) => {
             let options = this.options;
@@ -392,10 +378,6 @@ function Ethereum() {
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
                 options.from = options.from || accounts[options.account] || accounts[this.account];
-                return promisify(this.web3.eth.getBlock)('latest');
-              })
-              .then(block => {
-                // options.gas =  Math.round(block.gasLimit - block.gasLimit * GAS_LIMIT_DECREASE);
                 options.gas = undefined;
                 args.push(options);
                 return contractInstance[methodName].estimateGas.apply(contractInstance, args);
