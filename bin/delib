@@ -186,9 +186,20 @@ program
   .option('-c --ipchost <path>', 'Relative path to IPC host')
   .action((index, denomination, options) => {
     optionActions(options);
-    const balance = delib.eth.getBalance(index, denomination);
-    console.log(balance);
-    delib.eth.closeIPC();
+    if (delib.eth.connectionType !== 'ipc') {
+      const balance = delib.eth.getBalance(index, denomination);
+      console.log(balance);
+    } else {
+      delib.eth.getBalance(index, denomination)
+        .then(balance => {
+          console.log(balance);
+          delib.eth.closeIPC();
+        })
+        .catch(err => {
+          console.error(err);
+          delib.eth.closeIPC();
+        });
+    }
   });
 
 /** Create a new Ethereum account. */
