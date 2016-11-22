@@ -188,6 +188,14 @@ Deploy a contract and pass in two arguments for its constructor. If no gas amoun
 -> delib deploy Contract hello 30
 ```
 
+### Display contract info
+**delib info `<contractName>`**
+
+Show all the contract methods along with their inputs and outputs, contract events, and the current address being used. Use this to not have to constantly reference your `.sol` contract file.
+```
+-> delib info Contract
+```
+
 ### Execute contract method
 **delib exec `<contractName> <methodName> [...args]`**
 
@@ -282,13 +290,11 @@ To connect with the options in `delib.js`:
 
 ```
 delib.eth.init();
-
 ```
 Specify your own connection arguments by passing in a RPC host and a RPC port number.
 
 ```
 delib.eth.init('localhost', 8000);
-
 ```
 
 #### IPC provider
@@ -664,6 +670,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
     * [deploy `<contractName> [...args]`](#Cli+deploy)
     * [exec `<contractName> <methodName> [...args]`](#Cli+exec)
     * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
+    * [info `<contractName>`](#Cli+info)
     * [set `<contractName> <contractAddress>`](#Cli+set)
     * [balance `<accountIndex> [denomination]`](#Cli+balance)
     * [create `<password>`](#Cli+create)
@@ -743,6 +750,16 @@ Get the logs of a deployed contract's event. By default it gets all logs startin
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | `Relative path to IPC host` |
+
+#### delib info `<contractName>, -b --built <path>, -a --address <path>`
+Show contract info such as methods, events, and currently used address. It displays the method inputs, outputs, constant modifier, and payable modifier. It also displays the event args.
+
+| Params | Type | Description |
+| --- | --- | --- |
+| `<contractName>` | `string` | Name of built contract |
+| `<contractAddress>` | `string` | The address to bind to the contract |
+| `-b --built` | `<path>` | Relative path to built contracts folder |
+| `-a --address` | `<path>` | Relative path to contract addresses |
 
 <a name="Cli+set"></a>
 #### delib set `<contractName> <contractAddress>, -a --address <path>`
