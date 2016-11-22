@@ -1,13 +1,35 @@
 'use strict';
+const path = require('path');
 const eth = require('./../ethereum/ethereum');
 const config = require('./../config/config');
 
-module.exports = function(rawOptions) {
-  rawOptions = Object.assign({}, config.cli.options, rawOptions);
+/**
+ * Actions for CLI options
+ * @param {Object} rawOptions - Commander options object
+ * @returns {Object} - Transaction options
+ */
+module.exports = function(rawOptions, ipc) {
+  // Try to connect via IPC if the host is specified. Otherwise RPC
+  if (rawOptions.ipchost && typeof rawOptions.ipchost === 'string') {
+    if (!rawOptions.ipchost.endsWith('.ipc')) {
+      rawOptions.ipchost = path.join(process.cwd(), rawOptions.ipchost, 'geth.ipc');
+    }
+    eth.initIPC(rawOptions.ipchost);
+  } else if (rawOptions.ipchost || ipc === true) {
+    eth.initIPC();
+  } else {
+    eth.init(rawOptions.rpchost, rawOptions.rpcport);
+  }
 
-  const options = {};
-  
+  /** Path adjustments */
+  const ethPaths = eth.contracts.paths;
+  ethPaths.contract = rawOptions.contract || ethPaths.contract;
+  ethPaths.built = rawOptions.built || ethPaths.built;
+  ethPaths.address = rawOptions.address || ethPaths.address;
+
   /** Transaction option adjustments */
+  rawOptions = Object.assign({}, config.cli.options, rawOptions);
+  const options = {};
   eth.account = options.account || eth.account;
   if (rawOptions.from) options.from = rawOptions.from;
   if (rawOptions.to) options.to = rawOptions.to;
@@ -17,12 +39,5 @@ module.exports = function(rawOptions) {
   if (rawOptions.data) options.data = rawOptions.data;
   if (rawOptions.nonce) options.nonce = rawOptions.nonce;
 
-  /** Path adjustments */
-  const ethPaths = eth.contracts.paths;
-  ethPaths.contract = options.contract || ethPaths.contract;
-  ethPaths.built = options.built || ethPaths.built;
-  ethPaths.address = options.address || ethPaths.address;
-
-  console.log('optionActions', options);
   return options;
 };

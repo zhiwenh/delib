@@ -214,12 +214,18 @@ Set the address of a contract to use. This will set its address for both CLI and
 ```
 
 ### Get account balance
-**delib balance `<accountIndex>`**
+**delib balance `<accountIndex> [demonination]`**
 
 Get the Ether balance of your first account.
 
 ```
 -> delib balance 0
+```
+
+Get the wei balance of your second account.
+
+```
+-> delib balance 1 wei
 ```
 
 ### Create an account
@@ -501,7 +507,10 @@ delib.eth.getBalance(0, 'wei');
 This only works with an IPC connection. It creates an encrpyted JSON file containing your public and private key in your Ethereum blockchain's data directory.
 
 ```
-delib.eth.createAccount('hunter1');
+delib.eth.createAccount('hunter1')
+  .then(address => {
+
+  })
 ```
 
 ### Unlock accounts
@@ -510,7 +519,10 @@ delib.eth.createAccount('hunter1');
 This only works with an IPC connection. Time length is in seconds.
 
 ```
-delib.eth.unlockAccount(1, 'hunter2', 10000);
+delib.eth.unlockAccount(1, 'hunter2', 10000)
+  .then(status => {
+
+  })
 ```
 
 
@@ -634,7 +646,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
     * [exec `<contractName> <methodName> [...args]`](#Cli+exec)
     * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
     * [set `<contractName> <contractAddress>`](#Cli+set)
-    * [balance `<accountIndex>`](#Cli+balance)
+    * [balance `<accountIndex> [denomination]`](#Cli+balance)
     * [create `<password>`](#Cli+create)
     * [unlock `<accountIndex> <password> [time]`](#Cli+unlock)
 
@@ -721,12 +733,13 @@ Set the address of a contract to use.
 | `-a --address` | `<path>` | Relative path to contract addresses |
 
 <a name="Cli+balance"></a>
-#### delib balance `<accountIndex>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost <path>`
+#### delib balance `<accountIndex> [denomination], -h --rpchost <value>, -r --rpcport <port>, -c --ipchost <path>`
 Get the balance of one of your account by its account index.
 
 | Params | Type | Description |
 | --- | --- | --- |
 | `<accountIndex>` | `number` | Index of account |
+| `[denomination]` | `string` | Denomination to get balance in. Defaults to 'ether' |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `<path>` | `Relative path to IPC host` |
@@ -783,9 +796,9 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
       * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
     * [.events(contractName, eventName, blocksBack, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)](#Ethereum+eventsAt) ⇒ <code>Promise</code> ⇒ <code>Array</code>
-    * [.getBalance(index, type)](#Ethereum+getBalance) ⇒ <code>number</code>
     * [.createAccount(password)](#Ethereum+createAccount) ⇒ <code>Promise</code> ⇒ <code>string</code>
-    * [.unlockAccount(index, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>boolean</code>
+    * [.unlockAccount(index, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>Promise</code> ⇒ <code>boolean</code>
+    * [.getBalance(index, type)](#Ethereum+getBalance) ⇒ <code>number</code>
 
 
 <a name="Ethereum+web3"></a>
@@ -919,6 +932,8 @@ Change the provider to use (RPC or IPC). It checks the connection status before 
 #### delib.eth.build(contractFiles, contractPath, buildPath)
 Build a Solidity contract.
 
+**Returns**: <code>Array</code> - Contracts built.
+
 | Param | Type | Description |
 | --- | --- | --- |
 | contractFiles | <code>array</code> | Array of contract file names in the contracts folder |
@@ -929,7 +944,7 @@ Build a Solidity contract.
 #### delib.eth.deploy(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>Contract</code>  
 Deploy a built contract. If you have `delib.eth.options` value set to 0 or pass in the option then your gas cost will be automatically estimated. The address is saved in your project's `addresses/` folder and will be used for future contract calls and transactions.
 
-**Returns**: <code>Promise</code> - The response is a Contract object of the deployed instance.  
+**Returns**: <code>Promise</code> - The response is a Contract instance of the deployed instance. You can call methods on it.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -953,7 +968,7 @@ Estimate the gas usage for deploying a contract.
 #### delib.eth.exec(contractName) ⇒ <code>Contract</code>
 Calls or performs a transaction on a deployed contract. Will take the address provided in the config file. If you have `delib.eth.options` value set to 0 or pass in the option into the contract method call your gas cost will be automatically estimated.
 
-**Returns**: <code>Contract</code> - Contract object that you can call methods with.  
+**Returns**: <code>Contract</code> - Contract instance that you can call methods with.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -963,7 +978,7 @@ Calls or performs a transaction on a deployed contract. Will take the address pr
 #### delib.eth.exec(contractName).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
 Calls a deployed contract and methods called on the returned contract will return an estimated gas usage value.
 
-**Returns**: <code>Contract</code> - Contract object that you can call methods with.  
+**Returns**: <code>Contract</code> - Contract instance that you can estimate the gas usage of methods with.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -973,7 +988,7 @@ Calls a deployed contract and methods called on the returned contract will retur
 #### delib.eth.execAt(contractName, contractAddress) ⇒ <code>Contract</code>
 Calls a deployed contract at a specific address. If you have `delib.eth.options` value set to 0 or pass it in as an option your gas cost will be automatically estimated.
 
-**Returns**: <code>Contract</code> - Contract object that you can call methods with.
+**Returns**: <code>Contract</code> - Contract instance that you can call methods with.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -985,7 +1000,7 @@ Calls a deployed contract at a specific address. If you have `delib.eth.options`
 #### delib.eth.execAt(contractName, contractAddress).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
 Calls a deployed contract at a specified address and methods called on the contract will return the estimated gas usage.
 
-**Returns**: <code>Contract</code> - Contract object that you can estimate the gas usage of methods with.
+**Returns**: <code>Contract</code> - Contract instance that you can estimate the gas usage of methods with.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -997,7 +1012,7 @@ Calls a deployed contract at a specified address and methods called on the contr
 #### delib.eth.events(contractName, eventName, blocksBack, filter) ⇒ <code>Promise</code>
 Gets the event logs of an event.
 
-**Returns**: <code>Promise</code> - The response contains an array event logs.  
+**Returns**: <code>Promise</code> => <code>Array</code> - Promise response contains an array event logs.    
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1010,7 +1025,7 @@ Gets the event logs of an event.
 #### delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack, filter) ⇒ <code>Promise</code>
 Gets the event logs for an event.
 
-**Returns**: <code>Promise</code> - The response contains an array event logs.  
+**Returns**: <code>Promise</code> => <code>Array</code> - Promise response contains an array event logs.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1024,7 +1039,7 @@ Gets the event logs for an event.
 #### delib.eth.createAccount(password) ⇒ <code>Promise</code>
 Creates a new Ethereum account. Needs an IPC connection.
 
-**Returns**: <code>Promise</code> => <code>string</code> Promise return is a string of the newly created account address.  
+**Returns**: <code>Promise</code> => <code>string</code> - Promise response is a string of the newly created account address.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1035,7 +1050,7 @@ Creates a new Ethereum account. Needs an IPC connection.
 #### delib.eth.unlockAccount(index, password, timeLength) ⇒ <code>boolean</code>
 Unlocks an Ethereum account. Needs an IPC connection.
 
-**Returns**: <code>boolean</code> - Status if account was successfully unlocked.  
+**Returns**: <code>Promise</code> => <code>boolean</code> - Promise response is status of whether or not the account got unlocked.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1043,9 +1058,9 @@ Unlocks an Ethereum account. Needs an IPC connection.
 | password | <code>string</code> | Password of account. |
 | timeLength | <code>number</code> | Time in seconds to have account remain unlocked for. |
 
-<a name="Ethereum+getBalanceEther"></a>
+<a name="Ethereum+getBalance"></a>
 #### delib.eth.getBalance(index, type) ⇒ <code>number</code>
-Get the Ether balance of an account in Ether denomination.
+Get the Ether balance of an account in a specified denomination.
 
 **Returns**: <code>number</code> - The amount of Ether contained in the account.  
 

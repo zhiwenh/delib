@@ -4,17 +4,15 @@ const program = require('commander');
 const path = require('path');
 const fs = require('fs-extra');
 const pathExists = require('path-exists').sync;
-
 const delib = require('./../index.js');
-const Addresses = require('./../src/models/Addresses');
 const config = require('./../src/config/config');
 const optionActions = require('./../src/cli/optionActions');
 
 program
-  .version('3.3.0');
+  .version('3.3.0')
+  .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
-
 program
   .command('init')
   .description('Create configuration file, genesis file, and necessary folders')
@@ -24,33 +22,42 @@ program
     const builtFolderPath = path.join(process.cwd(), 'built');
     const addressFolderPath = path.join(process.cwd(), 'addresses');
 
+    let status = false;
+
     if (!pathExists(configPath)) {
       const defaultConfig = fs.readFileSync(path.join(__dirname, '/../src/config/default.js'));
       fs.writeFileSync(configPath, defaultConfig);
       console.log('Created config file delib.js');
-    } else {
-      console.log('Already created delib.js');
+      status = true;
     }
 
     if (!pathExists(contractsFolderPath)) {
       fs.mkdirSync(contractsFolderPath);
       console.log('Created contract folder');
+      status = true;
     }
 
     if (!pathExists(builtFolderPath)) {
       fs.mkdirSync(builtFolderPath);
       console.log('Created built contracts folder');
+      status = true;
     }
 
     if (!pathExists(addressFolderPath)) {
       fs.mkdirSync(addressFolderPath);
       console.log('Created contract addresses folder');
+      status = true;
+    }
+
+    if (status === false) {
+      console.log('Already created project');
     }
   });
 
 /** Build a Solidity contract from paths in delib configuration file. Default is './contracts/' */
 program
   .command('build <file>')
+  .alias('bu')
   .description('Build a Solidity contract')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
@@ -58,13 +65,12 @@ program
   .option('-o --contract <path>', 'Relative path to contracts folder')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((file, options) => {
-    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
-    console.log('Contract path:', path.join(config.projectRoot, delib.eth.contracts.paths.contract, file + '.sol'));
+    console.log('Building:', path.join(config.projectRoot, delib.eth.contracts.paths.contract, file + '.sol'));
     delib.eth.build(file)
       .then((contracts) => {
-        console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built));
-        console.log('Built contracts:', contracts.join(', '));
+        // console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built));
+        console.log('Contracts built:', contracts.join(', '));
         delib.eth.closeIPC();
       })
       .catch(err => {
@@ -76,6 +82,7 @@ program
 /** Deploy a Solidity contract from paths in delib configuration file. Default is './contracts/'. */
 program
   .command('deploy <contractName> [args...]')
+  .alias('de')
   .description('Deploy a built contract')
   .option('-i --account <index>', 'Account to use for transaction. Takes the account index')
   .option('-f --from <address>', 'From transaction option. Replaces --account')
@@ -90,13 +97,12 @@ program
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, args, options) => {
-    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
-    console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js'));
+    console.log('Deploying:', path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js'));
     delib.eth.deploy(contractName, args, options)
       .then(instance => {
-        console.log('Address path:', path.join(config.projectRoot, delib.eth.contracts.paths.address));
-        console.log('Deployed contract address:', instance.address);
+        // console.log('Address path:', path.join(config.projectRoot, delib.eth.contracts.paths.address));
+        console.log('Contract address:', instance.address);
         delib.eth.closeIPC();
       })
       .catch(err => {
@@ -109,6 +115,7 @@ program
 program
   .command('exec <contractName> <method> [args...]')
   .description('Execute a contract method')
+  .alias('ex')
   .option('-i --account <index>', 'Account to use for transaction. Takes the account index')
   .option('-f --from <address>', 'From transaction option. Replaces --account')
   .option('-t --to <address>', 'To transaction option.')
@@ -122,13 +129,12 @@ program
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, method, args, options) => {
-    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
     args.push(options);
     const contractInstance = delib.eth.exec(contractName);
     contractInstance[method].apply(this, args)
       .then(txRes => {
-        console.log('Transaction response:', txRes);
+        console.log('Response:', txRes);
         delib.eth.closeIPC();
       })
       .catch(err => {
@@ -140,6 +146,7 @@ program
 /** Show the logs of a contract event. */
 program
   .command('events <contractName> <eventName> [blocksBack]')
+  .alias('ev')
   .description('Get the logs of an event')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
@@ -147,7 +154,6 @@ program
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
-    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     optionActions(options);
     delib.eth.events(contractName, eventName, blocksBack)
       .then(logs => {
@@ -173,14 +179,14 @@ program
 
 /** Get the balance of a particular Ethereum account based on account index. */
 program
-  .command('balance <index>')
+  .command('balance <index> [denomination]')
   .description('Get the balance of an Ethereum account by its index')
   .option('-h --rpchost <value>', 'RPC host')
   .option('-r --rpcport <port>', 'RPC port')
   .option('-c --ipchost <path>', 'Relative path to IPC host')
-  .action((index, options) => {
-    options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
-    const balance = delib.eth.getBalanceEther(index);
+  .action((index, denomination, options) => {
+    optionActions(options);
+    const balance = delib.eth.getBalance(index, denomination);
     console.log(balance);
     delib.eth.closeIPC();
   });
@@ -191,11 +197,10 @@ program
   .description('Create an Ethereum account')
   .option('-c --ipchost <path>', 'Relative path to IPC host')
   .action((password, options) => {
-    delib.eth.initIPC(options.ipchost);
-    options.ipchost  = options.ipchost ? path.join(process.cwd(), options.ipchost, 'geth.ipc') : undefined;
+    optionActions(options, true);
     delib.eth.createAccount(password)
-      .then(res => {
-        console.log(res);
+      .then(address => {
+        console.log(address);
         delib.eth.closeIPC();
       })
       .catch(err => {
@@ -210,8 +215,7 @@ program
   .description('Unlock an Ethereum account')
   .option('-c --ipchost <path>', 'Relative path to IPC host')
   .action((index, password, time, options) => {
-    delib.eth.initIPC(options.ipchost);
-    options.ipchost  = options.ipchost ? path.join(process.cwd(), options.ipchost, 'geth.ipc') : undefined;
+    optionActions(options, true);
     time = time || 60 * 60 * 24;
     delib.eth.unlockAccount(index, password, time)
       .then(bool => {
@@ -223,4 +227,29 @@ program
       });
   });
 
+/** Additional help */
+program.on('--help', () => {
+  console.log('  Command Options:');
+  console.log('  ');
+  console.log('    -h --help', '              Display available command options');
+  console.log('    -i --account <index>', '   Account to use for transaction. Takes the account index');
+  console.log('    -f --from <address>', '    From transaction option. Replaces --account');
+  console.log('    -t --to <address>', '      To transaction option');
+  console.log('    -v --value <ether>', '     Value transaction option in Ether. Converts the value to wei');
+  console.log('    -g --gas <number>', '      Gas transaction option. Estimated if not given or set to 0');
+  console.log('    -p --gasprice <number>', ' Gas price transaction option');
+  console.log('    -n --nonce <number>', '    Nonce transaction option');
+  console.log('    -h --rpchost <value>', '   RPC host');
+  console.log('    -r --rpcport <port>', '    RPC port');
+  console.log('    -c --ipchost <path>', '    Relative path to IPC host');
+  console.log('    -b --built <path>', '      Relative path to built contracts folder');
+  console.log('    -a --address <path>', '    Relative path to addresses folder');
+  console.log('  ');
+});
+
 program.parse(process.argv);
+
+/** Default output is help */
+if (process.argv.length <= 2) {
+  program.outputHelp();
+}
