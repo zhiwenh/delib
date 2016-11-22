@@ -7,10 +7,11 @@ const pathExists = require('path-exists').sync;
 
 const delib = require('./../index.js');
 const Addresses = require('./../src/models/Addresses');
-const config = require('./../src/config/config.js');
+const config = require('./../src/config/config');
+const optionActions = require('./../src/cli/optionActions');
 
 program
-  .version('3.2.1');
+  .version('3.3.0');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
 
@@ -92,7 +93,7 @@ program
     options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
     console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js'));
-    delib.eth.deploy(contractName, args)
+    delib.eth.deploy(contractName, args, options)
       .then(instance => {
         console.log('Address path:', path.join(config.projectRoot, delib.eth.contracts.paths.address));
         console.log('Deployed contract address:', instance.address);
@@ -123,8 +124,9 @@ program
   .action((contractName, method, args, options) => {
     options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
     options = optionActions(options);
-    const contract = delib.eth.exec(contractName);
-    contract[method].apply(this, args)
+    args.push(options);
+    const contractInstance = delib.eth.exec(contractName);
+    contractInstance[method].apply(this, args)
       .then(txRes => {
         console.log('Transaction response:', txRes);
         delib.eth.closeIPC();
@@ -146,7 +148,7 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
     options.ipchost ? delib.eth.initIPC(options.ipchost) : delib.eth.init(options.rpchost, options.rpcport);
-    options = optionActions(options);
+    optionActions(options);
     delib.eth.events(contractName, eventName, blocksBack)
       .then(logs => {
         console.log('Event logs:');
@@ -165,7 +167,7 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .description('Set the address of a contract to use')
   .action((contractName, contractAddress, options) => {
-    options = optionActions(options);
+    optionActions(options);
     delib.eth.contracts.addresses.set(contractName, contractAddress);
   });
 
@@ -222,29 +224,3 @@ program
   });
 
 program.parse(process.argv);
-
-/** Performs adjustments based on the options */
-function optionActions(options) {
-  options = Object.assign(config.cli.options, options);
-
-  delib.eth.account = options.account || delib.eth.account;
-
-  /** Transaction option adjustments */
-  const deOptions = delib.eth.options;
-  deOptions.from = options.from || deOptions.from;
-  deOptions.to = options.to || deOptions.to;
-  deOptions.value = options.value ? Number(delib.eth.web3.toWei(options.value, 'ether').toString()) : deOptions.value; // Converts Ether to wei
-  // deOptions.value = options.value ? options.value : deOptions.value;
-  deOptions.gas = options.gas || deOptions.gas;
-  deOptions.gasPrice = options.gasPrice || deOptions.gasPrice;
-  deOptions.data = options.data || deOptions.data;
-  deOptions.nonce = options.nonce || deOptions.nonce;
-
-  /** Path adjustments */
-  const dePaths = delib.eth.contracts.paths;
-  dePaths.contract = options.contract || dePaths.contract;
-  dePaths.built = options.built || dePaths.built;
-  delib.eth.contracts.paths.address = options.address || delib.eth.contracts.paths.address;
-
-  return options;
-}
