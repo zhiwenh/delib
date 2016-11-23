@@ -25,7 +25,7 @@ function Ethereum() {
   this.web3; // Web3 object used by library
   this.web3RPC; // Web3 RPC object
   this.web3IPC; // Web3 IPC object
-  this.estimateAdjust = 0.1; // Deploy and exec gas estimate adjustments
+  this.gasAdjust = 0.1; // Deploy and exec gas estimate adjustments
 
   this._init = false; // If RPC or IPC has been initialized
   this._initRPC = false;
@@ -197,7 +197,7 @@ function Ethereum() {
       options.gas = undefined;
       self.deploy.estimate(contractName, args, options)
         .then(gasEstimate => {
-          options.gas = Math.round(gasEstimate + gasEstimate * self.estimateAdjust);
+          options.gas = Math.round(gasEstimate + gasEstimate * self.gasAdjust);
           // Throw error if est gas is greater than max gas
           if (options.maxGas && options.gas > options.maxGas) {
             throw new Error('Gas estimate of ' + options.gas + ' is greater than max gas allowed ' + options.maxGas);
@@ -379,7 +379,7 @@ function Ethereum() {
               })
               .then(gasEstimate => {
                 // Change options to the estimated gas price
-                options.gas = Math.round(gasEstimate + gasEstimate * this.estimateAdjust);
+                options.gas = Math.round(gasEstimate + gasEstimate * this.gasAdjust);
 
                 // Throw error if est gas is greater than max gas
                 if (options.maxGas && options.gas > options.maxGas) {

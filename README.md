@@ -8,11 +8,12 @@ Delib's features include:
   * A CLI for contract management. It lets you compile, build, deploy, execute methods, and get event logs.
   * Option to automatically estimate your transaction gas costs for contract deployment and methods.
   * The saving of deployed contract addresses to use or reference later.
-  * The ability to create/unlock Ethereum accounts with the library and CLI.
+  * The ability to create and unlock Ethereum accounts using IPC.
 
 ## Table of Contents
   * [Requirements](#requirements)
   * [Installation and Setup](#install)
+  * [Usage](#usage)
   * [CLI](#Cli)
   * [Library](#Ethereum)
   * [Examples](#examples)
@@ -24,18 +25,18 @@ Delib's features include:
 
 ## Requirements
 
-Must [install geth](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum). Here are the Mac OSX install commands with brew.
+You need to have an Ethereum node to connect with. Delib has been tested with [geth](https://github.com/ethereum/go-ethereum/wiki/geth). The Mac OSX install commands with brew is shown below. [Click here](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) for additional install information.
 
 ```
 brew tap ethereum/ethereum
 brew install ethereum
 ```
 
-Must use [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. Delib installs it as a dependency and also as a peer dependency. The current web3 version is 0.17.0-beta.
+Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. Delib installs it as a dependency and also as a peer dependency for your built contract files. The current web3 version is 0.17.0-beta.
 
 <a name="install"></a>
 
-## Installation and Setup
+## Installation, Setup
 
 ### Global install
 
@@ -78,7 +79,9 @@ project/
 ├── delib.js/         - (delib config file)
 ```
 
-### Config file
+You don't need to create a project to use Delib. More information is given in the usage section.
+
+### Configuration
 A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default CLI transaction options.
 
 ```
@@ -117,19 +120,23 @@ A file called `delib.js` gets made when you create a project. It contains your p
 
 ```
 
+<a name="usage"></a>
+## Usage
+
 ### Usage outside project
-Delib can be used outside a project. Outside a project file paths will be relative to your process point of entry. You can specify paths with the library and pass them in as options for the CLI. Connection options will also need to be specified.
+Delib can be used outside a project. Outside a project file paths will be relative to your process point of entry. Connection options will also need to be specified. You can specify these with the library and pass them in as options if using the CLI.
+
+### Contract addresses
+Your contract's deployed addresses are saved in a plain text file with a file name of `ContractnameAddresses`. Each address is separated by a new line, and the most recent address is at the bottom of the list. The library and CLI use that address when no address is specified and you can manually add your own addresses to this file.
 
 ### Development node
-Before using the library or CLI you will need to connect to an Ethereum node.
-
-I created a package called [devchain](https://www.npmjs.com/package/devchain) that allows you to create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it comes with a geth node that automates mining and account Ether distribution. To install:
+I created a package called [devchain](https://www.npmjs.com/package/devchain) that gives you a development geth server and helps you create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it automates mining and account Ether distribution. To install:
 
 ```
 npm install -g devchain
 ```
 
-Another option is [testrpc](https://github.com/ethereumjs/testrpc), which performs transaction instantaneously, but only allows RPC connections. To install:
+Another option is [testrpc](https://github.com/ethereumjs/testrpc), which performs transaction instantaneously. To install:
 
 ```
 npm install -g ethereumjs-testrpc
@@ -342,8 +349,8 @@ delib.eth.checkConnection('ipc');
 
 ### Adjust options
 **delib.eth.account**  
-**delib.eth.options**
-
+**delib.eth.options**  
+**delib.eth.gasAdjust**
 
 To chooose a default account index for transactions use `delib.eth.account`. The index corresponds to the `web3.eth.accounts` array. By default it is 0.
 
@@ -355,7 +362,7 @@ delib.eth.account = 0;
 
 You can pass in an `account` option in your deploy or contract method call and it'll use that account index for your transaction.
 
-If a `gas` option of 0 is specified, gas will be estimated for you. `maxGas` is the max gas allowed in gas estimates.
+If a `gas` option of 0 is specified gas will be estimated for you, and `maxGas` is the max gas allowed in gas estimates. The estimate is adjusted before being used, and the value can be accessed with `delib.eth.gasAdjust`. Its default value is 0.1.
 
 
 ```
@@ -373,6 +380,8 @@ delib.eth.options = {
   account: undefined,
   maxGas: undefined  
 };
+
+delib.eth.gasAdjust = 0.1;
 ```
 
 ### Build contracts
@@ -427,7 +436,7 @@ delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
   });
 ```
 
-You can get an array of all previously deployed addresses with `delib.eth.contracts.addresses.getAll('contractName')`. The most recently deployed address is at index 0. Using this will allow you to call previously deployed contracts.
+You can get an array of all previously deployed addresses with `delib.eth.contracts.addresses.getAll('contractName')`. The most recently deployed address is the array's last index. Use this to access previously deploy contracts.
 
 ### Execute contract methods
 **delib.eth.exec(contractName)**  
@@ -810,7 +819,7 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
     * [.web3](#Ethereum+web3)
     * [.web3RPC](#Ethereum+web3RPC)
     * [.web3IPC](#Ethereum+web3IPC)
-    * [.estimateAdjust](#Ethereum+estimateAdjust)
+    * [.gasAdjust](#Ethereum+gasAdjust)
     * [.options](#Ethereum+options)
     * [.account](#Ethereum+account)
     * [.contracts](#Ethereum+contracts)
@@ -852,11 +861,11 @@ The Web3 object used for RPC connections. Will first need to initialize a RPC co
 #### delib.eth.web3IPC
 The Web3 object used for IPC connections. Will first need to initialize an IPC connection with `delib.eth.initIPC()`. This object will allow you to perform Web3 personal and admin tasks.
 
-<a name="Ethereum+estimateAdjust"></a>
-#### delib.eth.estimateAdjust
+<a name="Ethereum+gasAdjust"></a>
+#### delib.eth.gasAdjust
 The amount to adjust gas when doing automatic gas estimates. Default is 0.1. It's calculated by this formula:
 ```
-gasEstimate = gasEstimate + gasEstimate * estimateAdjust
+gasEstimate = gasEstimate + gasEstimate * gasAdjust
 ```
 
 <a name="Ethereum+account"></a>
