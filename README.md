@@ -36,7 +36,7 @@ Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. 
 
 <a name="install"></a>
 
-## Installation, Setup
+## Installation and Setup
 
 ### Global install
 
