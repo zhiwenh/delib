@@ -810,8 +810,9 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
     * [.web3](#Ethereum+web3)
     * [.web3RPC](#Ethereum+web3RPC)
     * [.web3IPC](#Ethereum+web3IPC)
+    * [.estimateAdjust](#Ethereum+estimateAdjust)
     * [.options](#Ethereum+options)
-    * [.account](#Ethereum+accountIndex)
+    * [.account](#Ethereum+account)
     * [.contracts](#Ethereum+contracts)
       * [.paths](#Ethereum+contracts+paths)
         * [.contract](#Ethereum+contracts+paths)
@@ -850,6 +851,38 @@ The Web3 object used for RPC connections. Will first need to initialize a RPC co
 <a name="Ethereum+web3IPC"></a>
 #### delib.eth.web3IPC
 The Web3 object used for IPC connections. Will first need to initialize an IPC connection with `delib.eth.initIPC()`. This object will allow you to perform Web3 personal and admin tasks.
+
+<a name="Ethereum+estimateAdjust"></a>
+#### delib.eth.estimateAdjust
+The amount to adjust gas when doing automatic gas estimates. Default is 0.1. It's calculated by this formula:
+```
+gasEstimate = gasEstimate + gasEstimate * estimateAdjust
+```
+
+<a name="Ethereum+account"></a>
+#### delib.eth.account
+The index of the default account used for transactions. The index is used for web3.eth.accounts. This can be overwritten by setting an address in `delib.eth.options.from` or by passing i when performing a transaction.
+
+<a name="Ethereum+options"></a>
+#### delib.eth.options
+The default options for `delib.eth` methods. This object contains the default transaction options as well as the default delib options. If `gas` is 0 or null then it will be estimated automatically for each transaction. `maxGas` is the max gas allowed when estimating gas. Leave `from` null to get the address from `delib.eth.account` or `account`. You can pass any of these properties inside the options object for deploy or exec transactions.  
+
+```
+{
+  /** Default transaction options */
+  from: undefined,
+  to: undefined,
+  value: undefined,
+  gas: 0,
+  gasPrice: undefined,
+  data: undefined,
+  nonce: undefined,
+
+  /** Default delib options*/
+  account: undefined,
+  maxGas: undefined
+}
+```
 
 <a name="Ethereum+contracts+paths"></a>
 #### delib.eth.contracts.paths
@@ -895,30 +928,7 @@ Get all the deployed addresses of a contract.
 | --- | --- | --- |
 | name | <code>string</code> | Name of built contract |
 
-<a name="Ethereum+options"></a>
-#### delib.eth.options
-The default options for `delib.eth` methods. This object contains the default transaction options as well as the default delib options. If `gas` is 0 or null then it will be estimated automatically for each transaction. `maxGas` is the max gas allowed when estimating gas. Leave `from` null to get the address from `delib.eth.account` or `account`. You can pass any of these properties inside the options object for deploy or exec transactions.  
 
-```
-{
-  /** Default transaction options */
-  from: undefined,
-  to: undefined,
-  value: undefined,
-  gas: 0,
-  gasPrice: undefined,
-  data: undefined,
-  nonce: undefined,
-
-  /** Default delib options*/
-  account: undefined,
-  maxGas: undefined
-}
-```
-
-<a name="Ethereum+accountIndex"></a>
-#### delib.eth.account
-The index of the default account used for transactions. The index is used for web3.eth.accounts. This can be overwritten by setting an address in `delib.eth.options.from` or by passing i when performing a transaction.
 
 <a name="Ethereum+init"></a>
 #### delib.eth.init(rpcHost, rpcPort) ⇒ <code>Web3</code>

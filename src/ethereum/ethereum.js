@@ -25,14 +25,18 @@ function Ethereum() {
   this.web3; // Web3 object used by library
   this.web3RPC; // Web3 RPC object
   this.web3IPC; // Web3 IPC object
+  this.estimateAdjust = 0.1; // Deploy and exec gas estimate adjustments
+
   this._init = false; // If RPC or IPC has been initialized
   this._initRPC = false;
   this._initIPC = false;
-  this.connectionType;
-  this.provider; // Provider to use for methods
   this._rpcProvider; // RPC connection to Ethereum geth node
   this._ipcProvider;
-  this._estimateIncrease = 0.05;
+  this._connectionType;
+  this._provider; // Provider to use for methods
+
+  /** Account index used for transactions */
+  this.account = 0;
 
   /** Default options */
   this.options = {
@@ -49,9 +53,6 @@ function Ethereum() {
     account: undefined,
     maxGas: undefined
   };
-
-  /** Account index used for transactions */
-  this.account = 0;
 
   /** Contains contract related properties and methods */
   this.contracts = contracts;
@@ -70,8 +71,8 @@ function Ethereum() {
       if (this.checkConnection('rpc')) {
         this._rpcProvider = this.web3RPC.currentProvider;
         this.web3 = this.web3RPC;
-        this.connectionType = 'rpc';
-        this.provider = this.web3RPC.currentProvider;
+        this._connectionType = 'rpc';
+        this._provider = this.web3RPC.currentProvider;
       } else { // try and connect via ipc if rpc doesn't work
         throw new Error('Unable to connect to RPC provider');
       }
@@ -119,7 +120,7 @@ function Ethereum() {
    */
   this.checkConnection = (type) => {
     // If type is undefined check current type being used
-    type = type || this.connectionType;
+    type = type || this._connectionType;
     type = type.toLowerCase();
     if (type === 'rpc') {
       return this.web3RPC ? this.web3RPC.isConnected() : false;
@@ -145,14 +146,14 @@ function Ethereum() {
   this.changeProvider = (type) => {
     if (type === 'rpc' || type === 'RPC' && this.checkConnection('rpc')) {
       this.web3 = this.web3RPC;
-      this.connectionType = 'rpc';
-      this.provider = this.web3RPC.currentProvider;
+      this._connectionType = 'rpc';
+      this._provider = this.web3RPC.currentProvider;
       return true;
     }
     if (type === 'ipc' || type === 'IPC' && this.checkConnection('ipc')) {
       this.web3 = this.web3IPC;
-      this.connectionType = 'ipc';
-      this.provider = this.web3IPC.currentProvider;
+      this._connectionType = 'ipc';
+      this._provider = this.web3IPC.currentProvider;
       return true;
     }
     return false;
@@ -184,7 +185,7 @@ function Ethereum() {
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
     const contract = this._getBuiltContract(contractName);
-    contract.setProvider(this.provider);
+    contract.setProvider(this._provider);
     var self = this;
 
     return promisify(callback => {
@@ -196,7 +197,7 @@ function Ethereum() {
       options.gas = undefined;
       self.deploy.estimate(contractName, args, options)
         .then(gasEstimate => {
-          options.gas = Math.round(gasEstimate + gasEstimate * self._estimateIncrease);
+          options.gas = Math.round(gasEstimate + gasEstimate * self.estimateAdjust);
           // Throw error if est gas is greater than max gas
           if (options.maxGas && options.gas > options.maxGas) {
             throw new Error('Gas estimate of ' + options.gas + ' is greater than max gas allowed ' + options.maxGas);
@@ -239,7 +240,7 @@ function Ethereum() {
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
     const contract = this._getBuiltContract(contractName);
-    contract.setProvider(this.provider);
+    contract.setProvider(this._provider);
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
@@ -297,7 +298,7 @@ function Ethereum() {
   this.execAt = (contractName, contractAddress) => {
     this._checkConnectionError();
     const contract = this._getBuiltContract(contractName);
-    contract.setProvider(this.provider);
+    contract.setProvider(this._provider);
     const contractInstance = contract.at(contractAddress);
 
     /** Create mockContract to add new behavior to contract methods */
@@ -378,7 +379,7 @@ function Ethereum() {
               })
               .then(gasEstimate => {
                 // Change options to the estimated gas price
-                options.gas = Math.round(gasEstimate + gasEstimate * this._estimateIncrease);
+                options.gas = Math.round(gasEstimate + gasEstimate * this.estimateAdjust);
 
                 // Throw error if est gas is greater than max gas
                 if (options.maxGas && options.gas > options.maxGas) {
@@ -433,7 +434,7 @@ function Ethereum() {
   this.eventsAt = (contractName, contractAddress, eventName, blocksBack, filter) => {
     this._checkConnectionError();
     const contract = this._getBuiltContract(contractName);
-    contract.setProvider(this.provider);
+    contract.setProvider(this._provider);
     const contractInstance = contract.at(contractAddress);
 
     // Check to see if valid event
@@ -503,7 +504,7 @@ function Ethereum() {
   this.getBalance = (index, type) => {
     type = type || 'ether';
     this._checkConnectionError();
-    if (this.connectionType === 'ipc') {
+    if (this._connectionType === 'ipc') {
       return promisify(callback => {
         promisify(this.web3.eth.getAccounts)()
           .then(accounts => {
@@ -579,10 +580,10 @@ function Ethereum() {
    * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
    */
   this._checkConnectionError = (type) => {
-    if (!this.connectionType) {
+    if (!this._connectionType) {
       throw new Error ('Not connected to any provider');
     }
-    type = type || this.connectionType;
+    type = type || this._connectionType;
     type = type.toLowerCase();
     if (!this.checkConnection(type)) {
       throw new Error('Invalid' + type + ' connection');
