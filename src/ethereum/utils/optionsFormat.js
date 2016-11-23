@@ -25,12 +25,11 @@ module.exports = (options) => {
   for (let key in options) {
     // Put everything that needs to be numbers into numbers
     if (optionsType.hasOwnProperty(key) && typeof options[key] !== optionsType[key]) {
-
-      if (options[key] === 'string' && optionsType[key] === 'number') {
+      if (typeof options[key] === 'string' && optionsType[key] === 'number') {
         options[key] = Number(options[key]);
       }
 
-      if (options[key] === 'number' && optionsType[key] === 'string') {
+      if (typeof options[key] === 'number' && optionsType[key] === 'string') {
         options[key] = options[key].toString();
       }
     }

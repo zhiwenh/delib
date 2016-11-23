@@ -68,7 +68,16 @@ program
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((file, options) => {
     options = optionActions(options);
-    console.log('Building:', path.join(config.projectRoot, delib.eth.contracts.paths.contract, file + '.sol'));
+
+    const contractPath = path.join(config.projectRoot, delib.eth.contracts.paths.contract, file + '.sol');
+    if (!pathExists(contractPath)) {
+      console.log('');
+      console.log('  \'' + file + '\' is not a valid contract at:', contractPath);
+      console.log('');
+      return;
+    }
+
+    console.log('Building:', contractPath);
     delib.eth.build(file)
       .then((contracts) => {
         // console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built));
@@ -101,7 +110,17 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, args, options) => {
     options = optionActions(options);
-    console.log('Deploying:', path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js'));
+
+    // Check if built contract exists
+    const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
+    if (!pathExists(builtPath)) {
+      console.log('');
+      console.log('   \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      console.log('');
+      return;
+    }
+
+    console.log('Deploying:', builtPath);
     delib.eth.deploy(contractName, args, options)
       .then(instance => {
         // console.log('Address path:', path.join(config.projectRoot, delib.eth.contracts.paths.address));
@@ -134,14 +153,38 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, method, args, options) => {
     options = optionActions(options);
-    args.push(options);
-    const contractInstance = delib.eth.exec(contractName);
-    if (!contractInstance.hasOwnProperty(method) || typeof contractInstance[method] !== 'function') {
+
+    // Check if built contract exists
+    const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
+    if (!pathExists(builtPath)) {
       console.log('');
-      console.log('  Not a valid', contractName, 'method:', method);
+      console.log('   \'' + contractName + '\' is not a valid built contract at:', builtPath);
       console.log('');
       return;
     }
+
+    // Check if contract method exists. The returned contract instance has custom methods. The actual methods are __methodName
+    const contractInstance = delib.eth.exec(contractName);
+
+    const abis = contractInstance.abi;
+
+    function checkMethod(method, abis) {
+      for (let i = 0; i < abis.length; i++) {
+        if (abis[i].name === method && abis[i].type === 'function') {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    if (!checkMethod(method, abis)) {
+      console.log('');
+      console.log('  \'' + method + '\' is not a valid', contractName, 'method');
+      console.log('');
+      return;
+    }
+
+    args.push(options);
     contractInstance[method].apply(this, args)
       .then(txRes => {
         console.log('Response:', txRes);
@@ -165,7 +208,38 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
     optionActions(options);
-    delib.eth.events(contractName, eventName, blocksBack)
+
+    const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
+    if (!pathExists(builtPath)) {
+      console.log('');
+      console.log('   \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      console.log('');
+      return;
+    }
+
+    // Check if event exists
+    const contract = delib.eth._getBuiltContract(contractName);
+    const contractAddress = delib.eth.contracts.addresses.get(contractName);
+    const contractInstance = contract.at(contractAddress);
+    const abis = contractInstance.abi;
+
+    function checkEvent(eventName, abis) {
+      for (let i = 0; i < abis.length; i++) {
+        if (abis[i].name === eventName && abis[i].type === 'event') {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    if (!checkEvent(eventName, abis)) {
+      console.log('');
+      console.log('  \'' + eventName + '\' is not a valid', contractName, 'event');
+      console.log('');
+      return;
+    }
+
+    delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack)
       .then(logs => {
         console.log('Event logs:');
         console.log(logs);

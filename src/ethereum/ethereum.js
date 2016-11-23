@@ -18,10 +18,6 @@ const config = require('./../config/config.js');
 // Path from this file to your project's root or from where you run your script.
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
 
-// Percentage of gas to estimate above
-const EST_GAS_INCREASE = 0.05;
-
-
 /**
  * Create an Ethereum object. Will need to use Ethereum.init() to connect to the Web3 RPC provider and use the Ethereun object methods
  */
@@ -36,6 +32,7 @@ function Ethereum() {
   this.provider; // Provider to use for methods
   this._rpcProvider; // RPC connection to Ethereum geth node
   this._ipcProvider;
+  this._estimateIncrease = 0.05;
 
   /** Default options */
   this.options = {
@@ -199,8 +196,7 @@ function Ethereum() {
       options.gas = undefined;
       self.deploy.estimate(contractName, args, options)
         .then(gasEstimate => {
-          options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
-
+          options.gas = Math.round(gasEstimate + gasEstimate * self._estimateIncrease);
           // Throw error if est gas is greater than max gas
           if (options.maxGas && options.gas > options.maxGas) {
             throw new Error('Gas estimate of ' + options.gas + ' is greater than max gas allowed ' + options.maxGas);
@@ -251,7 +247,7 @@ function Ethereum() {
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = undefined;
           let bytes = contract.unlinked_binary;
-          bytes += (args) ? encodeConstructorParams(contract.abi, args) : '';
+          bytes += (Array.isArray(args)) ? encodeConstructorParams(contract.abi, args) : '';
           transactionOptions.data = bytes;
           return promisify(this.web3.eth.estimateGas)(transactionOptions);
         })
@@ -382,7 +378,7 @@ function Ethereum() {
               })
               .then(gasEstimate => {
                 // Change options to the estimated gas price
-                options.gas = Math.round(gasEstimate + gasEstimate * EST_GAS_INCREASE);
+                options.gas = Math.round(gasEstimate + gasEstimate * this._estimateIncrease);
 
                 // Throw error if est gas is greater than max gas
                 if (options.maxGas && options.gas > options.maxGas) {
