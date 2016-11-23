@@ -25,7 +25,7 @@ Delib's features include:
 
 ## Requirements
 
-You need to have an Ethereum node to connect with. Delib has been tested with [geth](https://github.com/ethereum/go-ethereum/wiki/geth). The Mac OSX install commands with brew is shown below. [Click here](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) for additional install information.
+You need to have an Ethereum node to connect with. Delib has been tested with [geth](https://github.com/ethereum/go-ethereum/wiki/geth). The Mac OSX install commands with brew are shown below. [Click here](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) for additional install information.
 
 ```
 brew tap ethereum/ethereum
