@@ -5,67 +5,93 @@
 const path = require('path');
 const pathExists = require('path-exists').sync;
 const fs = require('fs-extra');
-const prepend = require('prepend-file').sync;
 const config = require('./../config/config.js');
 
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot);
 
-// The amount of addresses per file
-const ADDRESSES_AMOUNT = 50;
-
+// Ending of the addresses files
 const ENDING = 'Addresses';
 
 function Addresses() {
-  this.path = config.paths.address; // To set the path to the addresses
+  this.path = config.paths.address; // To set the path to the addresses folder
 
-  this.set = (name, address) => {
-    if (typeof address !== 'string' || address.length !== 42) {
-      throw new Error('Invalid contract address: ' + address);
+  /**
+   * Saves a contract address in a file
+   * @param {string} contractName
+   * @param {string} contractAddress
+   * @returns {number} - Amount of addresses saved
+   */
+  this.set = (contractName, contractAddress) => {
+    if (typeof contractAddress !== 'string' || contractAddress.length !== 42) {
+      throw new Error('Invalid contract address: ' + contractAddress);
     }
     const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
+
+    // Make addresses folder if it doesn't exist
     if (!pathExists(path.join(pathway))) {
       fs.mkdirSync(path.join(pathway));
     }
-    address += '\n';
-    name = name + ENDING;
-    prepend(path.join(pathway, name), address);
-    let addressesFile = fs.readFileSync(path.join(pathway, name), 'utf8');
+    contractAddress += '\n';
+    const fileName = contractName + ENDING;
+    const filePath = path.join(pathway, fileName);
+
+    fs.appendFileSync(filePath, contractAddress);
+    let addressesFile = fs.readFileSync(filePath, 'utf8');
     const addresses = addressesFile.split('\n');
-    if (addresses.length > ADDRESSES_AMOUNT) {
-      addresses.pop();
-      addressesFile = addresses.join('\n');
-      fs.writeFileSync(path.join(pathway, name), addressesFile);
-    }
-    return addresses.length - 1;
+    return addresses.length;
   };
 
-  this.get = (name, index) => {
-    const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
-    index = index || 0;
-    name = name + ENDING;
-    const addressesFile = fs.readFileSync(path.join(pathway, name), 'utf8');
+  /**
+   * Gets the most recent contract address or at the index if its given
+   * @param {string} contractName
+   * @param {number} index
+   * @returns {string}
+   */
+  this.get = (contractName, index) => {
+    const fileName = contractName + ENDING;
+    const filePath = path.join(__dirname, RELATIVE_PATH, this.path, fileName);
+    this._checkPathError(contractName, filePath);
+    const addressesFile = fs.readFileSync(filePath, 'utf8');
     const addresses = addressesFile.split('\n');
-    let address;
+
+    index = index || addresses.length - 1;
+
     // Make sure you get an address with a length of 42
-    for (let i = index; i < addresses.length; i++) {
+    let address;
+    for (let i = index; i >= 0; i--) {
       if (addresses[i].length === 42) {
         address = addresses[i].trim();
         break;
       }
     }
 
+    if (!address) {
+      throw new Error('Could not get a valid address from ' + contractName);
+    }
+
     return address;
   };
 
-  this.getAll = (name) => {
-    const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
-    name = name + ENDING;
-    const addressesFile = fs.readFileSync(path.join(pathway, name), 'utf8');
+  /**
+   * Gets all addresses saved
+   * @param {string} contractName
+   * @returns {Array}
+   */
+  this.getAll = (contractName) => {
+    const fileName = contractName + ENDING;
+    const filePath = path.join(__dirname, RELATIVE_PATH, this.path, fileName);
+    this._checkPathError(contractName, filePath);
+    const addressesFile = fs.readFileSync(filePath, 'utf8');
     return addressesFile.split('\n').filter(address => {
       return address.length === 42;
     });
   };
 
+  this._checkPathError = (contractName, pathway) => {
+    if (!pathExists(pathway)) {
+      throw new Error(contractName + ' addresses file does not exist');
+    }
+  };
 }
 
 module.exports = new Addresses();
