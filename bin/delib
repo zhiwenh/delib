@@ -242,6 +242,7 @@ program
     delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack)
       .then(logs => {
         console.log('Event logs:');
+        logs = logs.map(log => { return log.args; });
         console.log(logs);
         delib.eth.closeIPC();
       })
