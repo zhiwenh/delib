@@ -117,6 +117,7 @@ function Ethereum() {
   /**
    *
    * @param {string} type
+   * @returns {bool}
    */
   this.checkConnection = (type) => {
     // If type is undefined check current type being used
@@ -167,7 +168,6 @@ function Ethereum() {
    * @returns {Promise}
    */
   this.build = (contractFiles, contractPath, buildPath) => {
-    this._checkConnectionError('rpc');
     contractPath = (contractPath) ? path.join(__dirname, RELATIVE_PATH, contractPath) : path.join(__dirname, RELATIVE_PATH, this.contracts.paths.contract);
     buildPath = (buildPath) ? path.join(__dirname, RELATIVE_PATH, buildPath) : path.join(__dirname, RELATIVE_PATH, this.contracts.paths.built);
     return build(contractFiles, contractPath, buildPath);
@@ -280,7 +280,7 @@ function Ethereum() {
   };
 
   /**
-   * Calls a deployed contract. Will take the address provided in the config address
+   * Calls a deployed contract
    * @param {string} contractName
    * @return {Contract}
    */
@@ -410,7 +410,6 @@ function Ethereum() {
   /**
    * Gets the event logs for an event
    * @param {string} contractName
-   * @param {string} contractAddress
    * @param {string} eventName
    * @param {number} blocksBack
    * @param {Object} filter
@@ -423,7 +422,7 @@ function Ethereum() {
   };
 
   /**
-   *
+   * Gets the event logs for an event at a specific address
    * @param {string} contractName
    * @param {string} contractAddress
    * @param {string} eventName
@@ -498,7 +497,7 @@ function Ethereum() {
   /**
    *
    * @param {number} index
-   * @param {string}
+   * @param {string} type
    * @return {number}
    */
   this.getBalance = (index, type) => {
@@ -536,7 +535,7 @@ function Ethereum() {
 
   /**
    *
-   * @param {string} address
+   * @param {number} index
    * @param {string} password
    * @param {number} timeLength
    * @return {boolean}

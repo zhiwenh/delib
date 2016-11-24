@@ -4,7 +4,7 @@ const program = require('commander');
 const path = require('path');
 const fs = require('fs-extra');
 const pathExists = require('path-exists').sync;
-const delib = require('./../index.js');
+const delib = require('./../index');
 const config = require('./../src/config/config');
 const optionActions = require('./../src/cli/optionActions');
 const help = require('./../src/cli/help');
@@ -67,7 +67,7 @@ program
   .option('-o --contract <path>', 'Relative path to contracts folder')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((file, options) => {
-    options = optionActions(options);
+    options = optionActions(options, 'none');
 
     const contractPath = path.join(config.projectRoot, delib.eth.contracts.paths.contract, file + '.sol');
     if (!pathExists(contractPath)) {
@@ -115,7 +115,7 @@ program
     const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
     if (!pathExists(builtPath)) {
       console.log('');
-      console.log('   \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
       console.log('');
       return;
     }
@@ -158,7 +158,7 @@ program
     const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
     if (!pathExists(builtPath)) {
       console.log('');
-      console.log('   \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
       console.log('');
       return;
     }
@@ -212,7 +212,7 @@ program
     const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
     if (!pathExists(builtPath)) {
       console.log('');
-      console.log('   \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
       console.log('');
       return;
     }
@@ -301,7 +301,7 @@ program
   .description('Create an Ethereum account')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
   .action((password, options) => {
-    optionActions(options, true);
+    optionActions(options, 'ipc');
     delib.eth.createAccount(password)
       .then(address => {
         console.log(address);
@@ -319,7 +319,7 @@ program
   .description('Unlock an Ethereum account')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
   .action((index, password, time, options) => {
-    optionActions(options, true);
+    optionActions(options, 'ipc');
     time = time || 60 * 60 * 24;
     delib.eth.unlockAccount(index, password, time)
       .then(bool => {
