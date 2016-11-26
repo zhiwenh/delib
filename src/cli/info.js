@@ -25,7 +25,7 @@ function outputAbi(abi, name) {
 }
 
 module.exports = (contractName, options) => {
-  optionActions(options);
+  optionActions(options, 'none');
   const contractInstance = eth.builtContract(contractName);
   const abis = contractInstance.abi;
   console.log('  ');
@@ -58,7 +58,9 @@ module.exports = (contractName, options) => {
 
       process.stdout.write('\n');
     }
-    if (i >= abis.length - 1) console.log('  ');
+    if (i >= abis.length - 1 && methods === true) {
+      console.log('  ');
+    }
   });
 
   if (constructorIndex) {
@@ -81,7 +83,10 @@ module.exports = (contractName, options) => {
       inputAbi(abi, 'args');
       process.stdout.write('\n');
     }
-    if (i >= abis.length - 1) console.log('  ');
+    if (i >= abis.length - 1 && events === true) {
+      console.log('    allEvents');
+      console.log('  ');
+    }
   });
 
   console.log('  Address:', eth.contracts.addresses.get(contractName));
