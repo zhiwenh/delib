@@ -5,14 +5,14 @@ const fs = require('fs');
 
 const contracts = require('./contracts');
 const init = require('./init');
-const initIPC = require('./initIPC');
-const createAccount = require('./createAccount');
-const unlockAccount = require('./unlockAccount');
+const initIPC = require('./initipc');
+const createAccount = require('./createaccount');
+const unlockAccount = require('./unlockaccount');
 const build = require('./build');
-const optionsMerge = require('./utils/optionsMerge');
-const optionsFilter = require('./utils/optionsFilter');
-const optionsFormat = require('./utils/optionsFormat');
-const logFilter = require('./utils/log-filter');
+const optionsMerge = require('./utils/optionsmerge');
+const optionsFilter = require('./utils/optionsfilter');
+const optionsFormat = require('./utils/optionsformat');
+const logFilter = require('./utils/logfilter');
 const coder = require('./web3/solidity/coder');
 const config = require('./../config/config.js');
 

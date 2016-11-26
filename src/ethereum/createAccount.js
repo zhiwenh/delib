@@ -11,8 +11,9 @@ const options = {
 };
 
 /**
-* @password {String} - password for account
-* @returns {String} - promise with a response thats the account number
+* @param {string} password
+* @param {Web3} web3IPC
+* @returns {Promise} - Response of promise is the account address
 **/
 module.exports = promisify((password, web3IPC, callback) => {
   if (!web3IPC) web3IPC = Web3IPC.create(options);

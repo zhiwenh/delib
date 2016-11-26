@@ -6,7 +6,7 @@ const fs = require('fs-extra');
 const pathExists = require('path-exists').sync;
 const delib = require('./../index');
 const config = require('./../src/config/config');
-const optionActions = require('./../src/cli/optionActions');
+const optionActions = require('./../src/cli/optionactions');
 const help = require('./../src/cli/help');
 const info = require('./../src/cli/info');
 

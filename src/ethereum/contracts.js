@@ -1,5 +1,5 @@
 'use strict';
-const Addresses = require('./../models/Addresses');
+const addresses = require('./addresses');
 const config = require('./../config/config');
 
 /**
@@ -23,8 +23,8 @@ function Contracts() {
    * @returns {string} - The index of the address saved
    */
   this.addresses.set = (name, address) => {
-    Addresses.path = this.paths.address;
-    return Addresses.set(name, address);
+    addresses.path = this.paths.address;
+    return addresses.set(name, address);
   };
 
   /**
@@ -34,8 +34,8 @@ function Contracts() {
    * @returns {string}
    */
   this.addresses.get = (name, index) => {
-    Addresses.path = this.paths.address;
-    return Addresses.get(name, index);
+    addresses.path = this.paths.address;
+    return addresses.get(name, index);
   };
 
   /**
@@ -44,8 +44,8 @@ function Contracts() {
    * @returns {Array}
    */
   this.addresses.getAll = (name) => {
-    Addresses.path = this.paths.address;
-    return Addresses.getAll(name);
+    addresses.path = this.paths.address;
+    return addresses.getAll(name);
   };
 }
 

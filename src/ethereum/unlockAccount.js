@@ -11,9 +11,11 @@ const options = {
 };
 
 /**
-* NEED TO CALL PROCESS.EXIT() in callback
-* @account {String} - account address
-* @password {String} - password for account
+*
+* @param {string} index
+* @param {string} password
+* @param {number} timeLength
+* @param {Web3} web3IPC
 * @returns {Bool} - promise with a response of success or fail
 **/
 module.exports = promisify((index, password, timeLength, web3IPC, callback) => {
