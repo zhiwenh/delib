@@ -12,6 +12,7 @@ const build = require('./build');
 const optionsMerge = require('./utils/optionsMerge');
 const optionsFilter = require('./utils/optionsFilter');
 const optionsFormat = require('./utils/optionsFormat');
+const logFilter = require('./utils/log-filter');
 const coder = require('./web3/solidity/coder');
 const config = require('./../config/config.js');
 
@@ -80,7 +81,6 @@ function Ethereum() {
     }
     return this.web3; // Return web3 object used
   };
-
 
   /**
    *
@@ -174,6 +174,24 @@ function Ethereum() {
   };
 
   /**
+   *
+   * @param {string} contractName
+   * @returns {Contract}
+   */
+  this.builtContract = (contractName) => {
+    const contractPath = path.join(RELATIVE_PATH, this.contracts.paths.built, contractName + '.sol.js');
+    let contract;
+    try {
+      contract = require(contractPath);
+    } catch (e) {
+      const absContractPath = path.resolve(contractPath);
+      throw new Error('Invalid built contract at: ' + absContractPath);
+    }
+    return contract;
+  };
+
+
+  /**
    * Deploy a built contract.
    * @param {string} contractName
    * @param {Array} args
@@ -184,7 +202,7 @@ function Ethereum() {
     this._checkConnectionError();
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
-    const contract = this._getBuiltContract(contractName);
+    const contract = this.builtContract(contractName);
     contract.setProvider(this._provider);
     var self = this;
 
@@ -239,7 +257,7 @@ function Ethereum() {
     this._checkConnectionError();
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
-    const contract = this._getBuiltContract(contractName);
+    const contract = this.builtContract(contractName);
     contract.setProvider(this._provider);
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
@@ -297,7 +315,7 @@ function Ethereum() {
    */
   this.execAt = (contractName, contractAddress) => {
     this._checkConnectionError();
-    const contract = this._getBuiltContract(contractName);
+    const contract = this.builtContract(contractName);
     contract.setProvider(this._provider);
     const contractInstance = contract.at(contractAddress);
 
@@ -416,7 +434,7 @@ function Ethereum() {
    * @return {Promise}
   */
   this.events = (contractName, eventName, blocksBack, filter) => {
-    const addressPath = path.join(__dirname, RELATIVE_PATH, this.contracts.paths.address);
+    // const addressPath = path.join(__dirname, RELATIVE_PATH, this.contracts.paths.address);
     const contractAddress = this.contracts.addresses.get(contractName);
     return this.eventsAt(contractName, contractAddress, eventName, blocksBack, filter);
   };
@@ -432,13 +450,13 @@ function Ethereum() {
   */
   this.eventsAt = (contractName, contractAddress, eventName, blocksBack, filter) => {
     this._checkConnectionError();
-    const contract = this._getBuiltContract(contractName);
+    const contract = this.builtContract(contractName);
     contract.setProvider(this._provider);
     const contractInstance = contract.at(contractAddress);
 
     // Check to see if valid event
-    if (typeof contractInstance[eventName] !== 'function' ||
-      contractInstance[eventName].hasOwnProperty('call')) {
+    if (eventName !== 'allEvents' && (typeof contractInstance[eventName] !== 'function' ||
+      contractInstance[eventName].hasOwnProperty('call'))) {
       throw new Error('Invalid event: ' + eventName + ' is not an event of ' + contractName);
     }
 
@@ -448,41 +466,20 @@ function Ethereum() {
           filter = (filter && typeof filter === 'object') ? filter : {};
           // Create the default contract address filter
           filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
-          // Create the default args filter
-          filter.args = (filter.args && typeof filter === 'object') ? filter.args : {};
 
           let fromBlock = (!blocksBack || blocksBack === 'all') ?  0 : block.number - blocksBack;
           const toBlock = 'latest';
-
-          const methodEvent = contractInstance[eventName]({}, { fromBlock: fromBlock, toBlock: toBlock });
-          methodEvent.get((err, logs) => {
+          const eventFilter = { fromBlock: fromBlock, toBlock: toBlock };
+          // Pass eventFilter twice to make it work with allEvents
+          const myEvent = contractInstance[eventName](eventFilter, eventFilter);
+          myEvent.get((err, logs) => {
             if (err) {
               callback(err, null);
               return;
             }
             /** Filters the logs */
             logs = logs.filter(log => {
-              for (let key in filter) {
-                if (key === 'args') {
-                  for (let key in filter.args) {
-                    if (log.args[key] === undefined || filter.args[key] === null) continue;
-                    if (typeof filter.args[key] === 'function') {
-                      if (filter.args[key](log.args[key]) !== true) return false;
-                    } else if (filter.args[key] !== log.args[key]) {
-                      return false;
-                    }
-                  }
-                  continue;
-                }
-                // If filter value is a function pass log value in as callback for filter
-                if (log[key] === undefined || filter[key] === null) continue;
-                if (typeof filter[key] === 'function') {
-                  if (filter[key](log[key]) !== true) return false;
-                } else if (filter[key] !== log[key]) {
-                  return false;
-                }
-              }
-              return true;
+              return logFilter(log, filter); // Returns true/false depending whether or not to keep log
             });
 
             callback(null, logs);
@@ -492,6 +489,60 @@ function Ethereum() {
           callback(err, null);
         });
     })();
+  };
+
+  /**
+   * Watch an event
+   * @param {string} contractName
+   * @param {string} eventName
+   * @param {Object} filter
+   * @param {Function} callback
+   * @returns
+   */
+  this.watch = (contractName, eventName, filter, callback) => {
+    const contractAddress = this.contracts.addresses.get(contractName);
+    this.watchAt(contractName, contractAddress, eventName, filter, callback);
+  };
+
+  /**
+   * Watch an event at a specific address
+   * @param {string} contractName
+   * @param {string} contractAddress
+   * @param {string} eventName
+   * @param {Object} filter - Optional. Can replace with callback
+   * @param {Function} callback
+   * @returns
+   */
+  this.watchAt = (contractName, contractAddress, eventName, filter, callback) => {
+    this._checkConnectionError();
+
+    // Allow no filter to be passed in
+    if (typeof filter === 'function' && !callback) {
+      callback = filter;
+    }
+
+    const contract = this.builtContract(contractName);
+    contract.setProvider(this._provider);
+    const contractInstance = contract.at(contractAddress);
+
+    // Check to see if valid event
+    if (eventName !== 'allEvents' && (typeof contractInstance[eventName] !== 'function' ||
+      contractInstance[eventName].hasOwnProperty('call'))) {
+      throw new Error('Invalid event: ' + eventName + ' is not an event of ' + contractName);
+    }
+
+    const myEvent = contractInstance[eventName]();
+
+    filter = (filter && typeof filter === 'object') ? filter : {};
+    filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
+
+    myEvent.watch((err, log) => {
+      if (err) {
+        callback(err, null);
+      } else if (logFilter(log, filter)) {
+        callback(null, log);
+      }
+    });
   };
 
   /**
@@ -556,22 +607,6 @@ function Ethereum() {
     options = optionsFormat(options);
     options = optionsFilter(options);
     return options;
-  };
-
-  /**
-   * @param {string} contractName
-   * @returns {Contract}
-   */
-  this._getBuiltContract = (contractName) => {
-    const contractPath = path.join(RELATIVE_PATH, this.contracts.paths.built, contractName + '.sol.js');
-    let contract;
-    try {
-      contract = require(contractPath);
-    } catch (e) {
-      const absContractPath = path.resolve(contractPath);
-      throw new Error('Invalid built contract at: ' + absContractPath);
-    }
-    return contract;
   };
 
   /**

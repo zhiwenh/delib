@@ -1,0 +1,5 @@
+3.7
+- Exposed delib.eth.builtContract. It was private before. Gives you the ether-pudding contract instance
+- Refactor log filter into its own file
+- Added eth.watch and eth.watchAt methods
+- Added event filter by array of args

@@ -218,7 +218,7 @@ program
     }
 
     // Check if event exists
-    const contract = delib.eth._getBuiltContract(contractName);
+    const contract = delib.eth.this.builtContractract(contractName);
     const contractAddress = delib.eth.contracts.addresses.get(contractName);
     const contractInstance = contract.at(contractAddress);
     const abis = contractInstance.abi;

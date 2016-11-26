@@ -26,7 +26,7 @@ function outputAbi(abi, name) {
 
 module.exports = (contractName, options) => {
   optionActions(options);
-  const contractInstance = eth._getBuiltContract(contractName);
+  const contractInstance = eth.builtContract(contractName);
   const abis = contractInstance.abi;
   console.log('  ');
   console.log('  Contract:', contractName);

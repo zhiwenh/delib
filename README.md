@@ -1,11 +1,11 @@
 # Delib
 
-Simple Ethereum framework for DApps and contract management.
+Simple Ethereum framework for DApps and contract management
 
-Delib's features include:
+Delib is designed to be easy to learn and allow freedom when developing with Ethereum. Its features include:
 
   * A promise based library that provides the core abstractions needed for building DApps on Ethereum.
-  * A CLI for contract management. It lets you compile, build, deploy, execute methods, and get event logs.
+  * A CLI for smart contract interaction. It lets you compile, build, deploy, execute methods, and get their event logs.
   * Option to automatically estimate your transaction gas costs for contract deployment and methods.
   * The saving of deployed contract addresses to use or reference later.
   * The ability to create and unlock Ethereum accounts using IPC.
@@ -25,7 +25,7 @@ Delib's features include:
 
 ## Requirements
 
-You need to have an Ethereum node to connect with. Delib has been tested with [geth](https://github.com/ethereum/go-ethereum/wiki/geth). The Mac OSX install commands with brew are shown below. [Click here](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) for additional install information.
+You need to have an Ethereum node to connect with. Delib has currently only been tested with [geth](https://github.com/ethereum/go-ethereum/wiki/geth). The Mac OSX install commands with brew are shown below. [Click here](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) for additional install information.
 
 ```
 brew tap ethereum/ethereum
@@ -143,13 +143,13 @@ npm install -g ethereumjs-testrpc
 ```
 
 ### Library and CLI integration
-Building a contract with the CLI will allow it be accessible with the library. Also, deploying a contract using the library will make the following CLI contract calls refer to the library's deployed address, and vice versa. You can deploy contracts and then quickly test whether your methods are working with the CLI.  
+Building a contract with the CLI will allow it to be accessible with the library. Also, deploying a contract using the library will make the following CLI contract calls refer to the library's deployed address, and vice versa. You can deploy contracts and then quickly test whether your methods are working with the CLI.  
 
 
 <a name="Cli"></a>
 # CLI
 
-The CLI lets you compile and build Solidity contracts into a JavaScript file that you can then require. You can deploy the contract onto the blockchain to call methods and get event logs. You can also create, unlock, and get the balance of your accounts.
+The command line tool lets you interact with smart contracts both on and off the blockchain. It lets you compile and build Solidity contracts into a JavaScript file that you can then require. Then you can deploy the contract onto a blockchain and also execute methods and get event logs. It also allows you to create, unlock, and get the balance of your accounts.
 
 ### Set connection options and project paths
 The default connection and file path options are taken from the `delib.js` config file. Outside a project all project paths will be relative to where you're calling the command, and the RPC connection will default to localhost at port 8545. You can also specify connection options and paths as options. Non IPC commands will connect via RPC unless you specify an IPC option.
@@ -272,7 +272,7 @@ Unlock your first account for 10000 seconds.
 <a name="Ethereum"></a>
 # Library
 
-The library gives you the freedom to customize your DApp development to fit your specific needs. You can easily write your own migration scripts, interact with smart contracts, and create tests.
+The library gives you the freedom to customize your DApp development to fit your specific needs. You can easily write your own contract migration scripts, interact with contracts from within your app, and write contract tests.
 
 ### File paths
 **delib.eth.contracts.paths**
@@ -491,20 +491,42 @@ delib.eth.events('Test', 'testEvent', 100)
   });
 ```
 
-#### Filter object
-You can pass in a filter object to filter your result. If filter object contains a key that's also in the event log object, the values will need to be the same or the log is filtered. Additionally, you can pass in a callback as a filter value. The callback's parameter is the value of the event log object, and gets filtered if it returns anything other than true. Click [here](https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events) to see the properties of the event log object.
+### Watch events
+**delib.eth.watch(contractName, eventName, filter, callback)**  
+**delib.eth.watchAt(contractName, contractAddress, eventName, filter, callback)**
 
-The following code searches all blocks and only returns the even numbered blocks containing the event argument with a name of James.
+You can watch a contract for when it gets a new event.
+
+```
+delib.eth.watch('Test', 'testEvent', function(err, log) {
+  if (!err) {
+    // Do something with the log  
+  }
+})
+```
+
+### Event filter object
+You can pass in a filter object to filter the results of your `events` and `watch` methods. You can set the properties of the filter as plain values, an array of values, or a callback. By default the `address` property is the contract address.
+
+If it's just a value it will need to match the log's property or it will be filtered. If its an array then one of the values will need to match. For callbacks, it takes the value of the log as its parameter, and it gets filtered if it returns anything other than true.
+
+Click [here](https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events) to see all the properties of the event log object.
+
+The following shows a filter that filters all logs *except* even numbered blocks, logs with an event argument name of James, and logs with age arguments of 18, 25, and 26.
 
 ```
 filter = {
   blockNumber: function(number) {
-    if (number % 2 === 0) return true;
-    else return false;
+    if (number % 2 === 0) {
+      return true;
+    } else {
+      return false;
+    }
   },
-  // the property args contains the actual log values
+  // args contains the actual event arguments
   args: {
-    name: 'James'
+    name: 'James',
+    age: [18 ,25, 26]
   }
 };
 
@@ -515,6 +537,12 @@ delib.eth.events('Test', 'testEvent', 'all', filter)
   .catch(err => {
 
   });
+
+delib.eth.watch('Test', 'testEvent', filter, function(err log) {
+  if (!err) {
+    // Do something with filtered log
+  }
+});
 ```
 
 ### Account balances
@@ -698,7 +726,7 @@ Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ``
 | `<file>` | `string` | Name of Solidity contract |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
 | `-o --contract` | `<path>` | Path to contracts folder |
 | `-b --built` | `<path>` | Path to build contracts folder |
 
@@ -720,7 +748,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-m --maxgas` | `<number>` | Max gas allowed when estimating |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
 | `-b --built` | `<path>` | Relative path to built contracts folder |
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
@@ -743,7 +771,7 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 | `-m --maxgas` | `<number>` | Max gas allowed when estimating |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
 | `-b --built` | `<path>` | Relative path to built contracts folder |
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
@@ -758,7 +786,7 @@ Get the logs of a deployed contract's event. By default it gets all logs startin
 | `[blocksBack]` | `number` | Number of blocks back to get logs from |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
 
 #### delib info `<contractName>, -b --built <path>, -a --address <path>`
 Show contract info such as methods, events, and currently used address. It displays the method inputs, outputs, constant modifier, and payable modifier. It also displays the event args.
@@ -790,7 +818,7 @@ Get the balance of one of your account by its account index.
 | `[denomination]` | `string` | Denomination to get balance in. Defaults to 'ether' |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
 
 <a name="Cli+create"></a>
 #### delib create `<password>, -c --ipchost [path]`
@@ -799,7 +827,7 @@ Create a new Ethereum account.
 | Params | Type | Description |
 | --- | --- | --- |
 | `<password>` | `string` | Account password |
-| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
 
 <a name="Cli+unlock"></a>
 #### delib unlock `<accountIndex> <password> [time], -c --ipchost [path]`
@@ -810,7 +838,7 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
 | `<accountIndex>` | `number` | Index of account |
 | `<password>` | `string` | Account password |
 | `[time]` | `number` | Time to leave account unlocked in seconds |
-| `-c --ipchost` | `[path]` | `Relative path to IPC host` |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
 
 <a name="Ethereum+api"></a>
 
@@ -835,15 +863,18 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
     * [.changeProvider(type)](#Ethereum+changeProvider) ⇒ <code>boolean</code>
     * [.init(rpcHost, rpcPort)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
-    * [.build(contractFiles, contractPath, buildPath)](#Ethereum+buildContracts)
-    * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>Contract</code>
+    * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
+    * [.builtContract(contractName)](#Ethereum+builtContract) ⇒ <code>Contract</code>
+    * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
       * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
-    * [.exec(contractName)](#Ethereum+exec) ⇒ <code>Contract</code>
-      * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
-    * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>Contract</code>
-      * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
+    * [.exec(contractName)](#Ethereum+exec) ⇒ <code>ContractInstance</code>
+      * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>ContractInstance</code>
+    * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>ContractInstance</code>
+      * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>ContractInstance</code>
     * [.events(contractName, eventName, blocksBack, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)](#Ethereum+eventsAt) ⇒ <code>Promise</code> ⇒ <code>Array</code>
+    * [.watch(contractName, eventName, filter, callback)](#Ethereum+watch) ⇒ <code>Object</code>
+    * [.watchAt(contractName, contractAddress, eventName, filter, callback)](#Ethereum+watchAt) ⇒ <code>Object</code>
     * [.createAccount(password)](#Ethereum+createAccount) ⇒ <code>Promise</code> ⇒ <code>string</code>
     * [.unlockAccount(index, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>Promise</code> ⇒ <code>boolean</code>
     * [.getBalance(index, type)](#Ethereum+getBalance) ⇒ <code>number</code>
@@ -851,7 +882,7 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
 
 <a name="Ethereum+web3"></a>
 #### delib.eth.web3
-The Web3 object being used as the current provider.
+The Web3 object being used as the current provider. Will first need to initialize a connection with `delib.eth.init()` or `delib.eth.initIPC()`;
 
 <a name="Ethereum+web3RPC"></a>
 #### delib.eth.web3RPC
@@ -870,7 +901,7 @@ gasEstimate = gasEstimate + gasEstimate * gasAdjust
 
 <a name="Ethereum+account"></a>
 #### delib.eth.account
-The index of the default account used for transactions. The index is used for web3.eth.accounts. This can be overwritten by setting an address in `delib.eth.options.from` or by passing i when performing a transaction.
+The default index of the account used for transactions. The index uses the web3.eth.accounts array to get the account address. This can be overwritten by setting an address in `delib.eth.options.from`, setting a `from` property in transaction options, or setting an `account` property (also an account index) in transaction options.
 
 <a name="Ethereum+options"></a>
 #### delib.eth.options
@@ -907,7 +938,7 @@ delib.eth.contracts.paths = {
 
 <a name="Ethereum+contracts+addresses+set"></a>
 #### delib.eth.contracts.addresses.set(name, address)
-Set an address for a contract to use for future transactions.
+Set an address for a contract to use for future transactions. It appends it to the addresses file of that particular contract, or creates it if it doesn't exist.
 
 **Returns**: <code>number</code> - The index of the set address.
 
@@ -918,7 +949,7 @@ Set an address for a contract to use for future transactions.
 
 <a name="Ethereum+contracts+addresses+get"></a>
 #### delib.eth.contracts.addresses.get(name, index)
-Get a deployed contract address based on index. If no index parameter is given it will return the latest address.
+Retrieves the addresses file of a contract and gets a deployed contract address based on index. If no index parameter is given it will return the latest address, which is at the bottom of the addresses file.
 
 **Returns**: <code>string</code> - The contract address.
 
@@ -929,7 +960,7 @@ Get a deployed contract address based on index. If no index parameter is given i
 
 <a name="Ethereum+contracts+addresses+getAll"></a>
 #### delib.eth.contracts.addresses.getAll(name)
-Get all the deployed addresses of a contract.
+Retrieves the addresses file of a contract and return an array of all its deployed addresses.
 
 **Returns**: <code>Array</code> - An array of deployed contract addresses.
 
@@ -937,11 +968,9 @@ Get all the deployed addresses of a contract.
 | --- | --- | --- |
 | name | <code>string</code> | Name of built contract |
 
-
-
 <a name="Ethereum+init"></a>
 #### delib.eth.init(rpcHost, rpcPort) ⇒ <code>Web3</code>
-Initializes a RPC connection with an Ethereum node. The RPC provider can be set in the ```delib.js``` config file or you can pass it in as arguments. This needs to be called before performing any methods.
+Initializes a RPC connection with an Ethereum node. The RPC provider can be set in the ```delib.js``` config file or you can pass it in as arguments. This needs to be called before performing any methods that interact with an Ethereum node.
 
 **Returns**: <code>Web3</code> - The Web3 object being used as a provider (RPC or IPC).
 
@@ -961,8 +990,8 @@ Initializes an IPC connection with an Ethereum node. The IPC provider can be set
 | --- | --- | --- |
 | ipcPath | <code>string</code> | Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'. Optional. |
 
-<a name="Ethereum+closeIPC"></a>
 
+<a name="Ethereum+closeIPC"></a>
 #### delib.eth.closeIPC() => <code>boolean</code>
 Closes the IPC connection
 
@@ -990,7 +1019,7 @@ Change the provider to use (RPC or IPC). It checks the connection status before 
 | type | <code>string</code> | The provider to change to ('rpc' or 'ipc') |
 
 
-<a name="Ethereum+buildContracts"></a>
+<a name="Ethereum+build"></a>
 #### delib.eth.build(contractFiles, contractPath, buildPath)
 Build a Solidity contract.
 
@@ -999,11 +1028,22 @@ Build a Solidity contract.
 | Param | Type | Description |
 | --- | --- | --- |
 | contractFiles | <code>array</code> | Array of contract file names in the contracts folder |
-| contractPath | <code>string</code> | Optional. Directory path where contract files are located. If none is given the directory path will be retrieved from the config file|
-| buildPath | <code>string</code> | Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from the config file. |
+| contractPath | <code>string</code> | Optional. Directory path where contract files are located. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object |
+| buildPath | <code>string</code> | Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object. |
+
+
+<a name="Ethereum+builtContract"></a>
+#### delib.eth.builtContract(contractName)
+Require a built contract file with the project paths being used. It returns an [ether-pudding](#https://github.com/ConsenSys/ether-pudding) contract object.
+
+**Returns**: <code>Contract</code> - Ether-pudding contract object
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contractName | <code>string</code> | Name of contract |
 
 <a name="Ethereum+deploy"></a>
-#### delib.eth.deploy(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>Contract</code>  
+#### delib.eth.deploy(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  
 Deploy a built contract. If you have `delib.eth.options` value set to 0 or pass in the option then your gas cost will be automatically estimated. The address is saved in your project's `addresses/` folder and will be used for future contract calls and transactions.
 
 **Returns**: <code>Promise</code> - The response is a Contract instance of the deployed instance. You can call methods on it.
@@ -1027,7 +1067,7 @@ Estimate the gas usage for deploying a contract.
 | options | <code>Object</code> | Transaction options. |
 
 <a name="Ethereum+exec"></a>
-#### delib.eth.exec(contractName) ⇒ <code>Contract</code>
+#### delib.eth.exec(contractName) ⇒ <code>ContractInstance</code>
 Calls or performs a transaction on a deployed contract. Will take the address provided in the config file. If you have `delib.eth.options` value set to 0 or pass in the option into the contract method call your gas cost will be automatically estimated.
 
 **Returns**: <code>Contract</code> - Contract instance that you can call methods with.
@@ -1040,14 +1080,14 @@ Calls or performs a transaction on a deployed contract. Will take the address pr
 #### delib.eth.exec(contractName).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
 Calls a deployed contract and methods called on the returned contract will return an estimated gas usage value.
 
-**Returns**: <code>Contract</code> - Contract instance that you can estimate the gas usage of methods with.
+**Returns**: <code>number</code> - Contract instance that you can estimate the gas usage of methods with.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | contractName | <code>string</code> | Name of deployed contract |
 
 <a name="Ethereum+execAt"></a>
-#### delib.eth.execAt(contractName, contractAddress) ⇒ <code>Contract</code>
+#### delib.eth.execAt(contractName, contractAddress) ⇒ <code>ContractInstance</code>
 Calls a deployed contract at a specific address. If you have `delib.eth.options` value set to 0 or pass it in as an option your gas cost will be automatically estimated.
 
 **Returns**: <code>Contract</code> - Contract instance that you can call methods with.
@@ -1081,7 +1121,7 @@ Gets the event logs of an event.
 | contractName | <code>string</code> | Name of built contract. |
 | eventName | <code>string</code> | The name of the event method. |
 | blocksBack | <code>number</code> | The number of blocks back to get logs for. 'all' gets all blocks. Defaults to 'all'|
-| filter | <code>Object</code> | Object to filter the event logs. If a property in the filter object also exists in the log objects, they must match. A property can also contain a callback function that takes in the property value. It must return true. Default: { address: contractAddress }. |
+| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
 
 <a name="Ethereum+eventsAt"></a>
 #### delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack, filter) ⇒ <code>Promise</code>
@@ -1094,8 +1134,33 @@ Gets the event logs for an event.
 | contractName | <code>string</code> | Name of built contract. |
 | contractAddress | <code>string</code> | Address of the contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| blocksBack | <code>number</code> | The number of blocks back to get logs for. 'all' gets all blocks. Defaults to 'all'|
-| filter | <code>Object</code> | Object to filter the event logs. If a property in the filter object also exists in the log objects, they must match. A property can also contain a callback function that takes in the property value. It must return true. Default: { address: contractAddress }. |
+| blocksBack | <code>number</code> | The number of blocks back to get logs for. 'all' gets all blocks. Defaults to 'all' |
+| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
+
+<a name="Ethereum+watch"></a>
+#### delib.eth.watch(contractName, eventName, filter, callback)
+
+**Returns** <code>Object</code>
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contractName | <code>string</code> | Name of built contract. |
+| eventName | <code>string</code> | The name of the event method. |
+| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place |
+| callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log |
+
+<a name="Ethereum+watch"></a>
+#### delib.eth.watchAt(contractName, contractAddress, eventName, filter, callback)
+
+**Returns** <code>Object</code>
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contractName | <code>string</code> | Name of built contract. |
+| contractAddress | <code>string</code> | Address of the contract. |
+| eventName | <code>string</code> | The name of the event method. |
+| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place |
+| callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log |
 
 <a name="Ethereum+createAccount"></a>
 #### delib.eth.createAccount(password) ⇒ <code>Promise</code>
