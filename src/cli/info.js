@@ -34,6 +34,7 @@ module.exports = (contractName, options) => {
 
   let methods = false;
   let constructorIndex;
+
   abis.forEach((abi, i) => {
     if (abi.type === 'constructor') {
       constructorIndex = i;
@@ -58,9 +59,11 @@ module.exports = (contractName, options) => {
 
       process.stdout.write('\n');
     }
+
     if (i >= abis.length - 1 && methods === true) {
       console.log('  ');
     }
+    
   });
 
   if (constructorIndex) {

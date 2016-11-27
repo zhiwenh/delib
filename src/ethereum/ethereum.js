@@ -31,8 +31,6 @@ function Ethereum() {
   this._init = false; // If RPC or IPC has been initialized
   this._initRPC = false;
   this._initIPC = false;
-  this._rpcProvider; // RPC connection to Ethereum geth node
-  this._ipcProvider;
   this._connectionType;
   this._provider; // Provider to use for methods
 
@@ -65,20 +63,15 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.init = (rpcHost, rpcPort) => {
-    if (this._init === false) {
-      this.web3RPC = init(rpcHost, rpcPort);
-      // Set the account bindings
-      // Determine the Web3 object used by library and the provider. Default is rpc
-      if (this.checkConnection('rpc')) {
-        this._rpcProvider = this.web3RPC.currentProvider;
-        this.web3 = this.web3RPC;
-        this._connectionType = 'rpc';
-        this._provider = this.web3RPC.currentProvider;
-      } else { // try and connect via ipc if rpc doesn't work
-        throw new Error('Unable to connect to RPC provider');
-      }
-      this._init = true;
+    this.web3RPC = init(rpcHost, rpcPort);
+    this._connectionType = 'rpc';
+    this._provider = undefined;
+
+    if (this.checkConnection('rpc')) {
+      this.web3 = this.web3RPC;
+      this._provider = this.web3RPC.currentProvider;
     }
+
     return this.web3; // Return web3 object used
   };
 
@@ -88,18 +81,16 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initIPC = (ipcPath) => {
-    this.web3IPC = initIPC(ipcPath) || this.web3IPC;
-    this._ipcProvider = this.web3IPC.currentProvider;
+    this.web3IPC = initIPC(ipcPath);
+    this._connectionType = 'ipc';
+    this._provider = undefined;
 
-    if (this._init === false) {
-      if (!this.checkConnection('ipc')) {
-        throw new Error('Unable to connect to IPC provider');
-      }
-      this.changeProvider('ipc');
-      this._init = true;
+    if (this.checkConnection('ipc')) {
       this.web3 = this.web3IPC;
+      this._provider = this.web3IPC.currentProvider;
     }
-    return this.web3IPC;
+
+    return this.web3;
   };
 
   /**
@@ -620,7 +611,7 @@ function Ethereum() {
     type = type || this._connectionType;
     type = type.toLowerCase();
     if (!this.checkConnection(type)) {
-      throw new Error('Invalid' + type + ' connection');
+      throw new Error('Invalid ' + type + ' connection');
     }
   };
 

@@ -23,7 +23,6 @@ module.exports = (log, filter) => {
         } else if (typeof filter.args[key] === 'object' && Array.isArray(filter.args[key])) {
           let match = false;
           for (let i = 0; i < filter.args[key].length; i++) {
-            console.log(filter.args[key]);
             if (log.args[key] === filter.args[key][i]) {
               match = true;
               break;

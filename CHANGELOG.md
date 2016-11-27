@@ -11,3 +11,6 @@
 * Moved files around and changed all to lowercase
 * Refactor log filter into its own file
 * Added allEvents to CLI info
+
+### Other
+Created tests
