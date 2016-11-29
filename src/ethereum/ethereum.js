@@ -310,10 +310,10 @@ function Ethereum() {
     const contract = this.builtContract(contractName);
     contract.setProvider(this._provider);
     const contractInstance = contract.at(contractAddress);
-
     /** Create mockContract to add new behavior to contract methods */
     const mockContract = {};
     mockContract.estimate = {}; // Gas estimate method
+    mockContract.call = {}; // Gas estimate method
 
     // Gets all properties in contractInstance. Overwrites all contract methods with new functions and re references all the others.
     for (let key in contractInstance) {
@@ -323,16 +323,30 @@ function Ethereum() {
         // Re reference the default contract methods with __methodName
         mockContract['__' + key] = contractInstance[methodName];
 
+        /** CALL METHOD */
+        mockContract.call[methodName] = (...args) => {
+          return promisify(callback => {
+            const options = argOptions(args);
+
+            promisify(this.web3.eth.getAccounts)()
+              .then(accounts => {
+                options.from = options.from || accounts[options.account] || accounts[this.account];
+                args.push(options);
+                return contractInstance[methodName].call.apply(contractInstance, args);
+              })
+              .then(value => {
+                callback(null, value);
+              })
+              .catch(err => {
+                callback(err, null);
+              });
+          })();
+        };
+
         /** GAS ESTIMATE METHOD */
         mockContract.estimate[methodName] = (...args) => {
           return promisify(callback => {
-            let options = this.options;
-            if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
-              options = this._optionsUtil(options, args[args.length - 1]);
-              args.pop();
-            } else {
-              options = this._optionsUtil(options, {});
-            }
+            const options = argOptions(args);
 
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
@@ -353,14 +367,7 @@ function Ethereum() {
         /** ACTUAL METHOD */
         mockContract[methodName] = (...args) => {
           return promisify((callback) => {
-            let options = this.options;
-            // Checks to see if a transaction object got put into method call
-            if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
-              options = this._optionsUtil(options, args[args.length - 1]);
-              args.pop();
-            } else {
-              options = this._optionsUtil(options, {});
-            }
+            const options = argOptions(args);
 
             /** ACTUAL: NO GAS ESTIMATE */
             if (options.gas && options.gas != 0) {
@@ -414,6 +421,20 @@ function Ethereum() {
         mockContract[key] = contractInstance[key];
       }
     }
+
+    /** Checks for options based on args */
+    const self = this;
+    function argOptions(args) {
+      let options = self.options;
+      if (typeof args[args.length - 1] === 'object' && !Array.isArray(args[args.length - 1])) {
+        options = self._optionsUtil(options, args[args.length - 1]);
+        args.pop(); // Will chance the arg array passed in
+      } else {
+        options = self._optionsUtil(options, {});
+      }
+      return options;
+    }
+
     return mockContract;
   };
 

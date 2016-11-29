@@ -103,10 +103,10 @@ test('Executing Bank contract methods with gas estimate', t => {
     })
     .then(tx => {
       t.ok(tx, 'Expect deposit method with a value of 4 to return a tx response');
-      return delib.eth.exec('Bank').checkAmount();
+      return delib.eth.exec('Bank').call.checkAmount();
     })
     .then(amount => {
-      t.equal(Number(amount), 4, 'Expect checkAmount method to return 4');
+      t.equal(Number(amount), 4, 'Expect exec.call checkAmount method to return 4');
       return delib.eth.exec('Bank').withdraw(0);
     })
     .then(tx => {

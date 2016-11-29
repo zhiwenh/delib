@@ -162,7 +162,9 @@ program
   .option('-c --ipchost [path]', 'Relative path to IPC host')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
+  .option('--call', 'Forces method execution with a call')
   .action((contractName, method, args, options) => {
+    const callOption = options.call; // Whether or not to call transaction
     options = optionActions(options);
 
     // Check if built contract exists
@@ -196,7 +198,9 @@ program
     }
 
     args.push(options);
-    contractInstance[method].apply(this, args)
+    const methodPromise = !callOption ? contractInstance[method].apply(this, args) : contractInstance.call[method].apply(this, args);
+
+    methodPromise
       .then(txRes => {
         console.log('Response:', txRes);
         delib.eth.closeIPC();
@@ -205,6 +209,7 @@ program
         console.error(err);
         delib.eth.closeIPC();
       });
+
   });
 
 /** Show the logs of a contract event. */

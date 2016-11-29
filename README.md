@@ -208,9 +208,15 @@ Show all the contract methods along with their inputs and outputs, contract even
 ### Execute contract method
 **delib exec `<contractName> <methodName> [...args]`**
 
-Call the method `setNumbers` on a deployed contract and pass in two numbers. The transaction options of 10000 gas with a gas value of 50000 are set as options. If no gas amount is given it will be estimated for you.
+Execute the method `setNumbers` on a deployed contract and pass in two numbers. The transaction options of 10000 gas with a gas value of 50000 are set as options. If no gas amount is given it will be estimated for you.
 ```
 -> delib exec Contract setNumbers 10 20 --gas 10000 --gasprice 50000
+```
+
+If you only wish to call the method, which uses no gas because it doesn't change blockchain state, pass in the option `--call`. Labeling your Solidity method with constant makes it call automatically.
+
+```
+-> delib exec Contract getNumbers --call
 ```
 
 ### Get the logs of an event
@@ -771,7 +777,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 <a name="Cli+exec"></a>
-#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
+#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path> --call`
 Perform a transaction or call a deployed contract's method. You can pass in a list of arguments. The most recent deployed contract address or set command address will be used.
 
 | Params | Type | Description |
@@ -792,6 +798,7 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 | `-c --ipchost` | `[path]` | Relative path to IPC host |
 | `-b --built` | `<path>` | Relative path to built contracts folder |
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
+| `--call` | `--` | Forces method execution with a call |
 
 <a name="Cli+events"></a>
 #### delib events `<contractName> <eventName> [blocksBack], -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
