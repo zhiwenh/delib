@@ -181,7 +181,7 @@ The default transaction options for the commands are located in ```delib.js```. 
 
 
 ### Build contract
-**delib build `<file>`**
+**delib build `[files...]>`**
 
 Build a Solidity contract with the file name ```Contract.sol```.
 
@@ -190,7 +190,7 @@ Build a Solidity contract with the file name ```Contract.sol```.
 ```
 
 ### Deploy contract
-**delib deploy `<contractName> [...args]`**
+**delib deploy `<contractName> [args...]`**
 
 Deploy a contract and pass in two arguments for its constructor. If no gas amount is given it will be estimated for you.
 ```
@@ -206,7 +206,7 @@ Show all the contract methods along with their inputs and outputs, contract even
 ```
 
 ### Execute contract method
-**delib exec `<contractName> <methodName> [...args]`**
+**delib exec `<contractName> <methodName> [args...]`**
 
 Execute the method `setNumbers` on a deployed contract and pass in two numbers. The transaction options of 10000 gas with a gas value of 50000 are set as options. If no gas amount is given it will be estimated for you.
 ```
@@ -242,7 +242,7 @@ Set the address of a contract to use. This will set its address for both the com
 ```
 
 ### Get account balance
-**delib balance `<accountIndex> [demonination]`**
+**delib balance `<accountIndex> [denomination]`**
 
 Get the Ether balance of your first account.
 
@@ -723,9 +723,9 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
 ## Command Tool
 * [delib](#Cli+api)
     * [init](#Cli+init)
-    * [build `<file>`](#Cli+build)
-    * [deploy `<contractName> [...args]`](#Cli+deploy)
-    * [exec `<contractName> <methodName> [...args]`](#Cli+exec)
+    * [build `[files...]`](#Cli+build)
+    * [deploy `<contractName> [args...]`](#Cli+deploy)
+    * [exec `<contractName> <methodName> [args...]`](#Cli+exec)
     * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
     * [info `<contractName>`](#Cli+info)
     * [set `<contractName> <contractAddress>`](#Cli+set)
@@ -742,12 +742,12 @@ Create the config file ```delib.js``` and the [project structure](#projectStruct
 | `-c --config` | `--` | If used the command will only create the delib.js config file |
 
 <a name="Cli+build"></a>
-#### delib build `<file> -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -o --contract <path>, -b --built <path>`
+#### delib build `[files...] -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -o --contract <path>, -b --built <path>`
 Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ```.sol.js``` that you can require. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `contracts/` and `built/` folders.
 
 | Params | Type | Description |
 | --- | --- | --- |
-| `<file>` | `string` | Name of Solidity contract |
+| `[files...]` | `string` | Name of Solidity contract |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | Relative path to IPC host |
@@ -755,7 +755,7 @@ Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ``
 | `-b --built` | `<path>` | Path to build contracts folder |
 
 <a name="Cli+deploy"></a>
-#### delib deploy `<contractName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
+#### delib deploy `<contractName> [args...], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Deploy a built Solidity smart contract and save its address for later use with the CLI or library. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `built/` and `addresses/` folders.
 
 | Params | Type | Description |
@@ -777,7 +777,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 <a name="Cli+exec"></a>
-#### delib exec `<contractName> <methodName> [...args], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path> --call`
+#### delib exec `<contractName> <methodName> [args...], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path> --call`
 Perform a transaction or call a deployed contract's method. You can pass in a list of arguments. The most recent deployed contract address or set command address will be used.
 
 | Params | Type | Description |
