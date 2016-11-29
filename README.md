@@ -5,7 +5,7 @@ Simple Ethereum framework for DApps and contract management
 Delib is designed to be easy to learn and allow freedom when developing with Ethereum. Its features include:
 
   * A promise based library that provides the core abstractions needed for building DApps on Ethereum.
-  * A CLI for smart contract interaction. It lets you compile, build, deploy, execute methods, and get their event logs.
+  * A command tool for smart contract interaction. It lets you compile, build, deploy, execute methods, and get their event logs.
   * Option to automatically estimate your transaction gas costs for contract deployment and methods.
   * The saving of deployed contract addresses to use or reference later.
   * The ability to create and unlock Ethereum accounts using IPC.
@@ -14,11 +14,11 @@ Delib is designed to be easy to learn and allow freedom when developing with Eth
   * [Requirements](#requirements)
   * [Installation and Setup](#install)
   * [Usage](#usage)
-  * [CLI](#Cli)
+  * [Command Tool](#Cli)
   * [Library](#Ethereum)
   * [Examples](#examples)
   * [Support](#support)
-  * [CLI API](#Cli+api)
+  * [Command Tool API](#Cli+api)
   * [Library API](#Ethereum+api)
 
 <a name="requirements"></a>
@@ -40,7 +40,7 @@ Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. 
 
 ### Global install
 
-Install globally to use the CLI.
+Install globally to use the command tool.
 
 ```
 -> npm install -g delib
@@ -79,10 +79,12 @@ project/
 ├── delib.js/         - (delib config file)
 ```
 
+You can have the init command create a custom project structure for you. If you pass in the option `--config` it will only create the config file. Open the file to set your own project file paths and then call `delib init` again.
+
 You don't need to create a project to use Delib. More information is given in the usage section.
 
 ### Configuration
-A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default CLI transaction options.
+A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options.
 
 ```
 {
@@ -104,7 +106,7 @@ A file called `delib.js` gets made when you create a project. It contains your p
     host: null // Relative path to IPC host
   },
 
-  /** CLI options */
+  /** Command options */
   cli: {
     /** Default transaction options */
     options: {
@@ -124,10 +126,10 @@ A file called `delib.js` gets made when you create a project. It contains your p
 ## Usage
 
 ### Usage outside project
-Delib can be used outside a project. Outside a project file paths will be relative to your process point of entry. Connection options will also need to be specified. You can specify these with the library and pass them in as options if using the CLI.
+Delib can be used outside a project. Outside a project file paths will be relative to your process point of entry. Connection options will also need to be specified. You can specify these with the library and pass them in as options if using the command tool.
 
 ### Contract addresses
-Your contract's deployed addresses are saved in a plain text file with a file name of `ContractnameAddresses`. Each address is separated by a new line, and the most recent address is at the bottom of the list. The library and CLI use that address when no address is specified and you can manually add your own addresses to this file.
+Your contract's deployed addresses are saved in a plain text file with a file name of `ContractnameAddresses`. Each address is separated by a new line, and the most recent address is at the bottom of the list. The library and command tool use that address when no address is specified and you can manually add your own addresses to this file.
 
 ### Development node
 I created a package called [devchain](https://www.npmjs.com/package/devchain) that gives you a development geth server and helps you create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it automates mining and account Ether distribution. To install:
@@ -142,14 +144,14 @@ Another option is [testrpc](https://github.com/ethereumjs/testrpc), which perfor
 npm install -g ethereumjs-testrpc
 ```
 
-### Library and CLI integration
-Building a contract with the CLI will allow it to be accessible with the library. Also, deploying a contract using the library will make the following CLI contract calls refer to the library's deployed address, and vice versa. You can deploy contracts and then quickly test whether your methods are working with the CLI.  
+### Library and command integration
+Building a contract with the command tool will allow it to be accessible with the library. Also, deploying a contract using the library will make the following command tool calls refer to the library's deployed address, and vice versa. You can deploy contracts and then quickly test whether your methods are working with commands.  
 
 
 <a name="Cli"></a>
-# CLI
+# Command Tool
 
-The command line tool lets you interact with smart contracts both on and off the blockchain. It lets you compile and build Solidity contracts into a JavaScript file that you can then require. Then you can deploy the contract onto a blockchain and also execute methods and get event logs. It also allows you to create, unlock, and get the balance of your accounts.
+The command tool lets you interact with smart contracts both on and off the blockchain. It lets you compile and build Solidity contracts into a JavaScript file that you can then require. Then you can deploy the contract onto a blockchain and also execute methods and get event logs. It also allows you to create, unlock, and get the balance of your accounts.
 
 ### Set connection options and project paths
 The default connection and file path options are taken from the `delib.js` config file. Outside a project all project paths will be relative to where you're calling the command, and the RPC connection will default to localhost at port 8545. You can also specify connection options and paths as options. Non IPC commands will connect via RPC unless you specify an IPC option.
@@ -164,7 +166,7 @@ The default connection and file path options are taken from the `delib.js` confi
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 ### Adjust transaction options
-The default transaction options for the CLI are located in ```delib.js```. You can also pass in your own transaction options with the CLI commands.
+The default transaction options for the commands are located in ```delib.js```. You can also pass in your own transaction options.
 
 | Options | Type | Description |
 | --- | --- | --- |
@@ -227,7 +229,7 @@ Get the logs from the last 10 blocks.
 ### Set the address of a contract
 **delib set `<contractName> <contractAddress>`**
 
-Set the address of a contract to use. This will set its address for both CLI and library until another contract is deployed.
+Set the address of a contract to use. This will set its address for both the command tool and library until another contract is deployed.
 
 ```
 -> delib set Contract 0xa9b15bfe1d4e7bed407a011e54af36462fa0e067
@@ -266,7 +268,7 @@ Unlock your first account for 10000 seconds.
 -> delib unlock 0 hunter1 10000
 ```
 
-## [CLI API Link](#Cli+api)
+## [Command Tool API Link](#Cli+api)
 
 
 <a name="Ethereum"></a>
@@ -502,7 +504,19 @@ delib.eth.watch('Test', 'testEvent', function(err, log) {
   if (!err) {
     // Do something with the log  
   }
-})
+});
+```
+
+To stop the watch listener set the watch method to a variable and call `.stop()` on it.
+
+```
+const watch = delib.eth.watch('Test', 'testEvent', function(err, log) {
+  if (!err) {
+    // Do something with the log  
+  }
+});
+
+watch.stop(); // Stops the event listener
 ```
 
 ### Event filter object
@@ -626,13 +640,13 @@ contract Messages {
 }
 ```
 
-Build ```Messages.sol``` with the CLI.
+Build ```Messages.sol``` with the command tool.
 ```
 -> delib build Messages
 ```
 A file called ```Messages.sol.js``` will be created in the `built/` folder.
 
-Deploy Messages using the CLI with arguments for the constructor. Gas will be estimated for you.
+Deploy Messages using a command with arguments for the constructor. Gas will be estimated for you.
 ```
 -> delib deploy Messages hello
 ```
@@ -700,7 +714,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
 # API Reference
 
 <a name=Cli+api></a>
-## CLI
+## Command Tool
 * [delib](#Cli+api)
     * [init](#Cli+init)
     * [build `<file>`](#Cli+build)
@@ -714,8 +728,12 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
     * [unlock `<accountIndex> <password> [time]`](#Cli+unlock)
 
 <a name="Cli+init"></a>
-#### delib init
+#### delib init `-c --config`
 Create the config file ```delib.js``` and the [project structure](#projectStructure).
+
+| Params | Type | Description |
+| --- | --- | --- |
+| `-c --config` | `--` | If used the command will only create the delib.js config file |
 
 <a name="Cli+build"></a>
 #### delib build `<file> -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -o --contract <path>, -b --built <path>`
@@ -1139,6 +1157,7 @@ Gets the event logs for an event.
 
 <a name="Ethereum+watch"></a>
 #### delib.eth.watch(contractName, eventName, filter, callback)
+Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`.
 
 **Returns** <code>Object</code>
 
@@ -1151,6 +1170,7 @@ Gets the event logs for an event.
 
 <a name="Ethereum+watch"></a>
 #### delib.eth.watchAt(contractName, contractAddress, eventName, filter, callback)
+Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`.
 
 **Returns** <code>Object</code>
 

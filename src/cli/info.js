@@ -63,7 +63,7 @@ module.exports = (contractName, options) => {
     if (i >= abis.length - 1 && methods === true) {
       console.log('  ');
     }
-    
+
   });
 
   if (constructorIndex) {
@@ -92,7 +92,10 @@ module.exports = (contractName, options) => {
     }
   });
 
-  console.log('  Address:', eth.contracts.addresses.get(contractName));
-  console.log('');
-
+  try {
+    console.log('  Address:', eth.contracts.addresses.get(contractName));
+    console.log('');
+  } catch(e) {
+    //
+  }
 };

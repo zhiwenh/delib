@@ -5,6 +5,9 @@
  * setup easier I used an npm package that I developed called devchain.
  * Gas estimates and events on testrpc have issues.
  */
+
+process.chdir(__dirname); // So use with npm test works
+
 const tape = require('tape');
 const tapes = require('tapes');
 const tapSpec = require('tap-spec');
@@ -36,7 +39,7 @@ test('Initializing connection', t => {
 });
 
 test('Building Bank contract', t => {
-  delib.eth.build('Bank')
+  delib.eth.build(['Bank', 'BadBank'])
     .then(contracts => {
       t.equal(contracts[0], 'BadBank', 'Expect first contract to be BadBank');
       t.equal(contracts[1], 'Bank', 'Expect second contract to be Bank');
@@ -261,8 +264,9 @@ test('Getting Bank contract event logs', t => {
 test('Watching for Bank contract event logs', t => {
   const depositLogs = [];
   const withdrawLogs = [];
-
   const web3 = delib.eth.init();
+  let withdrawWatch;
+  let depositWatch;
   delib.eth.deploy('Bank')
     .then(instance => {
 
@@ -278,7 +282,7 @@ test('Watching for Bank contract event logs', t => {
         }
       };
 
-      delib.eth.watch('Bank', 'depositEvent', filter, (err, log) => {
+      depositWatch = delib.eth.watch('Bank', 'depositEvent', filter, (err, log) => {
         if (err) {
           console.error(err);
           t.fail();
@@ -288,8 +292,7 @@ test('Watching for Bank contract event logs', t => {
 
       });
 
-      delib.eth.watch('Bank', 'withdrawEvent', filter, (err, log) => {
-        console.log(log);
+      withdrawWatch = delib.eth.watch('Bank', 'withdrawEvent', filter, (err, log) => {
         if (err) {
           console.error(err);
           t.fail();
@@ -298,7 +301,7 @@ test('Watching for Bank contract event logs', t => {
         }
       });
 
-      console.log('  - Performing deposits and withdraws');
+      console.log('    - Performing deposits and withdraws');
 
       return delib.eth.exec('Bank').deposit({value: 10});
     })
@@ -317,6 +320,9 @@ test('Watching for Bank contract event logs', t => {
     .then((tx) => {
       return delib.eth.exec('Bank').withdraw(3);
     })
+    .then(tx => {
+      return delib.eth.exec('Bank').withdraw(1);
+    })
     .then((tx) => {
       t.equal(depositLogs.length, 2, 'Expect 2 deposit logs');
       t.equal(Number(depositLogs[0].args._amount), 3, 'Expect 1st deposit to have an amount of 3');
@@ -325,6 +331,10 @@ test('Watching for Bank contract event logs', t => {
       t.equal(withdrawLogs.length, 2, 'Expect 2 withdraw logs');
       t.equal(Number(withdrawLogs[0].args._amount), 4, 'Expect 1st deposit to have an amount of 4');
       t.equal(Number(withdrawLogs[1].args._amount), 3, 'Expect 2nd deposit to have an amount of 3');
+
+      withdrawWatch.stop();
+      depositWatch.stop();
+
       t.end();
     })
     .catch(err => {

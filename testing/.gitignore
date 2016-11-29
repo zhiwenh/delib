@@ -1,0 +1,5 @@
+devchain/
+addresses/**
+built/**
+.node**
+tests/cli.js

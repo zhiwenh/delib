@@ -18,11 +18,13 @@ program
 program
   .command('init')
   .description('Create the Delib project structure: addresses/, built/, contracts/, delib.js')
-  .action(() => {
+  .option('-c --config', 'Only create the config file delib.js')
+  .action((options) => {
     const configPath = path.join(process.cwd(), 'delib.js');
-    const contractsFolderPath = path.join(process.cwd(), 'contracts');
-    const builtFolderPath = path.join(process.cwd(), 'built');
-    const addressFolderPath = path.join(process.cwd(), 'addresses');
+
+    const contractsPath = config.default ? path.join(process.cwd(), './contracts') : path.join(process.cwd(), config.paths.contract);
+    const builtPath = config.default ? path.join(process.cwd(), './built') : path.join(process.cwd(), config.paths.built);
+    const addressPath = config.default ? path.join(process.cwd(), './addresses') : path.join(process.cwd(), config.paths.address);
 
     let status = false;
 
@@ -33,22 +35,24 @@ program
       status = true;
     }
 
-    if (!pathExists(contractsFolderPath)) {
-      fs.mkdirSync(contractsFolderPath);
-      console.log('Created contracts folder: contracts/');
-      status = true;
-    }
+    if (!options.config) {
+      if (!pathExists(contractsPath)) {
+        fs.mkdirSync(contractsPath);
+        console.log('Created contracts folder at', config.paths.contract);
+        status = true;
+      }
 
-    if (!pathExists(builtFolderPath)) {
-      fs.mkdirSync(builtFolderPath);
-      console.log('Created built contracts folder: built/');
-      status = true;
-    }
+      if (!pathExists(builtPath)) {
+        fs.mkdirSync(builtPath);
+        console.log('Created built contracts folder at', config.paths.built);
+        status = true;
+      }
 
-    if (!pathExists(addressFolderPath)) {
-      fs.mkdirSync(addressFolderPath);
-      console.log('Created contract addresses folder: addresses/');
-      status = true;
+      if (!pathExists(addressPath)) {
+        fs.mkdirSync(addressPath);
+        console.log('Created contract addresses folder at', config.paths.address);
+        status = true;
+      }
     }
 
     if (status === false) {
@@ -58,7 +62,7 @@ program
 
 /** Build a Solidity contract from paths in delib configuration file. Default is './contracts/' */
 program
-  .command('build <file>')
+  .command('build [files...]')
   .alias('bu')
   .description('Build a Solidity contract')
   .option('-h --rpchost <value>', 'RPC host')
@@ -66,19 +70,26 @@ program
   .option('-c --ipchost [path]', 'Relative path to IPC host')
   .option('-o --contract <path>', 'Relative path to contracts folder')
   .option('-b --built <path>', 'Relative path to built contracts folder')
-  .action((file, options) => {
+  .action((files, options) => {
     options = optionActions(options, 'none');
 
-    const contractPath = path.join(config.projectRoot, delib.eth.contracts.paths.contract, file + '.sol');
-    if (!pathExists(contractPath)) {
-      console.log('');
-      console.log('  \'' + file + '\' is not a valid contract at:', contractPath);
-      console.log('');
-      return;
+    let contractPaths = [];
+    for (let i = 0; i < files.length; i++) {
+      const contractPath = path.join(config.projectRoot, delib.eth.contracts.paths.contract, files[i] + '.sol');
+      if (!pathExists(contractPath)) {
+        console.log('');
+        console.log('  \'' + files[i] + '\' is not a valid contract at:', contractPath);
+        console.log('');
+        return;
+      }
+      contractPaths.push(contractPath);
     }
 
-    console.log('Building:', contractPath);
-    delib.eth.build(file)
+    contractPaths = contractPaths.length === 1 ? contractPaths[0] : contractPaths;
+
+    console.log('Building: ', contractPaths);
+
+    delib.eth.build(files)
       .then((contracts) => {
         // console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built));
         console.log('Contracts built:', contracts.join(', '));

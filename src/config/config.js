@@ -44,6 +44,7 @@ function findConfig(originalDirectory, levels) {
     configContents.paths.contract = './';
     configContents.paths.built = './';
     configContents.paths.address = './';
+    configContents.default = true;
     return configContents;
   }
 

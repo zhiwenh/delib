@@ -19,8 +19,7 @@
     "delib": "./bin/delib"
   },
   "scripts": {
-    "test": "node ./testing/test.js",
-    "docs": "jsdoc2md src/**/*.js > api.md"
+    "test": "node ./testing/tests/core.js"
   },
   "dependencies": {
     "commander": "^2.9.0",

@@ -28,9 +28,6 @@ function Ethereum() {
   this.web3IPC; // Web3 IPC object
   this.gasAdjust = 0.1; // Deploy and exec gas estimate adjustments
 
-  this._init = false; // If RPC or IPC has been initialized
-  this._initRPC = false;
-  this._initIPC = false;
   this._connectionType;
   this._provider; // Provider to use for methods
 
@@ -175,8 +172,12 @@ function Ethereum() {
     try {
       contract = require(contractPath);
     } catch (e) {
-      const absContractPath = path.resolve(contractPath);
-      throw new Error('Invalid built contract at: ' + absContractPath);
+      if (e.message.match('Cannot find module')) {
+        const absContractPath = path.resolve(contractPath);
+        throw new Error('Invalid built contract at: ' + absContractPath);
+      } else {
+        throw e;
+      }
     }
     return contract;
   };
@@ -492,7 +493,7 @@ function Ethereum() {
    */
   this.watch = (contractName, eventName, filter, callback) => {
     const contractAddress = this.contracts.addresses.get(contractName);
-    this.watchAt(contractName, contractAddress, eventName, filter, callback);
+    return this.watchAt(contractName, contractAddress, eventName, filter, callback);
   };
 
   /**
@@ -522,7 +523,7 @@ function Ethereum() {
       throw new Error('Invalid event: ' + eventName + ' is not an event of ' + contractName);
     }
 
-    const myEvent = contractInstance[eventName]();
+    let myEvent = contractInstance[eventName]();
 
     filter = (filter && typeof filter === 'object') ? filter : {};
     filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
@@ -534,6 +535,13 @@ function Ethereum() {
         callback(null, log);
       }
     });
+
+    return {
+      stop: function() {
+        myEvent.stopWatching();
+      }
+    };
+
   };
 
   /**
