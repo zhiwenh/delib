@@ -74,13 +74,6 @@ if (isDefault === false) {
   }
   config.rpc.host = config.rpc.host || defaultConfig.rpc.host;
   config.rpc.port = config.rpc.port || defaultConfig.rpc.port;
-
-  if (typeof config.cli !== 'object' || Array.isArray(config.cli)) {
-    config.cli = defaultConfig.cli;
-  }
-  if (typeof config.cli.options !== 'object' || Array.isArray(config.cli.options)) {
-    config.cli.options = defaultConfig.cli.options;
-  }
 }
 /***********/
 

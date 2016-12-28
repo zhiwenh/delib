@@ -33,7 +33,7 @@ module.exports = function(rawOptions, connection) {
   }
 
   /** Transaction option adjustments */
-  rawOptions = Object.assign({}, config.cli.options, rawOptions);
+  rawOptions = Object.assign({}, rawOptions);
   const options = {};
 
   if (rawOptions.from) options.from = rawOptions.from;

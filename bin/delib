@@ -75,7 +75,7 @@ program
 
     let contractPaths = [];
     for (let i = 0; i < files.length; i++) {
-      const contractPath = path.join(config.projectRoot, delib.eth.contracts.paths.contract, files[i] + '.sol');
+      const contractPath = path.join(config.projectRoot, delib.contracts.paths.contract, files[i] + '.sol');
       if (!pathExists(contractPath)) {
         console.log('');
         console.log('  \'' + files[i] + '\' is not a valid contract at:', contractPath);
@@ -89,15 +89,15 @@ program
 
     console.log('Building: ', contractPaths);
 
-    delib.eth.build(files)
+    delib.build(files)
       .then((contracts) => {
-        // console.log('Built path:', path.join(config.projectRoot, delib.eth.contracts.paths.built));
+        // console.log('Built path:', path.join(config.projectRoot, delib.contracts.paths.built));
         console.log('Contracts built:', contracts.join(', '));
-        delib.eth.closeIPC();
+        delib.closeIPC();
       })
       .catch(err => {
         console.log(err);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       });
   });
 
@@ -123,7 +123,7 @@ program
     options = optionActions(options);
 
     // Check if built contract exists
-    const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -132,15 +132,15 @@ program
     }
 
     console.log('Deploying:', builtPath);
-    delib.eth.deploy(contractName, args, options)
+    delib.deploy(contractName, args, options)
       .then(instance => {
-        // console.log('Address path:', path.join(config.projectRoot, delib.eth.contracts.paths.address));
+        // console.log('Address path:', path.join(config.projectRoot, delib.contracts.paths.address));
         console.log('Contract address:', instance.address);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       });
   });
 
@@ -168,7 +168,7 @@ program
     options = optionActions(options);
 
     // Check if built contract exists
-    const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -177,7 +177,7 @@ program
     }
 
     // Check if contract method exists. The returned contract instance has custom methods. The actual methods are __methodName
-    const contractInstance = delib.eth.exec(contractName);
+    const contractInstance = delib.exec(contractName);
 
     const abis = contractInstance.abi;
 
@@ -203,11 +203,11 @@ program
     methodPromise
       .then(txRes => {
         console.log('Response:', txRes);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       });
 
   });
@@ -225,7 +225,7 @@ program
   .action((contractName, eventName, blocksBack, options) => {
     optionActions(options);
 
-    const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -234,8 +234,8 @@ program
     }
 
     // Check if event exists
-    const contract = delib.eth.builtContract(contractName);
-    const contractAddress = delib.eth.contracts.addresses.get(contractName);
+    const contract = delib.builtContract(contractName);
+    const contractAddress = delib.contracts.addresses.get(contractName);
     const contractInstance = contract.at(contractAddress);
     const abis = contractInstance.abi;
 
@@ -256,16 +256,16 @@ program
       return;
     }
 
-    delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack)
+    delib.eventsAt(contractName, contractAddress, eventName, blocksBack)
       .then(logs => {
         console.log('Event logs:');
         logs = logs.map(log => { return log.args; });
         console.log(logs);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       });
   });
 
@@ -281,7 +281,7 @@ program
   .action((contractName, eventName, options) => {
     optionActions(options);
 
-    const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -290,8 +290,8 @@ program
     }
 
     // Check if event exists
-    const contract = delib.eth.builtContract(contractName);
-    const contractAddress = delib.eth.contracts.addresses.get(contractName);
+    const contract = delib.builtContract(contractName);
+    const contractAddress = delib.contracts.addresses.get(contractName);
     const contractInstance = contract.at(contractAddress);
     const abis = contractInstance.abi;
 
@@ -312,7 +312,7 @@ program
       return;
     }
     console.log('Watching for events:');
-    delib.eth.watchAt(contractName, contractAddress, eventName, (err, log) => {
+    delib.watchAt(contractName, contractAddress, eventName, (err, log) => {
       if (!err) {
         console.log(log.args);
       }
@@ -334,7 +334,7 @@ program
   .description('Set the address of a contract to use')
   .action((contractName, contractAddress, options) => {
     optionActions(options);
-    delib.eth.contracts.addresses.set(contractName, contractAddress);
+    delib.contracts.addresses.set(contractName, contractAddress);
   });
 
 /** Get the balance of a particular Ethereum account based on account index. */
@@ -346,18 +346,18 @@ program
   .option('-c --ipchost [path]', 'Relative path to IPC host')
   .action((index, denomination, options) => {
     optionActions(options);
-    if (delib.eth.connectionType !== 'ipc') {
-      const balance = delib.eth.getBalance(index, denomination);
+    if (delib.connectionType !== 'ipc') {
+      const balance = delib.getBalance(index, denomination);
       console.log(balance);
     } else {
-      delib.eth.getBalance(index, denomination)
+      delib.getBalance(index, denomination)
         .then(balance => {
           console.log(balance);
-          delib.eth.closeIPC();
+          delib.closeIPC();
         })
         .catch(err => {
           console.error(err);
-          delib.eth.closeIPC();
+          delib.closeIPC();
         });
     }
   });
@@ -369,14 +369,14 @@ program
   .option('-c --ipchost [path]', 'Relative path to IPC host')
   .action((password, options) => {
     optionActions(options, 'ipc');
-    delib.eth.createAccount(password)
+    delib.createAccount(password)
       .then(address => {
         console.log(address);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       });
   });
 
@@ -388,13 +388,13 @@ program
   .action((index, password, time, options) => {
     optionActions(options, 'ipc');
     time = time || 60 * 60 * 24;
-    delib.eth.unlockAccount(index, password, time)
+    delib.unlockAccount(index, password, time)
       .then(bool => {
-        delib.eth.closeIPC();
+        delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
-        delib.eth.closeIPC();
+        delib.closeIPC();
       });
   });
 
