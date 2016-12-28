@@ -104,20 +104,8 @@ A file called `delib.js` gets made when you create a project. It contains your p
   /** IPC connection options */
   ipc: {
     host: null // Relative path to IPC host
-  },
-
-  /** Command options */
-  cli: {
-    /** Default transaction options */
-    options: {
-      account: 0, // Account index to use for transactions
-      from: null,  // Replaces account index
-      value: null, // Value in Ether. It gets converted to wei
-      gas: null, // Estimated if not specified
-      gasprice: null, // Mean network gas price if not specified
-      maxgas: null // Max gas allowed when estimating
-    }
   }
+
 };
 
 ```
@@ -132,13 +120,13 @@ Delib can be used outside a project. Outside a project file paths will be relati
 Your contract's deployed addresses are saved in a plain text file with a file name of `ContractnameAddresses`. Each address is separated by a new line, and the most recent address is at the bottom of the list. The library and command tool use that address when no address is specified and you can manually add your own addresses to this file.
 
 ### Development node
-I created a package called [devchain](https://www.npmjs.com/package/devchain) that gives you a development geth server and helps you create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it automates mining and account Ether distribution. To install:
+Please use [devchain](https://www.npmjs.com/package/devchain) for your Ethereum development node. It gives you a development geth server and helps you create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it automates mining and account Ether distribution. To install:
 
 ```
 npm install -g devchain
 ```
 
-Another option is [testrpc](https://github.com/ethereumjs/testrpc), which performs transaction instantaneously. To install:
+Another option is [testrpc](https://github.com/ethereumjs/testrpc). It performs transaction instantaneously but has issues with estimating gas costs and getting/watching for events with Delib. To install:
 
 ```
 npm install -g ethereumjs-testrpc
@@ -230,6 +218,14 @@ Get all the logs of an event called `numbersEvent`.
 Get the logs from the last 10 blocks.
 ```
 -> delib events Contract numbersEvent 10
+```
+
+### Watch for events
+**delib watch `<contractName> <eventName>`**
+
+Watch for events from `lettersEvent`.
+```
+-> delib watch Contract lettersEvent
 ```
 
 ### Set the address of a contract
@@ -727,6 +723,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
     * [deploy `<contractName> [args...]`](#Cli+deploy)
     * [exec `<contractName> <methodName> [args...]`](#Cli+exec)
     * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
+    * [watch `<contractName> <eventName>`](#Cli+watch)
     * [info `<contractName>`](#Cli+info)
     * [set `<contractName> <contractAddress>`](#Cli+set)
     * [balance `<accountIndex> [denomination]`](#Cli+balance)
@@ -803,6 +800,19 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 <a name="Cli+events"></a>
 #### delib events `<contractName> <eventName> [blocksBack], -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Get the logs of a deployed contract's event. By default it gets all logs starting from block 0. You can pass in how many blocks back you wish to get logs from.
+
+| Params | Type | Description |
+| --- | --- | --- |
+| `<contractName>` | `number` | Name of built contract |
+| `<eventName>` | `string` | Contract event name |
+| `[blocksBack]` | `number` | Number of blocks back to get logs from |
+| `-r --rpchost` | `<value>` | RPC host |
+| `-h --rpcport` | `<port>` | RPC port |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
+
+<a name="Cli+watch"></a>
+### delib watch `<contractName> <eventName>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
+Watch for events
 
 | Params | Type | Description |
 | --- | --- | --- |
