@@ -1,8 +1,8 @@
 # Changelog
 
-## Version 3.7
-* CLI watch command
-*  
+## Version 4.0
+* Removed delib.eth. Now it is just delib.
+* Removed CLI options from config file.
 
 ## Version 3.6
 
