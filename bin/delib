@@ -11,7 +11,7 @@ const help = require('./../src/cli/help');
 const info = require('./../src/cli/info');
 
 program
-  .version('3.6.0')
+  .version('4.0.0')
   .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
@@ -269,6 +269,56 @@ program
       });
   });
 
+program
+  .command('watch <contractName> <eventName>')
+  .alias('wa')
+  .description('Set up listener to watch for logs of an event')
+  .option('-h --rpchost <value>', 'RPC host')
+  .option('-r --rpcport <port>', 'RPC port')
+  .option('-c --ipchost [path]', 'Relative path to IPC host')
+  .option('-b --built <path>', 'Relative path to built contracts folder')
+  .option('-a --address <path>', 'Relative path to addresses folder')
+  .action((contractName, eventName, options) => {
+    optionActions(options);
+
+    const builtPath = path.join(config.projectRoot, delib.eth.contracts.paths.built, contractName + '.sol.js');
+    if (!pathExists(builtPath)) {
+      console.log('');
+      console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      console.log('');
+      return;
+    }
+
+    // Check if event exists
+    const contract = delib.eth.builtContract(contractName);
+    const contractAddress = delib.eth.contracts.addresses.get(contractName);
+    const contractInstance = contract.at(contractAddress);
+    const abis = contractInstance.abi;
+
+    function checkEvent(eventName, abis) {
+      if (eventName === 'allEvents') return true;
+      for (let i = 0; i < abis.length; i++) {
+        if (abis[i].name === eventName && abis[i].type === 'event') {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    if (!checkEvent(eventName, abis)) {
+      console.log('');
+      console.log('  \'' + eventName + '\' is not a valid', contractName, 'event');
+      console.log('');
+      return;
+    }
+    console.log('Watching for events:');
+    delib.eth.watchAt(contractName, contractAddress, eventName, (err, log) => {
+      if (!err) {
+        console.log(log.args);
+      }
+    });
+  });
+
 /** List a contracts info */
 program
   .command('info <contractName>')
@@ -347,7 +397,6 @@ program
         delib.eth.closeIPC();
       });
   });
-
 
 /** Additional help */
 program.on('--help', help);

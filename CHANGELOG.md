@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 3.7
+* CLI watch command
+*  
+
 ## Version 3.6
 
 ### Major
@@ -13,6 +17,7 @@
 * Refactor log filter into its own file
 * Added allEvents to CLI info
 * When using command init it will now build your project based on your config file paths
+* Can now force a contract method to call.
 
 ### Other
 Created tests

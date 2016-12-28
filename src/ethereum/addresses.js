@@ -10,7 +10,7 @@ const config = require('./../config/config.js');
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot);
 
 // Ending of the addresses files
-const ENDING = 'Addresses';
+const ENDING = 'Addresses.json';
 
 function Addresses() {
   this.path = config.paths.address; // To set the path to the addresses folder
@@ -19,26 +19,69 @@ function Addresses() {
    * Saves a contract address in a file
    * @param {string} contractName
    * @param {string} contractAddress
+   * @param {Object} links - An object with keys as library name and value as address
    * @returns {number} - Amount of addresses saved
    */
-  this.set = (contractName, contractAddress) => {
+  this.set = (contractName, contractAddress, links) => {
     if (typeof contractAddress !== 'string' || contractAddress.length !== 42) {
       throw new Error('Invalid contract address: ' + contractAddress);
     }
+
     const pathway = path.join(__dirname, RELATIVE_PATH, this.path);
 
     // Make addresses folder if it doesn't exist
     if (!pathExists(path.join(pathway))) {
       fs.mkdirSync(path.join(pathway));
     }
-    contractAddress += '\n';
+
     const fileName = contractName + ENDING;
     const filePath = path.join(pathway, fileName);
 
-    fs.appendFileSync(filePath, contractAddress);
-    let addressesFile = fs.readFileSync(filePath, 'utf8');
-    const addresses = addressesFile.split('\n');
-    return addresses.length;
+    let fileJSON;
+    try {
+      const fileString = fs.readFileSync(filePath, 'utf8');
+      fileJSON = JSON.parse(fileString);
+    } catch (e) {
+      fileJSON = [];
+    }
+
+    function isEmpty(obj) {
+      for (let key in obj) { return false; }
+      return true;
+    }
+
+    const links2 = {};
+    if (typeof links === 'object' && !Array.isArray(links) && !isEmpty(links)) {
+      // To make the actual contract be first property in the json objects
+      links2[contractName] = contractAddress;
+      for (let name in links) {
+        links2[name] = links[name];
+      }
+    }
+
+    if (Array.isArray(fileJSON)) {
+      if (typeof links === 'object' && !Array.isArray(links) && !isEmpty(links)) {
+        fileJSON.push(links2);
+      } else {
+        fileJSON.push(contractAddress);
+      }
+    } else if (typeof fileJSON === 'object') {
+      if (typeof links === 'object' && !Array.isArray(links) && !isEmpty(links)) {
+        fileJSON = links2;
+      } else {
+        fileJSON = {};
+        fileJSON[contractName] = contractAddress;
+      }
+    } else if (typeof fileJSON === 'string') {
+      if (typeof links === 'object' && !Array.isArray(links) && !isEmpty(links)) {
+        fileJSON = links2;
+      } else {
+        fileJSON = contractAddress;
+      }
+    }
+
+    fs.writeFileSync(filePath, JSON.stringify(fileJSON, null, 2));
+    return fileJSON.length;
   };
 
   /**
@@ -51,17 +94,31 @@ function Addresses() {
     const fileName = contractName + ENDING;
     const filePath = path.join(__dirname, RELATIVE_PATH, this.path, fileName);
     this._checkPathError(contractName, filePath);
-    const addressesFile = fs.readFileSync(filePath, 'utf8');
-    const addresses = addressesFile.split('\n');
+    const fileString = fs.readFileSync(filePath, 'utf8');
+    let fileArray = JSON.parse(fileString);
 
-    index = index || addresses.length - 1;
+    if (!Array.isArray(fileArray)) {
+      fileArray = [fileArray];
+    }
+
+    index = index || fileArray.length - 1;
 
     // Make sure you get an address with a length of 42
     let address;
     for (let i = index; i >= 0; i--) {
-      if (addresses[i].length === 42) {
-        address = addresses[i].trim();
-        break;
+      if (Array.isArray(fileArray[i])) {
+        continue;
+      } else if (typeof fileArray[i] === 'object') {
+        if (!fileArray[i].hasOwnProperty(contractName)) continue;
+        if (fileArray[i][contractName].length === 42) {
+          address = fileArray[i][contractName];
+          break;
+        }
+      } else {
+        if (fileArray[i].length === 42) {
+          address = fileArray[i];
+          break;
+        }
       }
     }
 
@@ -70,6 +127,48 @@ function Addresses() {
     }
 
     return address;
+  };
+
+  this.getLinks = (contractName, index) => {
+    const fileName = contractName + ENDING;
+    const filePath = path.join(__dirname, RELATIVE_PATH, this.path, fileName);
+    this._checkPathError(contractName, filePath);
+    const fileString = fs.readFileSync(filePath, 'utf8');
+    let fileArray = JSON.parse(fileString);
+
+    if (!Array.isArray(fileArray)) {
+      fileArray = [fileArray];
+    }
+
+    index = index || fileArray.length - 1;
+
+    let links;
+    let address;
+    for (let i = index; i >= 0; i--) {
+      if (Array.isArray(fileArray[i])) {
+        continue;
+      } else if (typeof fileArray[i] === 'object') {
+        if (!fileArray[i].hasOwnProperty(contractName)) continue;
+        if (fileArray[i][contractName].length === 42) {
+          address = fileArray[i][contractName];
+          delete fileArray[i][contractName];
+          links = fileArray[i];
+          break;
+        }
+      } else {
+        if (fileArray[i].length === 42) {
+          address = fileArray[i];
+          links = {};
+          break;
+        }
+      }
+    }
+
+    if (!address) {
+      throw new Error('Could not get a valid address for links from ' + contractName);
+    }
+
+    return links;
   };
 
   /**
@@ -81,10 +180,65 @@ function Addresses() {
     const fileName = contractName + ENDING;
     const filePath = path.join(__dirname, RELATIVE_PATH, this.path, fileName);
     this._checkPathError(contractName, filePath);
-    const addressesFile = fs.readFileSync(filePath, 'utf8');
-    return addressesFile.split('\n').filter(address => {
-      return address.length === 42;
-    });
+    const fileString = fs.readFileSync(filePath, 'utf8');
+    let fileArray = JSON.parse(fileString);
+
+    if (!Array.isArray(fileArray)) {
+      fileArray = [fileArray];
+    }
+
+    const addressesArray = [];
+
+    for (let i = 0; i < fileArray.length; i++) {
+      if (typeof fileArray[i] === 'object' && !Array.isArray(fileArray[i])) {
+        if (!fileArray[i].hasOwnProperty(contractName)) continue;
+        if (fileArray[i][contractName].length === 42) {
+          addressesArray.push(fileArray[i][contractName]);
+        }
+      } else if (typeof fileArray[i] === 'string') {
+        if (fileArray[i].length === 42) {
+          addressesArray.push(fileArray[i]);
+        }
+      }
+    }
+
+    return addressesArray;
+  };
+
+  /**
+   * Gets all links of addresses
+   * @param {string} contractName
+   * @returns {Array}
+   */
+  this.getAllLinks = (contractName) => {
+    const fileName = contractName + ENDING;
+    const filePath = path.join(__dirname, RELATIVE_PATH, this.path, fileName);
+    this._checkPathError(contractName, filePath);
+    const fileString = fs.readFileSync(filePath, 'utf8');
+    let fileArray = JSON.parse(fileString);
+
+    if (!Array.isArray(fileArray)) {
+      fileArray = [fileArray];
+    }
+
+    const linksArray = [];
+
+    for (let i = 0; i < fileArray.length; i++) {
+      if (typeof fileArray[i] === 'object' && !Array.isArray(fileArray[i])) {
+        if (!fileArray[i].hasOwnProperty(contractName)) continue;
+        if (fileArray[i][contractName].length === 42) {
+          linksArray.push(fileArray[i]);
+        }
+      } else if (typeof fileArray[i] === 'string') {
+        if (fileArray[i].length === 42) {
+          const linkObj = {};
+          linkObj[contractName] = fileArray[i];
+          linksArray.push(linkObj);
+        }
+      }
+    }
+
+    return linksArray;
   };
 
   this._checkPathError = (contractName, pathway) => {
@@ -92,6 +246,7 @@ function Addresses() {
       throw new Error(contractName + ' addresses file does not exist');
     }
   };
+
 }
 
 module.exports = new Addresses();

@@ -3,3 +3,4 @@ addresses/**
 built/**
 .node**
 tests/cli.js
+contracts/zeppelin

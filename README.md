@@ -747,7 +747,7 @@ Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ``
 
 | Params | Type | Description |
 | --- | --- | --- |
-| `[files...]` | `string` | Name of Solidity contract |
+| `[files...]` | `string` | Names of Solidity contract |
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | Relative path to IPC host |

@@ -35,11 +35,12 @@ contract Bank is BadBank {
     return bank[msg.sender].amount;
   }
 
-  function withdraw(uint _withdrawAmount) {
-    if (bank[msg.sender].init == false) {
-      return;
-    }
+  function checkAmountEther() constant returns (uint) {
+    return bank[msg.sender].amount;
+  }
 
+  function withdraw(uint _withdrawAmount) {
+    if (bank[msg.sender].init == false) return;
     if (bank[msg.sender].amount < _withdrawAmount && _withdrawAmount != 0) return;
 
     uint amount = bank[msg.sender].amount;
