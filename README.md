@@ -1,4 +1,4 @@
-# Delib
+delib# Delib
 
 Simple Ethereum framework for DApps and contract management
 
@@ -279,98 +279,98 @@ Unlock your first account for 10000 seconds.
 The library gives you the freedom to customize your DApp development to fit your specific needs. You can easily write your own contract migration scripts, interact with contracts from within your app, and write contract tests.
 
 ### File paths
-**delib.eth.contracts.paths**
+**delib.contracts.paths**
 
-To specify your own file paths use the `delib.eth.contracts.paths` object. Inside a project the paths will be relative to your project root (where `delib.js` is located). Outside a project they will be relative to your process point of entry.
+To specify your own file paths use the `delib.contracts.paths` object. Inside a project the paths will be relative to your project root (where `delib.js` is located). Outside a project they will be relative to your process point of entry.
 
 ```
-delib.eth.contracts.paths.contract = 'relative path to contract folder';
+delib.contracts.paths.contract = 'relative path to contract folder';
 
-delib.eth.contracts.paths.built = 'relative path to built folder';
+delib.contracts.paths.built = 'relative path to built folder';
 
-delib.eth.contracts.paths.address = relative path to addresses folder';
+delib.contracts.paths.address = relative path to addresses folder';
 ```
 
 ### Connections
 Your project's `delib.js` file sets up your RPC and IPC connections. You can also pass in connection options as arguments.
 
 #### RPC provider
-**delib.eth.init(rpcHost, rpcPort)**
+**delib.init(rpcHost, rpcPort)**
 
 To connect with the options in `delib.js`:
 
 ```
-delib.eth.init();
+delib.init();
 ```
 Specify your own connection arguments by passing in a RPC host and a RPC port number.
 
 ```
-delib.eth.init('localhost', 8000);
+delib.init('localhost', 8000);
 ```
 
 #### IPC provider
-**delib.eth.initIPC(ipcPath)**
+**delib.initIPC(ipcPath)**
 
 To connect with the options in `delib.js`:
 
 ```
-delib.eth.initIPC();
+delib.initIPC();
 ```
 
 You can pass in an IPC path as an argument.
 
 ```
-delib.eth.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform transaction you will need to changeProviders
+delib.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform transaction you will need to changeProviders
 ```
 
 The IPC connection remains on until you close it. To close it use:
 
 ```
-delib.eth.closeIPC();
+delib.closeIPC();
 ```
 
 #### Switching providers
-**delib.eth.changeProvider(type)**  
+**delib.changeProvider(type)**  
 
 The provider is set to the first one initialized. To switch between the two:
 
 ```
-delib.eth.changeProvider('rpc');
+delib.changeProvider('rpc');
 
-delib.eth.changeProvider('ipc');
+delib.changeProvider('ipc');
 ```
 These return a boolean indicating whether or not the change went thru.  
 
 You can also check their connection status.
 
-**delib.eth.checkConnection(type)**
+**delib.checkConnection(type)**
 
 ```
-delib.eth.checkConnection('rpc');
+delib.checkConnection('rpc');
 
-delib.eth.checkConnection('ipc');
+delib.checkConnection('ipc');
 ```
 
 ### Adjust options
-**delib.eth.account**  
-**delib.eth.options**  
-**delib.eth.gasAdjust**
+**delib.account**  
+**delib.options**  
+**delib.gasAdjust**
 
-To chooose a default account index for transactions use `delib.eth.account`. The index corresponds to the `web3.eth.accounts` array. By default it is 0.
+To chooose a default account index for transactions use `delib.account`. The index corresponds to the `web3.eth.accounts` array. By default it is 0.
 
 ```
-delib.eth.account = 0;
+delib.account = 0;
 ```
 
-`delib.eth.options` contains the default options for your transactions. It contains the Ethereum transaction options as well as delib options. These options can be passed into deploy or contract method calls, and they'll overwrite the defaults.
+`delib.options` contains the default options for your transactions. It contains the Ethereum transaction options as well as delib options. These options can be passed into deploy or contract method calls, and they'll overwrite the defaults.
 
 You can pass in an `account` option in your deploy or contract method call and it'll use that account index for your transaction.
 
-If a `gas` option of 0 is specified gas will be estimated for you, and `maxGas` is the max gas allowed in gas estimates. The estimate is adjusted before being used, and the value can be accessed with `delib.eth.gasAdjust`. Its default value is 0.1.
+If a `gas` option of 0 is specified gas will be estimated for you, and `maxGas` is the max gas allowed in gas estimates. The estimate is adjusted before being used, and the value can be accessed with `delib.gasAdjust`. Its default value is 0.1.
 
 
 ```
-delib.eth.options = {
+delib.options = {
   /** Default transaction options */
   from: undefined,
   to: undefined,
@@ -385,23 +385,23 @@ delib.eth.options = {
   maxGas: undefined  
 };
 
-delib.eth.gasAdjust = 0.1;
+delib.gasAdjust = 0.1;
 ```
 
 ### Build contracts
-**delib.eth.build(contractFiles, contractPath, buildPath)**
+**delib.build(contractFiles, contractPath, buildPath)**
 
 Pass in a file name or an array of file names you wish you build from your project's `contracts/` folder to your project's `built/` folder.
 
 ```
-delib.eth.build('Test')
+delib.build('Test')
   .then(contracts => {
     console.log(contracts); // An array of all the contracts built.
   });
 ```
 
 ### Deploy contracts
-**delib.eth.deploy(contractName, args, options)**
+**delib.deploy(contractName, args, options)**
 
 The addresses of your deployed contracts are saved in your project's `addresses/` folder. Passing in an array for the constructor arguments is optional, however to pass in an options object you will need to pass in an empty arguments array. The promise returns an instance of the contract which you can use to make method calls.
 
@@ -412,7 +412,7 @@ options = {
   gas: 0 // Set gas at 0 to have it estimated for you
 }
 
-delib.eth.deploy('Test', [arg1, arg2, arg3], options)
+delib.deploy('Test', [arg1, arg2, arg3], options)
   .then(instance => {
     const address = instance.address;
 
@@ -428,10 +428,10 @@ delib.eth.deploy('Test', [arg1, arg2, arg3], options)
 
 You can estimate the gas usage for deploying a contract.
 
-**delib.eth.deploy.estimate(contractName, args, options)**
+**delib.deploy.estimate(contractName, args, options)**
 
 ```
-delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
+delib.deploy.estimate('Test', [arg1, arg2, arg3])
   .then(gasEstimate => {
 
   })
@@ -440,11 +440,11 @@ delib.eth.deploy.estimate('Test', [arg1, arg2, arg3])
   });
 ```
 
-You can get an array of all previously deployed addresses with `delib.eth.contracts.addresses.getAll('contractName')`. The most recently deployed address is the array's last index. Use this to access previously deploy contracts.
+You can get an array of all previously deployed addresses with `delib.contracts.addresses.getAll('contractName')`. The most recently deployed address is the array's last index. Use this to access previously deploy contracts.
 
 ### Execute contract methods
-**delib.eth.exec(contractName)**  
-**delib.eth.execAt(contractName, contractAddress)**
+**delib.exec(contractName)**  
+**delib.execAt(contractName, contractAddress)**
 
 It will perform a transaction (which requires gas) or if it will just call and return a value by whether or not you labeled your function with constant in your Solidity contract.
 
@@ -455,7 +455,7 @@ options = {
   gas: 0 // Gas set at 0 will be estimated
 };
 
-delib.eth.exec('Test').testMethod(arg1, arg2, options)
+delib.exec('Test').testMethod(arg1, arg2, options)
   .then(tx => {
 
   })
@@ -466,11 +466,11 @@ delib.eth.exec('Test').testMethod(arg1, arg2, options)
 
 You can estimate the gas usage for calling a contract method.
 
-**delib.eth.exec(contractName).estimate**  
-**delib.eth.execAt(contractName, contractAddress).estimate**
+**delib.exec(contractName).estimate**  
+**delib.execAt(contractName, contractAddress).estimate**
 
 ```
-delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
+delib.exec('Test').estimate.testMethod(arg1, arg2)
   .then(gasEstimate => {
 
   })
@@ -480,13 +480,13 @@ delib.eth.exec('Test').estimate.testMethod(arg1, arg2)
 ```
 
 ### Get event logs
-**delib.eth.events(contractName, eventName, blocksBack, filter)**  
-**delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)**
+**delib.events(contractName, eventName, blocksBack, filter)**  
+**delib.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)**
 
 The code below gets the logs from an event called testEvent on the contract Test. It searches the last 100 blocks. To have it search all blocks pass in `'all'` instead of a number.
 
 ```
-delib.eth.events('Test', 'testEvent', 100)
+delib.events('Test', 'testEvent', 100)
   .then(logs => {
 
   })
@@ -496,13 +496,13 @@ delib.eth.events('Test', 'testEvent', 100)
 ```
 
 ### Watch events
-**delib.eth.watch(contractName, eventName, filter, callback)**  
-**delib.eth.watchAt(contractName, contractAddress, eventName, filter, callback)**
+**delib.watch(contractName, eventName, filter, callback)**  
+**delib.watchAt(contractName, contractAddress, eventName, filter, callback)**
 
 You can watch a contract for when it gets a new event.
 
 ```
-delib.eth.watch('Test', 'testEvent', function(err, log) {
+delib.watch('Test', 'testEvent', function(err, log) {
   if (!err) {
     // Do something with the log  
   }
@@ -512,7 +512,7 @@ delib.eth.watch('Test', 'testEvent', function(err, log) {
 To stop the watch listener set the watch method to a variable and call `.stop()` on it.
 
 ```
-const watch = delib.eth.watch('Test', 'testEvent', function(err, log) {
+const watch = delib.watch('Test', 'testEvent', function(err, log) {
   if (!err) {
     // Do something with the log  
   }
@@ -546,7 +546,7 @@ filter = {
   }
 };
 
-delib.eth.events('Test', 'testEvent', 'all', filter)
+delib.events('Test', 'testEvent', 'all', filter)
   .then(logs => {
 
   })
@@ -554,7 +554,7 @@ delib.eth.events('Test', 'testEvent', 'all', filter)
 
   });
 
-delib.eth.watch('Test', 'testEvent', filter, function(err log) {
+delib.watch('Test', 'testEvent', filter, function(err log) {
   if (!err) {
     // Do something with filtered log
   }
@@ -562,42 +562,42 @@ delib.eth.watch('Test', 'testEvent', filter, function(err log) {
 ```
 
 ### Account balances
-**delib.eth.getBalance(index, type)**
+**delib.getBalance(index, type)**
 
 The method to get the balance of an account takes in the account index and the Ether denomination you would like the result to be in. If using this with an IPC connection it will return a Promise.
 
 Get the balance of your first account in Ether, switch to IPC, then get it in wei:
 
 ```
-delib.eth.getBalance(0, 'Ether');
+delib.getBalance(0, 'Ether');
 
-delib.eth.changeProvider('ipc');
+delib.changeProvider('ipc');
 
-delib.eth.getBalance(0, 'wei')
+delib.getBalance(0, 'wei')
   .then(balance => {
 
   })
 ```
 
 ### Create accounts
-**delib.eth.createAccount(password)**
+**delib.createAccount(password)**
 
 This only works with an IPC connection. It creates an encrpyted JSON file containing your public and private key in your Ethereum blockchain's data directory.
 
 ```
-delib.eth.createAccount('hunter1')
+delib.createAccount('hunter1')
   .then(address => {
 
   })
 ```
 
 ### Unlock accounts
-**delib.eth.unlockAccount(index, password, timeLength)**
+**delib.unlockAccount(index, password, timeLength)**
 
 This only works with an IPC connection. Time length is in seconds.
 
 ```
-delib.eth.unlockAccount(1, 'hunter2', 10000)
+delib.unlockAccount(1, 'hunter2', 10000)
   .then(status => {
 
   })
@@ -658,28 +658,28 @@ In your scripts.
 ```
 const delib = require('delib');
 
-delib.eth.init();
+delib.init();
 
 // Adjust the default transaction options
-delib.eth.options = {
+delib.options = {
   value: 0,
   gas: 100000,
 };
 
 // Call a method on the contract Messages
-delib.eth.exec('Messages').getMessage()
+delib.exec('Messages').getMessage()
   .then(message => {
     console.log(message); // -> hello
 
     // Call another method with your 2nd account and pass in options
-    delib.eth.account = 1;
-    return delib.eth.exec('Messages').setMessage('coffee', {
+    delib.account = 1;
+    return delib.exec('Messages').setMessage('coffee', {
       gas: 100000 // gas will no longer be estimated
     });
   })
   .then(tx => {
     console.log(tx); // displays the transaction receipt
-    return delib.eth.exec('Messages').getMessage();
+    return delib.exec('Messages').getMessage();
   })
   .then(message => {
     console.log(message); // -> coffee  
@@ -878,7 +878,7 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
 <a name="Ethereum+api"></a>
 
 ## Library
-* [delib.eth](#Ethereum+api)
+* [delib](#Ethereum+api)
     * [.web3](#Ethereum+web3)
     * [.web3RPC](#Ethereum+web3RPC)
     * [.web3IPC](#Ethereum+web3IPC)
@@ -916,31 +916,31 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
 
 
 <a name="Ethereum+web3"></a>
-#### delib.eth.web3
-The Web3 object being used as the current provider. Will first need to initialize a connection with `delib.eth.init()` or `delib.eth.initIPC()`;
+#### delib.web3
+The Web3 object being used as the current provider. Will first need to initialize a connection with `delib.init()` or `delib.initIPC()`;
 
 <a name="Ethereum+web3RPC"></a>
-#### delib.eth.web3RPC
-The Web3 object used for RPC connections. Will first need to initialize a RPC connection with `delib.eth.init()`.
+#### delib.web3RPC
+The Web3 object used for RPC connections. Will first need to initialize a RPC connection with `delib.init()`.
 
 <a name="Ethereum+web3IPC"></a>
-#### delib.eth.web3IPC
-The Web3 object used for IPC connections. Will first need to initialize an IPC connection with `delib.eth.initIPC()`. This object will allow you to perform Web3 personal and admin tasks.
+#### delib.web3IPC
+The Web3 object used for IPC connections. Will first need to initialize an IPC connection with `delib.initIPC()`. This object will allow you to perform Web3 personal and admin tasks.
 
 <a name="Ethereum+gasAdjust"></a>
-#### delib.eth.gasAdjust
+#### delib.gasAdjust
 The amount to adjust gas when doing automatic gas estimates. Default is 0.1. It's calculated by this formula:
 ```
 gasEstimate = gasEstimate + gasEstimate * gasAdjust
 ```
 
 <a name="Ethereum+account"></a>
-#### delib.eth.account
-The default index of the account used for transactions. The index uses the web3.eth.accounts array to get the account address. This can be overwritten by setting an address in `delib.eth.options.from`, setting a `from` property in transaction options, or setting an `account` property (also an account index) in transaction options.
+#### delib.account
+The default index of the account used for transactions. The index uses the web3.eth.accounts array to get the account address. This can be overwritten by setting an address in `delib.options.from`, setting a `from` property in transaction options, or setting an `account` property (also an account index) in transaction options.
 
 <a name="Ethereum+options"></a>
-#### delib.eth.options
-The default options for `delib.eth` methods. This object contains the default transaction options as well as the default delib options. If `gas` is 0 or null then it will be estimated automatically for each transaction. `maxGas` is the max gas allowed when estimating gas. Leave `from` null to get the address from `delib.eth.account` or `account`. You can pass any of these properties inside the options object for deploy or exec transactions.  
+#### delib.options
+The default options for `delib` methods. This object contains the default transaction options as well as the default delib options. If `gas` is 0 or null then it will be estimated automatically for each transaction. `maxGas` is the max gas allowed when estimating gas. Leave `from` null to get the address from `delib.account` or `account`. You can pass any of these properties inside the options object for deploy or exec transactions.  
 
 ```
 {
@@ -960,11 +960,11 @@ The default options for `delib.eth` methods. This object contains the default tr
 ```
 
 <a name="Ethereum+contracts+paths"></a>
-#### delib.eth.contracts.paths
+#### delib.contracts.paths
 An object that contains the paths to the Solidity contracts, built contracts, and contract addresses. If using delib in a project these paths will be relative to your project root, otherwise they will be relative to your scripts. Assign paths to this object if you don't want to create a project or if you want to customize the paths.
 
 ```
-delib.eth.contracts.paths = {
+delib.contracts.paths = {
   solidity: 'path to solidity contracts',
   built: 'path to built contracts',
   addresses: 'path to contract addresses'
@@ -972,7 +972,7 @@ delib.eth.contracts.paths = {
 ```
 
 <a name="Ethereum+contracts+addresses+set"></a>
-#### delib.eth.contracts.addresses.set(name, address)
+#### delib.contracts.addresses.set(name, address)
 Set an address for a contract to use for future transactions. It appends it to the addresses file of that particular contract, or creates it if it doesn't exist.
 
 **Returns**: <code>number</code> - The index of the set address.
@@ -983,7 +983,7 @@ Set an address for a contract to use for future transactions. It appends it to t
 | address | <code>string</code> | The address of the contract |
 
 <a name="Ethereum+contracts+addresses+get"></a>
-#### delib.eth.contracts.addresses.get(name, index)
+#### delib.contracts.addresses.get(name, index)
 Retrieves the addresses file of a contract and gets a deployed contract address based on index. If no index parameter is given it will return the latest address, which is at the bottom of the addresses file.
 
 **Returns**: <code>string</code> - The contract address.
@@ -994,7 +994,7 @@ Retrieves the addresses file of a contract and gets a deployed contract address 
 | index | <code>number</code> | The index of the contract address |
 
 <a name="Ethereum+contracts+addresses+getAll"></a>
-#### delib.eth.contracts.addresses.getAll(name)
+#### delib.contracts.addresses.getAll(name)
 Retrieves the addresses file of a contract and return an array of all its deployed addresses.
 
 **Returns**: <code>Array</code> - An array of deployed contract addresses.
@@ -1004,7 +1004,7 @@ Retrieves the addresses file of a contract and return an array of all its deploy
 | name | <code>string</code> | Name of built contract |
 
 <a name="Ethereum+init"></a>
-#### delib.eth.init(rpcHost, rpcPort) ⇒ <code>Web3</code>
+#### delib.init(rpcHost, rpcPort) ⇒ <code>Web3</code>
 Initializes a RPC connection with an Ethereum node. The RPC provider can be set in the ```delib.js``` config file or you can pass it in as arguments. This needs to be called before performing any methods that interact with an Ethereum node.
 
 **Returns**: <code>Web3</code> - The Web3 object being used as a provider (RPC or IPC).
@@ -1016,10 +1016,10 @@ Initializes a RPC connection with an Ethereum node. The RPC provider can be set 
 
 
 <a name="Ethereum+initIPC"></a>
-#### delib.eth.initIPC(ipcPath) ⇒ <code>Web3</code>
+#### delib.initIPC(ipcPath) ⇒ <code>Web3</code>
 Initializes an IPC connection with an Ethereum node. The IPC provider can be set in the ```delib.js``` config file or you can pass it in as an argument. This needs to be called before using IPC functionality such as creating or unlocking an account. This returns a Web3 object connected via IPC that you call web3.personal and web3.admin methods on.
 
-**Returns**: <code>Web3</code> - The Web3 object delib.eth uses for its IPC connection.  
+**Returns**: <code>Web3</code> - The Web3 object delib uses for its IPC connection.  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1027,13 +1027,13 @@ Initializes an IPC connection with an Ethereum node. The IPC provider can be set
 
 
 <a name="Ethereum+closeIPC"></a>
-#### delib.eth.closeIPC() => <code>boolean</code>
+#### delib.closeIPC() => <code>boolean</code>
 Closes the IPC connection
 
 **Returns** <code>boolean</code> Status of the IPC connection
 
 <a name="Ethereum+checkConnection"></a>
-#### delib.eth.checkConnection(type) => <code>boolean</code>
+#### delib.checkConnection(type) => <code>boolean</code>
 Check the status of a certain connection type (IPC or RPC)
 
 **Returns** <code>boolean</code> Status of the connection.
@@ -1044,7 +1044,7 @@ Check the status of a certain connection type (IPC or RPC)
 
 
 <a name="Ethereum+changeProvider"></a>
-#### delib.eth.changeProvider(type) => <code>boolean</code>
+#### delib.changeProvider(type) => <code>boolean</code>
 Change the provider to use (RPC or IPC). It checks the connection status before switching. The connection will need to be initialized first before switching.
 
 **Returns** <code>boolean</code> If the change went thru.
@@ -1055,7 +1055,7 @@ Change the provider to use (RPC or IPC). It checks the connection status before 
 
 
 <a name="Ethereum+build"></a>
-#### delib.eth.build(contractFiles, contractPath, buildPath)
+#### delib.build(contractFiles, contractPath, buildPath)
 Build a Solidity contract.
 
 **Returns**: <code>Array</code> - Contracts built.
@@ -1068,7 +1068,7 @@ Build a Solidity contract.
 
 
 <a name="Ethereum+builtContract"></a>
-#### delib.eth.builtContract(contractName)
+#### delib.builtContract(contractName)
 Require a built contract file with the project paths being used. It returns an [ether-pudding](#https://github.com/ConsenSys/ether-pudding) contract object.
 
 **Returns**: <code>Contract</code> - Ether-pudding contract object
@@ -1078,8 +1078,8 @@ Require a built contract file with the project paths being used. It returns an [
 | contractName | <code>string</code> | Name of contract |
 
 <a name="Ethereum+deploy"></a>
-#### delib.eth.deploy(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  
-Deploy a built contract. If you have `delib.eth.options` value set to 0 or pass in the option then your gas cost will be automatically estimated. The address is saved in your project's `addresses/` folder and will be used for future contract calls and transactions.
+#### delib.deploy(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  
+Deploy a built contract. If you have `delib.options` value set to 0 or pass in the option then your gas cost will be automatically estimated. The address is saved in your project's `addresses/` folder and will be used for future contract calls and transactions.
 
 **Returns**: <code>Promise</code> - The response is a Contract instance of the deployed instance. You can call methods on it.
 
@@ -1090,7 +1090,7 @@ Deploy a built contract. If you have `delib.eth.options` value set to 0 or pass 
 | options | <code>Object</code> | Transaction options. |
 
 <a name="Ethereum+deploy+estimate"></a>
-#### delib.eth.deploy.estimate(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>number</code>
+#### delib.deploy.estimate(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>number</code>
 Estimate the gas usage for deploying a contract.
 
 **Returns**: <code>Promise</code> - The response contains the estimated gas cost.
@@ -1102,8 +1102,8 @@ Estimate the gas usage for deploying a contract.
 | options | <code>Object</code> | Transaction options. |
 
 <a name="Ethereum+exec"></a>
-#### delib.eth.exec(contractName) ⇒ <code>ContractInstance</code>
-Calls or performs a transaction on a deployed contract. Will take the address provided in the config file. If you have `delib.eth.options` value set to 0 or pass in the option into the contract method call your gas cost will be automatically estimated.
+#### delib.exec(contractName) ⇒ <code>ContractInstance</code>
+Calls or performs a transaction on a deployed contract. Will take the address provided in the config file. If you have `delib.options` value set to 0 or pass in the option into the contract method call your gas cost will be automatically estimated.
 
 **Returns**: <code>Contract</code> - Contract instance that you can call methods with.
 
@@ -1112,7 +1112,7 @@ Calls or performs a transaction on a deployed contract. Will take the address pr
 | contractName | <code>string</code> | Name of deployed contract |
 
 <a name="Ethereum+exec+estimate"></a>
-#### delib.eth.exec(contractName).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
+#### delib.exec(contractName).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
 Calls a deployed contract and methods called on the returned contract will return an estimated gas usage value.
 
 **Returns**: <code>number</code> - Contract instance that you can estimate the gas usage of methods with.
@@ -1122,8 +1122,8 @@ Calls a deployed contract and methods called on the returned contract will retur
 | contractName | <code>string</code> | Name of deployed contract |
 
 <a name="Ethereum+execAt"></a>
-#### delib.eth.execAt(contractName, contractAddress) ⇒ <code>ContractInstance</code>
-Calls a deployed contract at a specific address. If you have `delib.eth.options` value set to 0 or pass it in as an option your gas cost will be automatically estimated.
+#### delib.execAt(contractName, contractAddress) ⇒ <code>ContractInstance</code>
+Calls a deployed contract at a specific address. If you have `delib.options` value set to 0 or pass it in as an option your gas cost will be automatically estimated.
 
 **Returns**: <code>Contract</code> - Contract instance that you can call methods with.
 
@@ -1134,7 +1134,7 @@ Calls a deployed contract at a specific address. If you have `delib.eth.options`
 
 
 <a name="Ethereum+execAt+estimate"></a>
-#### delib.eth.execAt(contractName, contractAddress).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
+#### delib.execAt(contractName, contractAddress).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
 Calls a deployed contract at a specified address and methods called on the contract will return the estimated gas usage.
 
 **Returns**: <code>Contract</code> - Contract instance that you can estimate the gas usage of methods with.
@@ -1146,7 +1146,7 @@ Calls a deployed contract at a specified address and methods called on the contr
 
 
 <a name="Ethereum+events"></a>
-#### delib.eth.events(contractName, eventName, blocksBack, filter) ⇒ <code>Promise</code>
+#### delib.events(contractName, eventName, blocksBack, filter) ⇒ <code>Promise</code>
 Gets the event logs of an event.
 
 **Returns**: <code>Promise</code> => <code>Array</code> - Promise response contains an array event logs.    
@@ -1159,7 +1159,7 @@ Gets the event logs of an event.
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
 
 <a name="Ethereum+eventsAt"></a>
-#### delib.eth.eventsAt(contractName, contractAddress, eventName, blocksBack, filter) ⇒ <code>Promise</code>
+#### delib.eventsAt(contractName, contractAddress, eventName, blocksBack, filter) ⇒ <code>Promise</code>
 Gets the event logs for an event.
 
 **Returns**: <code>Promise</code> => <code>Array</code> - Promise response contains an array event logs.  
@@ -1173,7 +1173,7 @@ Gets the event logs for an event.
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
 
 <a name="Ethereum+watch"></a>
-#### delib.eth.watch(contractName, eventName, filter, callback)
+#### delib.watch(contractName, eventName, filter, callback)
 Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`.
 
 **Returns** <code>Object</code>
@@ -1186,7 +1186,7 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 | callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log |
 
 <a name="Ethereum+watch"></a>
-#### delib.eth.watchAt(contractName, contractAddress, eventName, filter, callback)
+#### delib.watchAt(contractName, contractAddress, eventName, filter, callback)
 Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`.
 
 **Returns** <code>Object</code>
@@ -1200,7 +1200,7 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 | callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log |
 
 <a name="Ethereum+createAccount"></a>
-#### delib.eth.createAccount(password) ⇒ <code>Promise</code>
+#### delib.createAccount(password) ⇒ <code>Promise</code>
 Creates a new Ethereum account. Needs an IPC connection.
 
 **Returns**: <code>Promise</code> => <code>string</code> - Promise response is a string of the newly created account address.  
@@ -1211,7 +1211,7 @@ Creates a new Ethereum account. Needs an IPC connection.
 
 
 <a name="Ethereum+unlockAccount"></a>
-#### delib.eth.unlockAccount(index, password, timeLength) ⇒ <code>boolean</code>
+#### delib.unlockAccount(index, password, timeLength) ⇒ <code>boolean</code>
 Unlocks an Ethereum account. Needs an IPC connection.
 
 **Returns**: <code>Promise</code> => <code>boolean</code> - Promise response is status of whether or not the account got unlocked.
@@ -1223,7 +1223,7 @@ Unlocks an Ethereum account. Needs an IPC connection.
 | timeLength | <code>number</code> | Time in seconds to have account remain unlocked for. |
 
 <a name="Ethereum+getBalance"></a>
-#### delib.eth.getBalance(index, type) ⇒ <code>number</code>
+#### delib.getBalance(index, type) ⇒ <code>number</code>
 Get the Ether balance of an account in a specified denomination.
 
 **Returns**: <code>number</code> - The amount of Ether contained in the account.  
