@@ -22,14 +22,14 @@
     "test": "node ./testing/tests/core.js"
   },
   "dependencies": {
-    "commander": "^2.9.0",
+    "commander": "2.9.0",
     "es6-promisify": "^4.1.0",
     "ether-pudding": "^3.1.2",
     "fs-extra": "^0.30.0",
     "nedb": "^1.8.0",
     "path": "^0.12.7",
     "path-exists": "^3.0.0",
-    "solc": "^0.4.3",
+    "solc": "0.4.12",
     "web3": "0.17.0-alpha",
     "web3_ipc": "1.2.0"
   },

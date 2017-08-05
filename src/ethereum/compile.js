@@ -34,6 +34,8 @@ module.exports = (contractFiles, directoryPath) => {
   const contractsCompiled = {};
   for (let contractName in output.contracts) {
     const out = output.contracts[contractName];
+
+    contractName = contractName.substring(contractName.indexOf(':') + 1, contractName.length);
     contractsCompiled[contractName] = {};
 
     // for ether-pudding
@@ -45,7 +47,6 @@ module.exports = (contractFiles, directoryPath) => {
     contractsCompiled[contractName].runtimeBytecode = out.runtimeBytecode;
     contractsCompiled[contractName].info = {};
     contractsCompiled[contractName].info.abiDefinition = JSON.parse(out.interface);
-
   }
   return contractsCompiled;
 };
