@@ -1,4 +1,4 @@
-delib# Delib
+# Delib
 
 Simple Ethereum framework for DApps and contract management
 
