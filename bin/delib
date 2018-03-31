@@ -11,7 +11,7 @@ const help = require('./../src/cli/help');
 const info = require('./../src/cli/info');
 
 program
-  .version('4.0.5')
+  .version('4.0.6')
   .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
