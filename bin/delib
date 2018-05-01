@@ -71,6 +71,7 @@ program
   .option('-o --contract <path>', 'Relative path to contracts folder')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((files, options) => {
+    console.log(files);
     options = optionActions(options, 'none');
 
     let contractPaths = [];
@@ -123,7 +124,7 @@ program
     options = optionActions(options);
 
     // Check if built contract exists
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);

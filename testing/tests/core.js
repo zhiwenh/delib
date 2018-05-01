@@ -41,6 +41,7 @@ test('Initializing connection', t => {
 test('Building Bank contract', t => {
   delib.build(['Bank', 'BadBank'])
     .then(contracts => {
+      console.log('in tests');
       t.equal(contracts[0], 'BadBank', 'Expect first contract to be BadBank');
       t.equal(contracts[1], 'Bank', 'Expect second contract to be Bank');
       t.end();
