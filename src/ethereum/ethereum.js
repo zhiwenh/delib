@@ -1,7 +1,7 @@
 'use strict';
 const promisify = require('es6-promisify');
 const path = require('path');
-const fs = require('fs-extra');
+const fs = require('fs');
 
 const contracts = require('./contracts');
 const init = require('./init');
@@ -26,7 +26,7 @@ function Ethereum() {
   this.web3; // Web3 object used by library
   this.web3RPC; // Web3 RPC object
   this.web3IPC; // Web3 IPC object
-  this.gasAdjust = 1; // Deploy and exec gas estimate adjustments
+  this.gasAdjust = 0.1; // Deploy and exec gas estimate adjustments
 
   this._connectionType;
   this._provider; // Provider to use for methods
@@ -167,23 +167,19 @@ function Ethereum() {
    * @returns {Contract}
    */
   this.builtContract = (contractName) => {
-    const contractPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
-    let builtContract;
+    const contractPath = path.join(RELATIVE_PATH, this.contracts.paths.built, contractName + '.sol.js');
+    let contract;
     try {
-      builtContract = fs.readJsonSync(contractPath);
+      contract = require(contractPath);
     } catch (e) {
-      console.log(e);
-      // if (e.message.match('Cannot find module') && !) {
-      //   console.log('The contract path');
-      //   console.log(contractPath);
-      //   const absContractPath = path.resolve(contractPath);
-      //   throw new Error('Invalid built contract at: ' + absContractPath);
-      // // } else {
-      // //   throw e;
-      // // }
-      // }
+      if (e.message.match('Cannot find module')) {
+        const absContractPath = path.resolve(contractPath);
+        throw new Error('Invalid built contract at: ' + absContractPath);
+      } else {
+        throw e;
+      }
     }
-    return builtContract;
+    return contract;
   };
 
 
@@ -196,16 +192,10 @@ function Ethereum() {
    */
   this.deploy = (contractName, args, options) => {
     this._checkConnectionError();
-
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
-
-    const builtContract = this.builtContract(contractName);
-    const contract = this.web3.eth.contract(builtContract.abi);
-
-    this.web3.setProvider(this._provider);
-
-    // contract.setProvider(this._provider);
+    const contract = this.builtContract(contractName);
+    contract.setProvider(this._provider);
     var self = this;
 
     return promisify(callback => {
@@ -233,23 +223,12 @@ function Ethereum() {
         promisify(self.web3.eth.getAccounts)()
           .then(accounts => {
             deployOptions.from = deployOptions.from || accounts[deployOptions.account] || accounts[self.account];
-            deployOptions.data = '0x' + builtContract.code;
             args.push(deployOptions);
             const contractInstance = contract.new.apply(contract, args);
-            console.log('contractInstance');
-            console.log(contractInstance);
             return contractInstance;
           })
           .then(instance => {
-
-            // self.web3.eth.getTransactionReceipt(instance.transactionHash, function(receipt) {
-            //   console.log('RECEIPT');
-            //   console.log(receipt);
-            // });
-
-            // console.log('INSTANCE');
-            // console.log(instance);
-            // self.contracts.addresses.set(contractName, instance.address);
+            self.contracts.addresses.set(contractName, instance.address);
             callback(null, instance);
           })
           .catch(err => {
@@ -270,21 +249,17 @@ function Ethereum() {
     this._checkConnectionError();
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
-    const builtContract = this.builtContract(contractName);
-    const contract = this.web3.eth.contract(builtContract.abi);
-
-    this.web3.setProvider(this._provider);
-
-    // contract.setProvider(this._provider);
+    const contract = this.builtContract(contractName);
+    contract.setProvider(this._provider);
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
           options.from = options.from || accounts[options.account] || accounts[this.account];
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = undefined;
-          let bytes = builtContract.unlinked_binary;
-          bytes += (Array.isArray(args)) ? encodeConstructorParams(builtContract.abi, args) : '';
-          transactionOptions.data = '0x' + bytes;
+          let bytes = contract.unlinked_binary;
+          bytes += (Array.isArray(args)) ? encodeConstructorParams(contract.abi, args) : '';
+          transactionOptions.data = bytes;
           return promisify(this.web3.eth.estimateGas)(transactionOptions);
         })
         .then(gasEstimate => {

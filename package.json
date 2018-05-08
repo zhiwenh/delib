@@ -1,7 +1,7 @@
 {
   "name": "delib",
   "author": "Zhiwen Huang <zhiwen555@gmail.com>",
-  "version": "4.0.5",
+  "version": "4.0.7",
   "description": "Simple Ethereum framework for DApps and contract management",
   "keywords": [
     "web3",
@@ -29,11 +29,13 @@
     "nedb": "^1.8.0",
     "path": "^0.12.7",
     "path-exists": "^3.0.0",
-    "solc": "0.4.14",
-    "web3": "0.14.0",
+    "solc": "0.4.15",
+    "web3": "0.17.0-alpha",
     "web3_ipc": "1.2.0"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "web3": "0.17.0-alpha"
+  },
   "devDependencies": {
     "tap-spec": "^4.1.1",
     "tape": "^4.6.3",

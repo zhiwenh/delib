@@ -26,10 +26,6 @@ module.exports = (contractFiles, directoryPath) => {
 
   const output = solc.compile({sources: input}, 1);
 
-  // console.log('in compile, Object.keys(output.contracts)', Object.keys(output.contracts));
-  // console.log('in compile, output');
-  // console.log(output);
-
   if (output.errors) {
     throw new Error('Unable to compile Solidity contract: ' + JSON.stringify(output.errors));
   }
@@ -51,8 +47,6 @@ module.exports = (contractFiles, directoryPath) => {
     contractsCompiled[contractName].runtimeBytecode = out.runtimeBytecode;
     contractsCompiled[contractName].info = {};
     contractsCompiled[contractName].info.abiDefinition = JSON.parse(out.interface);
-
   }
-
   return contractsCompiled;
 };

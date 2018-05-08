@@ -11,7 +11,7 @@ const help = require('./../src/cli/help');
 const info = require('./../src/cli/info');
 
 program
-  .version('4.0.6')
+  .version('4.0.7')
   .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
@@ -71,7 +71,6 @@ program
   .option('-o --contract <path>', 'Relative path to contracts folder')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((files, options) => {
-    console.log(files);
     options = optionActions(options, 'none');
 
     let contractPaths = [];
@@ -124,7 +123,7 @@ program
     options = optionActions(options);
 
     // Check if built contract exists
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);

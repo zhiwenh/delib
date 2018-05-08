@@ -41,7 +41,6 @@ test('Initializing connection', t => {
 test('Building Bank contract', t => {
   delib.build(['Bank', 'BadBank'])
     .then(contracts => {
-      console.log('in tests');
       t.equal(contracts[0], 'BadBank', 'Expect first contract to be BadBank');
       t.equal(contracts[1], 'Bank', 'Expect second contract to be Bank');
       t.end();
@@ -75,7 +74,7 @@ test('Deploying Bank contract with gas estimate', t => {
 test('Deploying Bank contract with no gas estimate', t => {
   delib.init();
 
-  delib.deploy('Bank', [], {gas: 3000000})
+  delib.deploy('Bank', [], {gas: 800000})
     .then(instance => {
       t.notEqual(instance.address, undefined, 'Expect deploy to return an instance with an address property');
       t.end();
@@ -126,7 +125,7 @@ test('Executing Bank contract methods with gas estimate', t => {
 
 test('Executing Bank contract methods with no gas estimate', t => {
   delib.init();
-  const gas = 500000;
+  const gas = 40000;
   delib.deploy('Bank')
     .then(instance => {
       return delib.exec('Bank').deposit({
