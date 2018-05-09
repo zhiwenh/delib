@@ -172,12 +172,7 @@ function Ethereum() {
     try {
       contract = require(contractPath);
     } catch (e) {
-      if (e.message.match('Cannot find module')) {
-        const absContractPath = path.resolve(contractPath);
-        throw new Error('Invalid built contract at: ' + absContractPath);
-      } else {
-        throw e;
-      }
+      throw e;
     }
     return contract;
   };
