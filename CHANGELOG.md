@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 4.1
+* Now using the lastest solc version 0.4.23. The new solc version released breaking changes for contract code. Such as having to declare getters for every function (adding public, private, internal to function declaration) and having to use of constructor() instead of contract name for code run on contract creation. 
+
 ## Version 4.0
 * Removed delib.eth. Now it is just delib.
 * Removed CLI options from config file

@@ -85,7 +85,7 @@ test('Deploying Bank contract with no gas estimate', t => {
     });
 });
 
-xtest('Executing Bank contract methods with gas estimate', t => {
+test('Executing Bank contract methods with gas estimate', t => {
   delib.init();
   delib.deploy('Bank')
     .then(instance => {
