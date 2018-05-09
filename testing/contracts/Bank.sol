@@ -21,25 +21,25 @@ contract Bank is BadBank {
 
   mapping (address => user) bank;
 
-  function deposit() payable {
+  function deposit() public payable {
     if (!bank[msg.sender].init) {
       bank[msg.sender].init = true;
     }
 
     bank[msg.sender].amount += msg.value;
 
-    depositEvent(msg.sender, msg.value);
+    emit depositEvent(msg.sender, msg.value);
   }
 
-  function checkAmount() constant returns (uint) {
+  function checkAmount() public constant returns (uint) {
     return bank[msg.sender].amount;
   }
 
-  function checkAmountEther() constant returns (uint) {
+  function checkAmountEther() public constant returns (uint) {
     return bank[msg.sender].amount;
   }
 
-  function withdraw(uint _withdrawAmount) {
+  function withdraw(uint _withdrawAmount) public {
     if (bank[msg.sender].init == false) return;
     if (bank[msg.sender].amount < _withdrawAmount && _withdrawAmount != 0) return;
 
@@ -52,7 +52,7 @@ contract Bank is BadBank {
     bank[msg.sender].amount = bank[msg.sender].amount - _withdrawAmount;
 
     if (msg.sender.send(_withdrawAmount)) {
-      withdrawEvent(msg.sender, _withdrawAmount);
+      emit withdrawEvent(msg.sender, _withdrawAmount);
     } else {
       bank[msg.sender].amount = amount;
     }

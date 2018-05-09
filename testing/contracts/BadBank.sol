@@ -8,16 +8,16 @@ contract BadBank {
 
   address admin;
 
-  function BadBank() {
+  constructor() public {
     admin = msg.sender;
   }
 
-  function steal() {
+  function steal() public {
     if (msg.sender == admin) {
-      uint amount = this.balance;
+      uint amount = address(this).balance;
 
-      if (msg.sender.send(this.balance)) {
-        stealEvent(amount);
+      if (msg.sender.send(address(this).balance)) {
+        emit stealEvent(amount);
       }
     }
   }
