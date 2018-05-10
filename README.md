@@ -45,7 +45,7 @@ Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. 
 Install globally to use the command tool.
 
 ```
--> npm install -g delib
+npm install -g delib
 ```
 
 ### Local install
@@ -53,7 +53,7 @@ Install globally to use the command tool.
 Install locally to require the library.
 
 ```
--> npm install delib --save
+npm install delib --save
 ```
 
 Then require the library in your scripts.
@@ -67,7 +67,7 @@ const delib = require('delib');
 To create a project call the following in the command line.
 
 ```
--> delib init
+delib init
 ```
 
 <a name="projectStructure"></a>
@@ -122,7 +122,7 @@ Delib can be used outside a project. Outside a project file paths will be relati
 Your contract's deployed addresses are saved in a plain text file with a file name of `ContractnameAddresses`. Each address is separated by a new line, and the most recent address is at the bottom of the list. The library and command tool use that address when no address is specified and you can manually add your own addresses to this file.
 
 ### Development node
-Please use [devchain](https://www.npmjs.com/package/devchain) for your Ethereum development node. It gives you a development geth server and helps you create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it automates mining and account Ether distribution. To install:
+A good choice would be [devchain](https://www.npmjs.com/package/devchain) for your Ethereum development node. It gives you a development geth server and helps you create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it automates mining and account Ether distribution. To install:
 
 ```
 npm install -g devchain
@@ -176,7 +176,7 @@ The default transaction options for the commands are located in ```delib.js```. 
 Build a Solidity contract with the file name ```Contract.sol```.
 
 ```
--> delib build Contract
+delib build Contract
 ```
 
 ### Deploy contract
@@ -184,7 +184,7 @@ Build a Solidity contract with the file name ```Contract.sol```.
 
 Deploy a contract and pass in two arguments for its constructor. If no gas amount is given it will be estimated for you.
 ```
--> delib deploy Contract hello 30
+delib deploy Contract hello 30
 ```
 
 ### Display contract info
@@ -192,7 +192,7 @@ Deploy a contract and pass in two arguments for its constructor. If no gas amoun
 
 Show all the contract methods along with their inputs and outputs, contract events, and the current address being used. Use this to not have to constantly reference your `.sol` contract file.
 ```
--> delib info Contract
+delib info Contract
 ```
 
 ### Execute contract method
@@ -200,13 +200,13 @@ Show all the contract methods along with their inputs and outputs, contract even
 
 Execute the method `setNumbers` on a deployed contract and pass in two numbers. The transaction options of 10000 gas with a gas value of 50000 are set as options. If no gas amount is given it will be estimated for you.
 ```
--> delib exec Contract setNumbers 10 20 --gas 10000 --gasprice 50000
+delib exec Contract setNumbers 10 20 --gas 10000 --gasprice 50000
 ```
 
 If you only wish to call the method, which uses no gas because it doesn't change blockchain state, pass in the option `--call`. Labeling your Solidity method with constant makes it call automatically.
 
 ```
--> delib exec Contract getNumbers --call
+delib exec Contract getNumbers --call
 ```
 
 ### Get the logs of an event
@@ -214,12 +214,12 @@ If you only wish to call the method, which uses no gas because it doesn't change
 
 Get all the logs of an event called `numbersEvent`.
 ```
--> delib events Contract numbersEvent all
+delib events Contract numbersEvent all
 ```
 
 Get the logs from the last 10 blocks.
 ```
--> delib events Contract numbersEvent 10
+delib events Contract numbersEvent 10
 ```
 
 ### Watch for events
@@ -227,7 +227,7 @@ Get the logs from the last 10 blocks.
 
 Watch for events from `lettersEvent`.
 ```
--> delib watch Contract lettersEvent
+delib watch Contract lettersEvent
 ```
 
 ### Set the address of a contract
@@ -236,7 +236,7 @@ Watch for events from `lettersEvent`.
 Set the address of a contract to use. This will set its address for both the command tool and library until another contract is deployed.
 
 ```
--> delib set Contract 0xa9b15bfe1d4e7bed407a011e54af36462fa0e067
+delib set Contract 0xa9b15bfe1d4e7bed407a011e54af36462fa0e067
 ```
 
 ### Get account balance
@@ -245,13 +245,13 @@ Set the address of a contract to use. This will set its address for both the com
 Get the Ether balance of your first account.
 
 ```
--> delib balance 0
+delib balance 0
 ```
 
 Get the wei balance of your second account.
 
 ```
--> delib balance 1 wei
+delib balance 1 wei
 ```
 
 ### Create an account
@@ -260,7 +260,7 @@ Get the wei balance of your second account.
 Create an account with the password "hunter1".
 
 ```
--> delib create hunter1
+delib create hunter1
 ```
 
 ### Unlock an account
@@ -269,7 +269,7 @@ Create an account with the password "hunter1".
 Unlock your first account for 10000 seconds.
 
 ```
--> delib unlock 0 hunter1 10000
+delib unlock 0 hunter1 10000
 ```
 
 ## [Command Tool API Link](#Cli+api)
@@ -646,13 +646,13 @@ contract Messages {
 
 Build ```Messages.sol``` with the command tool.
 ```
--> delib build Messages
+delib build Messages
 ```
 A file called ```Messages.sol.js``` will be created in the `built/` folder.
 
 Deploy Messages using a command with arguments for the constructor. Gas will be estimated for you.
 ```
--> delib deploy Messages hello
+delib deploy Messages hello
 ```
 A file called ```MessagesAddresss``` will be created in your `addresses/` folder with the deployed contract's address.
 
@@ -694,19 +694,19 @@ Then call methods on Messages in the command line.
 
 
 ```
--> delib exec Messages getMessage
+delib exec Messages getMessage
 coffee
 ```
 
 Gas will be estimated for the following transaction.
 
 ```
--> delib exec Messages setMessage apples
+delib exec Messages setMessage apples
 Transaction response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a68592209b
 ```
 
 ```
--> delib exec Messages getMessage
+delib exec Messages getMessage
 apples
 ```
 
