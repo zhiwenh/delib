@@ -619,18 +619,25 @@ Initialize the project structure.
 -> delib init
 ```
 
+Install the delib package
+```
+-> npm install delib --save
+```
+
 Create a contract file called ```Messages.sol``` in the `contracts/` folder.
 ```
+pragma solidity 0.4.23;
+
 contract Messages {
   address owner;
   string message;
 
-  function Messages(string _message) {
+  constructor(string _message) public {
     owner = msg.sender;
     message = _message;
   }
 
-  function getOwner() constant returns (address) {
+  function getOwner() public constant returns (address) {
     return owner;
   }
 
@@ -638,7 +645,7 @@ contract Messages {
     message = _message;
   }
 
-  function getMessage() constant returns (string) {
+  function getMessage() public constant returns (string) {
     return message;
   }
 }
@@ -652,7 +659,7 @@ A file called ```Messages.sol.js``` will be created in the `built/` folder.
 
 Deploy Messages using a command with arguments for the constructor. Gas will be estimated for you.
 ```
-delib deploy Messages hello
+delib deploy Messages 'hello'
 ```
 A file called ```MessagesAddresss``` will be created in your `addresses/` folder with the deployed contract's address.
 
