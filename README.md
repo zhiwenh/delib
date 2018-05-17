@@ -18,7 +18,7 @@ Delib is designed to be easy to learn and allow freedom when developing with Eth
   * [Usage](#usage)
   * [Command Tool](#Cli)
   * [Library](#Ethereum)
-  * [Examples](#examples)
+  * [Example](#example)
   * [Support](#support)
   * [Command Tool API](#Cli+api)
   * [Library API](#Ethereum+api)
@@ -609,26 +609,30 @@ delib.unlockAccount(1, 'hunter2', 10000)
 ## [Library API Link](#Ethereum+api)
 
 
-<a name="examples"></a>
-# Examples
+<a name="example"></a>
+# Example
 
-## Example 1
 
 Initialize the project structure.
 ```
--> delib init
+delib init
 ```
 
 Install the delib package
 ```
--> npm install delib --save
+npm install delib --save
 ```
 
-Create a contract file called ```Messages.sol``` in the `contracts/` folder.
+Create a contract file called ```Messages.sol``` in the `contracts/` folder. This contract sets and stores a simple message that can be watched for or retrieved.
 ```
 pragma solidity 0.4.23;
 
 contract Messages {
+
+  event messageEvent(
+    string _message
+  );
+
   address owner;
   string message;
 
@@ -643,6 +647,7 @@ contract Messages {
 
   function setMessage(string _message) public {
     message = _message;
+    emit messageEvent(_message);
   }
 
   function getMessage() public constant returns (string) {
@@ -663,7 +668,13 @@ delib deploy Messages 'hello'
 ```
 A file called ```MessagesAddresss``` will be created in your `addresses/` folder with the deployed contract's address.
 
-In your scripts.
+Watch for a message being set:
+```
+delib watch Messages messageEvent
+```
+
+Create a file called `script.js`
+
 ```
 const delib = require('delib');
 
@@ -697,25 +708,34 @@ delib.exec('Messages').getMessage()
     console.log(err);
   });
 ```
-Then call methods on Messages in the command line.
+This script sets a message on the contract and calls it again to get the message saved.
 
+Upon running the script, your command for watching for messages set should show:
+```
+Watching for events:
+{ _message: 'coffee' }
+```
+
+You can then call methods on Messages in the command line.
 
 ```
 delib exec Messages getMessage
-coffee
+Response: coffee
 ```
 
-Gas will be estimated for the following transaction.
+Then you can set another message with the command line. Gas will be estimated for the following transaction.
 
 ```
 delib exec Messages setMessage apples
-Transaction response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a68592209b
+Response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a68592209b
 ```
 
 ```
 delib exec Messages getMessage
-apples
+Response: apples
 ```
+
+
 
 <a name="support"></a>
 # Support
