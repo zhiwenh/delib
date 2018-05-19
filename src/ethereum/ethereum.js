@@ -13,7 +13,7 @@ const optionsMerge = require('./utils/optionsmerge');
 const optionsFilter = require('./utils/optionsfilter');
 const optionsFormat = require('./utils/optionsformat');
 const logFilter = require('./utils/logfilter');
-const coder = require('./web3/solidity/coder');
+const coder = require('web3/lib/solidity/coder');
 const config = require('./../config/config.js');
 
 // Path from this file to your project's root or from where you run your script.
