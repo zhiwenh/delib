@@ -26,7 +26,7 @@ function Ethereum() {
   this.web3; // Web3 object used by library
   this.web3RPC; // Web3 RPC object
   this.web3IPC; // Web3 IPC object
-  this.gasAdjust = 0.1; // Deploy and exec gas estimate adjustments
+  this.gasAdjust = 0; // Deploy and exec gas estimate adjustments
 
   this._connectionType;
   this._provider; // Provider to use for methods
