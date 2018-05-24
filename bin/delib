@@ -9,6 +9,7 @@ const config = require('./../src/config/config');
 const optionActions = require('./../src/cli/optionactions');
 const help = require('./../src/cli/help');
 const info = require('./../src/cli/info');
+const contracts = require('./../src/cli/contracts');
 
 program
   .version('4.1.7')
@@ -318,6 +319,13 @@ program
       }
     });
   });
+
+/** Retrieves a list of all contracts */
+program
+  .command('contracts')
+  .description('Retrieves a list of all contracts')
+  .option('-b --built <path>', 'Relative path to built contracts folder')
+  .action(contracts);
 
 /** List a contracts info */
 program
