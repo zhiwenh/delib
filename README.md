@@ -753,6 +753,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
     * [exec `<contractName> <methodName> [args...]`](#Cli+exec)
     * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
     * [watch `<contractName> <eventName>`](#Cli+watch)
+    * [contracts](#Cli+contracts)
     * [info `<contractName>`](#Cli+info)
     * [set `<contractName> <contractAddress>`](#Cli+set)
     * [balance `<accountIndex> [denomination]`](#Cli+balance)
@@ -851,6 +852,13 @@ Watch for events
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | Relative path to IPC host |
+
+#### delib contracts `-b --built <path>`
+Retrieves a list of all built contracts.
+
+| Params | Type | Description |
+| --- | --- | --- |
+| `-b --built` | `<path>` | Relative path to built contracts folder |
 
 #### delib info `<contractName>, -b --built <path>, -a --address <path>`
 Show contract info such as methods, events, and currently used address. It displays the method inputs, outputs, constant modifier, and payable modifier. It also displays the event args.
