@@ -853,6 +853,7 @@ Watch for events
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | Relative path to IPC host |
 
+<a name="Cli+contracts"></a>
 #### delib contracts `-b --built <path>`
 Retrieves a list of all built contracts.
 
@@ -860,6 +861,7 @@ Retrieves a list of all built contracts.
 | --- | --- | --- |
 | `-b --built` | `<path>` | Relative path to built contracts folder |
 
+<a name="Cli+info"></a>
 #### delib info `<contractName>, -b --built <path>, -a --address <path>`
 Show contract info such as methods, events, and currently used address. It displays the method inputs, outputs, constant modifier, and payable modifier. It also displays the event args.
 
