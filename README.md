@@ -356,7 +356,6 @@ delib.checkConnection('ipc');
 ### Adjust options
 **delib.account**  
 **delib.options**  
-**delib.gasAdjust**
 
 To chooose a default account index for transactions use `delib.account`. The index corresponds to the `web3.eth.accounts` array. By default it is 0.
 
@@ -386,8 +385,6 @@ delib.options = {
   account: undefined,
   maxGas: undefined  
 };
-
-delib.gasAdjust = 0.1;
 ```
 
 ### Build contracts
