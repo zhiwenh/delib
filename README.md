@@ -968,7 +968,7 @@ The Web3 object used for IPC connections. Will first need to initialize an IPC c
 
 <a name="Ethereum+gasAdjust"></a>
 #### delib.gasAdjust
-The amount to adjust gas when doing automatic gas estimates. Default is 0.1. It's calculated by this formula:
+The amount to adjust gas when doing automatic gas estimates. Default is 0. It's calculated by this formula:
 ```
 gasEstimate = gasEstimate + gasEstimate * gasAdjust
 ```
