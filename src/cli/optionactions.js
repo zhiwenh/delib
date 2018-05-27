@@ -38,7 +38,7 @@ module.exports = function(rawOptions, connection) {
 
   if (rawOptions.from) options.from = rawOptions.from;
   if (rawOptions.to) options.to = rawOptions.to;
-  if (rawOptions.value) options.value = Number(eth.web3.toWei(rawOptions.value, 'ether').toString()); // Ether to wei
+  if (rawOptions.value) options.value = rawOptions.value;
   if (rawOptions.gas) options.gas = rawOptions.gas;
   if (rawOptions.gasprice) options.gasPrice = rawOptions.gasprice;
   if (rawOptions.data) options.data = rawOptions.data;

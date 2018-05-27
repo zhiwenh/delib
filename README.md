@@ -27,7 +27,7 @@ Delib is designed to be easy to learn and allow freedom when developing with Eth
 
 ## Requirements
 
-You need to have an Ethereum node to connect with. Delib has currently only been tested with [geth](https://github.com/ethereum/go-ethereum/wiki/geth). The Mac OSX install commands with brew are shown below. [Click here](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) for additional install information.
+You need to have an Ethereum node to connect with. Delib uses [geth](https://github.com/ethereum/go-ethereum/wiki/geth). The Mac OSX install commands with brew are shown below. [Click here](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) for additional install information.
 
 ```
 brew tap ethereum/ethereum
@@ -163,7 +163,7 @@ The default transaction options for the commands are located in ```delib.js```. 
 | `-i --account` | `<index>` | Account index to use for transaction |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
-| `-v --value` | `<ether>` | Value transaction option in Ether. Converts the value to wei |
+| `-v --value` | `<ether>` | Value transaction option in wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
@@ -368,7 +368,7 @@ delib.account = 0;
 
 You can pass in an `account` option in your deploy or contract method call and it'll use that account index for your transaction.
 
-If a `gas` option of 0 is specified gas will be estimated for you, and `maxGas` is the max gas allowed in gas estimates. The estimate is adjusted before being used, and the value can be accessed with `delib.gasAdjust`. Its default value is 0.1.
+If a `gas` option of 0 is specified gas will be estimated for you, and `maxGas` is the max gas allowed in gas estimates.
 
 
 ```
@@ -792,7 +792,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-i --account` | `<index>` | Account to use for transaction. Takes the account index |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
-| `-v --value` | `<ether>` | Value transaction option in Ether. Converts the value to wei |
+| `-v --value` | `<ether>` | Value transaction option in wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
@@ -815,7 +815,7 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 | `-i --account` | `<index>` | Account to use for transaction. Takes the account index |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
-| `-v --value` | `<ether>` | Value transaction option in Ether. Converts the value to wei |
+| `-v --value` | `<ether>` | Value transaction option in wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
