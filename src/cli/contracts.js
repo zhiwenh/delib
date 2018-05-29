@@ -10,7 +10,7 @@ const config = require('./../config/config');
  */
 module.exports = (options) => {
   optionActions(options, 'none');
-  const builtPath = path.resolve(config.paths.built);
+  const builtPath = path.resolve(config.projectRoot, config.paths.built);
   let contracts = fs.readdirSync(builtPath);
   contracts = contracts.filter(contract => {
     return contract.endsWith('.sol.js');

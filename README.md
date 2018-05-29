@@ -187,6 +187,14 @@ Deploy a contract and pass in two arguments for its constructor. If no gas amoun
 delib deploy Contract hello 30
 ```
 
+### Display built contracts
+**delib contracts**
+
+Displays all built contracts
+```
+delib contracts
+```
+
 ### Display contract info
 **delib info `<contractName>`**
 
