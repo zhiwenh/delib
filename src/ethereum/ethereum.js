@@ -187,6 +187,7 @@ function Ethereum() {
    */
   this.deploy = (contractName, args, options) => {
     this._checkConnectionError();
+    if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
     const contract = this.builtContract(contractName);
@@ -242,6 +243,7 @@ function Ethereum() {
    */
   this.deploy.estimate = (contractName, args, options) => {
     this._checkConnectionError();
+    if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
     const contract = this.builtContract(contractName);
