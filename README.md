@@ -34,7 +34,7 @@ brew tap ethereum/ethereum
 brew install ethereum
 ```
 
-Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. Delib installs it as a dependency and also as a peer dependency for your built contract files. The current web3 version is 0.17.0-beta.
+Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. Delib installs it as a dependency and also as a peer dependency for your built contract files.
 
 <a name="install"></a>
 

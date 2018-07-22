@@ -27,7 +27,7 @@ module.exports = (contractFiles, directoryPath) => {
   const output = solc.compile({sources: input}, 1);
 
   if (output.errors) {
-    throw new Error('Unable to compile Solidity contract: ' + JSON.stringify(output.errors));
+    console.log(output.errors);
   }
 
   // to have contract data in the proper format
