@@ -107,7 +107,7 @@ test('Executing Bank contract methods with gas estimate', t => {
     })
     .then(amount => {
       t.equal(Number(amount), 4, 'Expect exec.call checkAmount method to return 4');
-      return delib.exec('Bank').withdraw(0);
+      return delib.exec('Bank').withdraw(4, {gas: 100000});
     })
     .then(tx => {
       t.ok(tx, 'Expect withdraw method to return a tx response');
@@ -149,13 +149,14 @@ test('Executing Bank contract methods with no gas estimate', t => {
 
 test('Getting Bank contract event logs', t => {
   delib.init();
+  const gas = 100000;
 
   delib.deploy('Bank')
     .then(instance => {
       const promises = [
-        delib.exec('Bank').deposit({value: 3, account: 0}),
-        delib.exec('Bank').deposit({value: 4, account: 0}),
-        delib.exec('Bank').deposit({value: 5, account: 0}),
+        delib.exec('Bank').deposit({value: 3, account: 0, gas: gas}),
+        delib.exec('Bank').deposit({value: 4, account: 0, gas: gas}),
+        delib.exec('Bank').deposit({value: 5, account: 0, gas: gas}),
       ];
 
       console.log('    - Executing deposit 9 times');
@@ -163,27 +164,27 @@ test('Getting Bank contract event logs', t => {
     })
     .then(txs => {
       const promises = [
-        delib.exec('Bank').deposit({value: 6, account: 0}),
-        delib.exec('Bank').deposit({value: 3, account: 1}),
-        delib.exec('Bank').deposit({value: 4, account: 1}),
+        delib.exec('Bank').deposit({value: 6, account: 0, gas: gas}),
+        delib.exec('Bank').deposit({value: 3, account: 1, gas: gas}),
+        delib.exec('Bank').deposit({value: 4, account: 1, gas: gas}),
       ];
 
       return Promise.all(promises);
     })
     .then(txs => {
       const promises = [
-        delib.exec('Bank').deposit({value: 5, account: 1}),
-        delib.exec('Bank').deposit({value: 3, account: 2}),
-        delib.exec('Bank').deposit({value: 4, account: 2}),
+        delib.exec('Bank').deposit({value: 5, account: 1, gas: gas}),
+        delib.exec('Bank').deposit({value: 3, account: 2, gas: gas}),
+        delib.exec('Bank').deposit({value: 4, account: 2, gas: gas}),
       ];
       return Promise.all(promises);
     })
     .then(txs => {
 
       const promises = [
-        delib.exec('Bank').withdraw(0, {account: 0}),
-        delib.exec('Bank').withdraw(0, {account: 1}),
-        delib.exec('Bank').withdraw(0, {account: 2}),
+        delib.exec('Bank').withdraw(0, {account: 0, gas: gas}),
+        delib.exec('Bank').withdraw(0, {account: 1, gas: gas}),
+        delib.exec('Bank').withdraw(0, {account: 2, gas: gas}),
       ];
 
       console.log('    - Executing withdraw 3 times');
@@ -265,6 +266,8 @@ test('Watching for Bank contract event logs', t => {
   const depositLogs = [];
   const withdrawLogs = [];
   const web3 = delib.init();
+  const gas = 100000;
+
   let withdrawWatch;
   let depositWatch;
   delib.deploy('Bank')
@@ -303,25 +306,25 @@ test('Watching for Bank contract event logs', t => {
 
       console.log('    - Performing deposits and withdraws');
 
-      return delib.exec('Bank').deposit({value: 10});
+      return delib.exec('Bank').deposit({value: 10, gas: gas});
     })
     .then((tx) => {
-      return delib.exec('Bank').withdraw(10);
+      return delib.exec('Bank').withdraw(10, {gas: gas});
     })
     .then((tx) => {
-      return delib.exec('Bank').deposit({value: 3});
+      return delib.exec('Bank').deposit({value: 3, gas: gas});
     })
     .then((tx) => {
-      return delib.exec('Bank').deposit({value: 4});
+      return delib.exec('Bank').deposit({value: 4, gas: gas});
     })
     .then((tx) => {
-      return delib.exec('Bank').withdraw(4);
+      return delib.exec('Bank').withdraw(4, {gas: gas});
     })
     .then((tx) => {
-      return delib.exec('Bank').withdraw(3);
+      return delib.exec('Bank').withdraw(3, {gas: gas});
     })
     .then(tx => {
-      return delib.exec('Bank').withdraw(1);
+      return delib.exec('Bank').withdraw(1, {gas: gas});
     })
     .then((tx) => {
       t.equal(depositLogs.length, 2, 'Expect 2 deposit logs');

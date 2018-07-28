@@ -1,12 +1,12 @@
 'use strict';
 const promisify = require('es6-promisify');
 const pathExists = require('path-exists').sync;
+const path = require('path');
 /*
   @ contractFiles - array - an array of contract.sol
   @ directoryPath - string - path where contract files are located. Optional. Will be taken from config
 */
 module.exports = promisify((contractFiles, contractPath, buildPath, callback) => {
-  const Pudding = require('ether-pudding');
   const fs = require('fs');
   const compile = require('./compile.js');
   const contractsCompiled = compile(contractFiles, contractPath);
@@ -14,15 +14,18 @@ module.exports = promisify((contractFiles, contractPath, buildPath, callback) =>
   if (!pathExists(buildPath)) {
     fs.mkdirSync(buildPath);
   }
-  Pudding.saveAll(contractsCompiled, buildPath)
-    .then(() => {
-      const contractNames = [];
-      for (let contractName in contractsCompiled) {
-        contractNames.push(contractName);
-      }
-      callback(null, contractNames);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
+
+  const contractNames = [];
+
+  for (let contractName in contractsCompiled) {
+    const contractCompiled = contractsCompiled[contractName];
+    const contractCompiledString = JSON.stringify(contractCompiled, null, ' ');
+
+    contractNames.push(contractName);
+    const fileBuildPath = path.join(buildPath, contractName + '.json');
+
+    fs.writeFileSync(fileBuildPath, contractCompiledString);
+  }
+
+  callback(null, contractNames);
 });

@@ -25,7 +25,7 @@ module.exports = {
     options: {
       account: 0, // Account index to use for transactions
       from: null,  // Replaces account index
-      value: null, // Value in Ether. It gets converted to wei
+      value: null, // Value in wei
       gas: null, // Estimated if not specified
       gasprice: null, // Mean network gas price if not specified
       maxgas: null // Max gas allowed when estimating

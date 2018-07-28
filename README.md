@@ -34,7 +34,7 @@ brew tap ethereum/ethereum
 brew install ethereum
 ```
 
-Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.17.0-alpha. Delib installs it as a dependency and also as a peer dependency for your built contract files.
+Delib uses [npm web3](https://www.npmjs.com/package/web3)
 
 <a name="install"></a>
 
@@ -128,7 +128,7 @@ A good choice would be [devchain](https://www.npmjs.com/package/devchain) for yo
 npm install -g devchain
 ```
 
-Another option is [testrpc](https://github.com/ethereumjs/testrpc). It performs transaction instantaneously but has issues with estimating gas costs and getting/watching for events with Delib. To install:
+Another option is [testrpc](https://github.com/ethereumjs/testrpc).
 
 ```
 npm install -g ethereumjs-testrpc
@@ -665,7 +665,7 @@ Build ```Messages.sol``` with the command tool.
 ```
 delib build Messages
 ```
-A file called ```Messages.sol.js``` will be created in the `built/` folder.
+A file called ```Messages.json``` will be created in the `built/` folder.
 
 Deploy Messages using a command with arguments for the constructor. Gas will be estimated for you.
 ```

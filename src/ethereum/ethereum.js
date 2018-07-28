@@ -2,6 +2,7 @@
 const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
+const truffleContract = require('truffle-contract');
 
 const contracts = require('./contracts');
 const init = require('./init');
@@ -15,6 +16,7 @@ const optionsFormat = require('./utils/optionsformat');
 const logFilter = require('./utils/logfilter');
 const coder = require('web3/lib/solidity/coder');
 const config = require('./../config/config.js');
+
 
 // Path from this file to your project's root or from where you run your script.
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
@@ -167,10 +169,13 @@ function Ethereum() {
    * @returns {Contract}
    */
   this.builtContract = (contractName) => {
-    const contractPath = path.join(RELATIVE_PATH, this.contracts.paths.built, contractName + '.sol.js');
+    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
+
     let contract;
     try {
-      contract = require(contractPath);
+      const contractJSONString = fs.readFileSync(contractJSONPath);
+      const contractInfo = JSON.parse(contractJSONString);
+      contract = truffleContract(contractInfo);
     } catch (e) {
       throw e;
     }

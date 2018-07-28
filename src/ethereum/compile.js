@@ -38,15 +38,8 @@ module.exports = (contractFiles, directoryPath) => {
     contractName = contractName.substring(contractName.indexOf(':') + 1, contractName.length);
     contractsCompiled[contractName] = {};
 
-    // for ether-pudding
     contractsCompiled[contractName].unlinked_binary = out.bytecode;
     contractsCompiled[contractName].abi = JSON.parse(out.interface);
-
-    // for web3
-    contractsCompiled[contractName].code = out.bytecode;
-    contractsCompiled[contractName].runtimeBytecode = out.runtimeBytecode;
-    contractsCompiled[contractName].info = {};
-    contractsCompiled[contractName].info.abiDefinition = JSON.parse(out.interface);
   }
   return contractsCompiled;
 };
