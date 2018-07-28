@@ -34,7 +34,7 @@ brew tap ethereum/ethereum
 brew install ethereum
 ```
 
-Delib uses [npm web3](https://www.npmjs.com/package/web3)
+Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.20.
 
 <a name="install"></a>
 
