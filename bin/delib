@@ -12,7 +12,7 @@ const info = require('./../src/cli/info');
 const contracts = require('./../src/cli/contracts');
 
 program
-  .version('4.1.15')
+  .version('4.1.16')
   .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
@@ -203,7 +203,7 @@ program
 
     methodPromise
       .then(txRes => {
-        console.log('Response:', txRes);
+        console.log('Response:', txRes.tx);
         delib.closeIPC();
       })
       .catch(err => {
