@@ -12,7 +12,7 @@ const info = require('./../src/cli/info');
 const contracts = require('./../src/cli/contracts');
 
 program
-  .version('4.1.16')
+  .version('4.1.17')
   .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
@@ -124,7 +124,7 @@ program
     options = optionActions(options);
 
     // Check if built contract exists
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -169,7 +169,7 @@ program
     options = optionActions(options);
 
     // Check if built contract exists
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -203,7 +203,7 @@ program
 
     methodPromise
       .then(txRes => {
-        console.log('Response:', txRes.tx);
+        console.log('Response:', txRes);
         delib.closeIPC();
       })
       .catch(err => {
@@ -226,7 +226,7 @@ program
   .action((contractName, eventName, blocksBack, options) => {
     optionActions(options);
 
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -282,7 +282,7 @@ program
   .action((contractName, eventName, options) => {
     optionActions(options);
 
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.sol.js');
+    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
