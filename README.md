@@ -76,7 +76,7 @@ The project is structured like this:
 ```
 project/
 ├── addresses/        - (addresses of deployed contracts)
-├── built/            - (built Solidity contracts .sol.js)
+├── built/            - (built Solidity contracts)
 ├── contracts/        - (Solidity contracts .sol)
 ├── delib.js/         - (delib config file)
 ```
