@@ -134,9 +134,9 @@ program
 
     console.log('Deploying:', builtPath);
     delib.deploy(contractName, args, options)
-      .then(instance => {
+      .then((contractAddress) => {
         // console.log('Address path:', path.join(config.projectRoot, delib.contracts.paths.address));
-        console.log('Contract address:', instance.address);
+        console.log('Contract address:', contractAddress);
         delib.closeIPC();
       })
       .catch(err => {
@@ -177,11 +177,13 @@ program
       return;
     }
 
+    const contractAddress = delib.contracts.addresses.get(contractName, 0);
+
     // Check if contract method exists. The returned contract instance has custom methods. The actual methods are __methodName
-    const contractInstance = delib.exec(contractName);
-
-    const abis = contractInstance.abi;
-
+    const contractInstance = delib.exec(contractName, contractAddress);
+    console.log('contractInstance', contractInstance);
+    const abis = contractInstance.abi ;
+    console.log(abis);
     function checkMethod(method, abis) {
       for (let i = 0; i < abis.length; i++) {
         if (abis[i].name === method && abis[i].type === 'function') {
@@ -199,7 +201,7 @@ program
     }
 
     args.push(options);
-    const methodPromise = !callOption ? contractInstance[method].apply(this, args) : contractInstance.call[method].apply(this, args);
+    const methodPromise = !callOption ? contractInstance.methods[method].apply(this, args) : contractInstance.call[method].apply(this, args);
 
     methodPromise
       .then(txRes => {
@@ -235,22 +237,22 @@ program
     }
 
     // Check if event exists
-    const contract = delib.builtContract(contractName);
+    const contract = delib.builtContractExec(contractName);
     const contractAddress = delib.contracts.addresses.get(contractName);
-    const contractInstance = contract.at(contractAddress);
-    const abis = contractInstance.abi;
-
-    function checkEvent(eventName, abis) {
-      if (eventName === 'allEvents') return true;
-      for (let i = 0; i < abis.length; i++) {
-        if (abis[i].name === eventName && abis[i].type === 'event') {
+    console.log(contract);
+    const events = contract.events;
+    console.log(events);
+    function checkEvent(eventName, events) {
+      for (let key in events) {
+        if (key === eventName) {
           return true;
         }
       }
+
       return false;
     }
 
-    if (!checkEvent(eventName, abis)) {
+    if (!checkEvent(eventName, events)) {
       console.log('');
       console.log('  \'' + eventName + '\' is not a valid', contractName, 'event');
       console.log('');
@@ -291,27 +293,27 @@ program
     }
 
     // Check if event exists
-    const contract = delib.builtContract(contractName);
+    const contract = delib.builtContractExec(contractName);
     const contractAddress = delib.contracts.addresses.get(contractName);
-    const contractInstance = contract.at(contractAddress);
-    const abis = contractInstance.abi;
+    const events = contract.events;
 
-    function checkEvent(eventName, abis) {
-      if (eventName === 'allEvents') return true;
-      for (let i = 0; i < abis.length; i++) {
-        if (abis[i].name === eventName && abis[i].type === 'event') {
+    function checkEvent(eventName, events) {
+      for (let key in events) {
+        if (key === eventName) {
           return true;
         }
       }
+
       return false;
     }
 
-    if (!checkEvent(eventName, abis)) {
+    if (!checkEvent(eventName, events)) {
       console.log('');
       console.log('  \'' + eventName + '\' is not a valid', contractName, 'event');
       console.log('');
       return;
     }
+
     console.log('Watching for events:');
     delib.watchAt(contractName, contractAddress, eventName, (err, log) => {
       if (!err) {

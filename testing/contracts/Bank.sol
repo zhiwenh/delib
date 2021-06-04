@@ -1,4 +1,5 @@
-pragma solidity ^0.4.3;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
 import "BadBank.sol";
 
@@ -31,11 +32,11 @@ contract Bank is BadBank {
     emit depositEvent(msg.sender, msg.value);
   }
 
-  function checkAmount() public constant returns (uint) {
+  function checkAmount() public view returns (uint) {
     return bank[msg.sender].amount;
   }
 
-  function checkAmountEther() public constant returns (uint) {
+  function checkAmountEther() public view returns (uint) {
     return bank[msg.sender].amount;
   }
 
@@ -51,7 +52,7 @@ contract Bank is BadBank {
 
     bank[msg.sender].amount = bank[msg.sender].amount - _withdrawAmount;
 
-    if (msg.sender.send(_withdrawAmount)) {
+    if (payable(msg.sender).send(_withdrawAmount)) {
       emit withdrawEvent(msg.sender, _withdrawAmount);
     } else {
       bank[msg.sender].amount = amount;

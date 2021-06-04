@@ -3,7 +3,6 @@ const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
 const truffleContract = require('truffle-contract');
-
 const contracts = require('./contracts');
 const init = require('./init');
 const initIPC = require('./initipc');
@@ -14,9 +13,8 @@ const optionsMerge = require('./utils/optionsmerge');
 const optionsFilter = require('./utils/optionsfilter');
 const optionsFormat = require('./utils/optionsformat');
 const logFilter = require('./utils/logfilter');
-const coder = require('web3/lib/solidity/coder');
+const coder = require('web3-0.20.7/lib/solidity/coder');
 const config = require('./../config/config.js');
-
 
 // Path from this file to your project's root or from where you run your script.
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
@@ -66,10 +64,10 @@ function Ethereum() {
     this._connectionType = 'rpc';
     this._provider = undefined;
 
-    if (this.checkConnection('rpc')) {
-      this.web3 = this.web3RPC;
-      this._provider = this.web3RPC.currentProvider;
-    }
+    // if (this.checkConnection('rpc')) {
+    this.web3 = this.web3RPC;
+    this._provider = this.web3RPC.currentProvider;
+    // }
 
     return this.web3; // Return web3 object used
   };
@@ -168,20 +166,53 @@ function Ethereum() {
    * @param {string} contractName
    * @returns {Contract}
    */
-  this.builtContract = (contractName) => {
+  this.builtContractDeployment = (contractName) => {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
 
     let contract;
     try {
       const contractJSONString = fs.readFileSync(contractJSONPath);
       const contractInfo = JSON.parse(contractJSONString);
-      contract = truffleContract(contractInfo);
+      contract =  new this.web3.eth.Contract(contractInfo.abi);
     } catch (e) {
       throw e;
     }
     return contract;
   };
 
+  this.builtContractExec = (contractName, address) => {
+    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
+
+    let contract;
+    try {
+      const contractJSONString = fs.readFileSync(contractJSONPath);
+      const contractInfo = JSON.parse(contractJSONString);
+      contract =  new this.web3.eth.Contract(contractInfo.abi, address);
+    } catch (e) {
+      throw e;
+    }
+    return contract;
+  }
+  this.getContractInfo = (contractName) => {
+    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
+
+    let contractInfo;
+    try {
+      const contractJSONString = fs.readFileSync(contractJSONPath);
+      contractInfo = JSON.parse(contractJSONString);
+    } catch (e) {
+      throw e;
+    }
+    return contractInfo;
+  };
+
+  this.getByteCode = (contractName) => {
+    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
+    const contractJSONString = fs.readFileSync(contractJSONPath);
+    const contractInfo = JSON.parse(contractJSONString);
+
+    return contractInfo.bytecode;
+  }
 
   /**
    * Deploy a built contract.
@@ -191,14 +222,13 @@ function Ethereum() {
    * @return {Promise}
    */
   this.deploy = (contractName, args, options) => {
-    this._checkConnectionError();
+    // this._checkConnectionError();
     if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
-    const contract = this.builtContract(contractName);
-    contract.setProvider(this._provider);
+    const contract = this.builtContractDeployment(contractName);
+    // contract.setProvider(this._provider);
     var self = this;
-
     return promisify(callback => {
       if (options.gas && options.gas > 0) {
         deployInstance(options);
@@ -225,11 +255,11 @@ function Ethereum() {
           .then(accounts => {
             deployOptions.from = deployOptions.from || accounts[deployOptions.account] || accounts[self.account];
             args.push(deployOptions);
-            const contractInstance = contract.new.apply(contract, args);
-            return contractInstance;
+            const byteCode = self.getByteCode(contractName);
+            return contract.deploy({data: byteCode}).send(deployOptions);
           })
           .then(instance => {
-            self.contracts.addresses.set(contractName, instance.address);
+            self.contracts.addresses.set(contractName, instance.options.address);
             callback(null, instance);
           })
           .catch(err => {
@@ -247,12 +277,12 @@ function Ethereum() {
    * @returns {number}
    */
   this.deploy.estimate = (contractName, args, options) => {
-    this._checkConnectionError();
+    // this._checkConnectionError();
     if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
-    const contract = this.builtContract(contractName);
-    contract.setProvider(this._provider);
+    const contract = this.builtContractDeployment(contractName);
+    // contract.setProvider(this._provider);
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
@@ -260,9 +290,18 @@ function Ethereum() {
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = undefined;
           let bytes = contract.unlinked_binary;
-          bytes += (Array.isArray(args)) ? encodeConstructorParams(contract.abi, args) : '';
-          transactionOptions.data = bytes;
-          return promisify(this.web3.eth.estimateGas)(transactionOptions);
+
+          const contractInfo = this.getContractInfo(contractName);
+
+          bytes += (Array.isArray(args)) ? encodeConstructorParams(contractInfo.abi, args) : '';
+
+          const byteCode = this.getByteCode(contractName);
+          // const contractData = contract.new.getData(args, {data: byteCode});
+          // transactionOptions.data = contractData;
+
+          return contract.deploy({data: byteCode}).estimateGas();
+
+          // return promisify(this.web3.eth.estimateGas)(transactionOptions);
         })
         .then(gasEstimate => {
           callback(null, gasEstimate);
@@ -279,7 +318,13 @@ function Ethereum() {
      * @param {Array} constructor params
      */
     function encodeConstructorParams(abi, params) {
-      return abi.filter(function (json) {
+      const newArr = [];
+
+      for (let i = 0; i < abi.length; i++) {
+        newArr.push(abi[i]);
+      }
+
+      return newArr.filter(function (json) {
         return json.type === 'constructor' && json.inputs.length === params.length;
       }).map(function (json) {
         return json.inputs.map(function (input) {
@@ -308,22 +353,27 @@ function Ethereum() {
    * @return {Contract} Contract
    */
   this.execAt = (contractName, contractAddress) => {
-    this._checkConnectionError();
-    const contract = this.builtContract(contractName);
-    contract.setProvider(this._provider);
-    const contractInstance = contract.at(contractAddress);
+    // this._checkConnectionError();
+    const contract = this.builtContractExec(contractName, contractAddress);
     /** Create mockContract to add new behavior to contract methods */
+
     const mockContract = {};
     mockContract.estimate = {}; // Gas estimate method
     mockContract.call = {}; // Gas estimate method
+    //
+    // for (let key in contract) {
+    //     if (key !== 'method') {
+    //       mockContract.methods[key] = contract[key];
+    //     }
+    // }
 
     // Gets all properties in contractInstance. Overwrites all contract methods with new functions and re references all the others.
-    for (let key in contractInstance) {
-      if (typeof contractInstance[key] === 'function' && typeof contractInstance[key].sendTransaction === 'function') {
+    for (let key in contract.methods) {
+      if (typeof contract.methods[key] === 'function') {
         const methodName = key;
 
         // Re reference the default contract methods with __methodName
-        mockContract['__' + key] = contractInstance[methodName];
+        mockContract['__' + key] = contract.methods[methodName];
 
         /** CALL METHOD */
         mockContract.call[methodName] = (...args) => {
@@ -333,8 +383,7 @@ function Ethereum() {
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
                 options.from = options.from || accounts[options.account] || accounts[this.account];
-                args.push(options);
-                return contractInstance[methodName].call.apply(contractInstance, args);
+                return contract.methods[methodName](...args).call(options);
               })
               .then(value => {
                 callback(null, value);
@@ -354,8 +403,7 @@ function Ethereum() {
               .then(accounts => {
                 options.from = options.from || accounts[options.account] || accounts[this.account];
                 options.gas = undefined;
-                args.push(options);
-                return contractInstance[methodName].estimateGas.apply(contractInstance, args);
+                return contract.methods[methodName](...args).estimateGas(options);
               })
               .then(gasEstimate => {
                 callback(null, gasEstimate);
@@ -366,6 +414,7 @@ function Ethereum() {
           })();
         };
 
+
         /** ACTUAL METHOD */
         mockContract[methodName] = (...args) => {
           return promisify((callback) => {
@@ -373,11 +422,10 @@ function Ethereum() {
 
             /** ACTUAL: NO GAS ESTIMATE */
             if (options.gas && options.gas != 0) {
-              args.push(options);
               promisify(this.web3.eth.getAccounts)()
                 .then(accounts => {
                   options.from = options.from || accounts[options.account] || accounts[this.account];
-                  return contractInstance[methodName].apply(contractInstance, args);
+                  return contract.methods[methodName](...args).send(options);
                 })
                 .then(res => {
                   callback(null, res);
@@ -393,8 +441,7 @@ function Ethereum() {
               .then(accounts => {
                 options.from = options.from || accounts[options.account] || accounts[this.account];
                 options.gas = undefined;
-                args.push(options);
-                return contractInstance[methodName].estimateGas.apply(contractInstance, args);
+                return contract.methods[methodName].estimateGas
               })
               .then(gasEstimate => {
                 // Change options to the estimated gas price
@@ -405,9 +452,11 @@ function Ethereum() {
                   throw new Error('Gas estimate of ' + options.gas + ' is greater than max gas allowed ' + options.maxGas);
                 }
 
-                args.pop();
-                args.push(options);
-                return contractInstance[methodName].apply(contractInstance, args);
+                return contract.methods[methodName](...args).estimateGas(options);
+              })
+              .then(gasEstimate => {
+                options.gas = gasEstimate;
+                return contract.methods[methodName](...args).send(options);
               })
               .then(res => {
                 callback(null, res);
@@ -417,13 +466,15 @@ function Ethereum() {
               });
           })();
         };
-
       } else {
         // Re references all other properties
-        mockContract[key] = contractInstance[key];
+        mockContract.method[key] = contract.method[key];
       }
     }
 
+    const contractInfo = this.getContractInfo(contractName);
+
+    mockContract.abi = contractInfo.abi;
     /** Checks for options based on args */
     const self = this;
     function argOptions(args) {
@@ -464,14 +515,12 @@ function Ethereum() {
    * @return {Promise}
   */
   this.eventsAt = (contractName, contractAddress, eventName, blocksBack, filter) => {
-    this._checkConnectionError();
-    const contract = this.builtContract(contractName);
-    contract.setProvider(this._provider);
-    const contractInstance = contract.at(contractAddress);
+    // this._checkConnectionError();
+    const contract = this.builtContractExec(contractName, contractAddress);
 
     // Check to see if valid event
-    if (eventName !== 'allEvents' && (typeof contractInstance[eventName] !== 'function' ||
-      contractInstance[eventName].hasOwnProperty('call'))) {
+    if (eventName !== 'allEvents' && (typeof contract.events[eventName] !== 'function' ||
+      contract.events[eventName].hasOwnProperty('call'))) {
       throw new Error('Invalid event: ' + eventName + ' is not an event of ' + contractName);
     }
 
@@ -485,20 +534,14 @@ function Ethereum() {
           let fromBlock = (!blocksBack || blocksBack === 'all') ?  0 : block.number - blocksBack;
           const toBlock = 'latest';
           const eventFilter = { fromBlock: fromBlock, toBlock: toBlock };
-          // Pass eventFilter twice to make it work with allEvents
-          const myEvent = contractInstance[eventName](eventFilter, eventFilter);
-          myEvent.get((err, logs) => {
-            if (err) {
+          eventFilter.filter = filter;
+          contract.getPastEvents(eventName, eventFilter)
+            .then(res => {
+              callback(null, res);
+            })
+            .catch(err => {
               callback(err, null);
-              return;
-            }
-            /** Filters the logs */
-            logs = logs.filter(log => {
-              return logFilter(log, filter); // Returns true/false depending whether or not to keep log
-            });
-
-            callback(null, logs);
-          });
+            })
         })
         .catch(err => {
           callback(err, null);
@@ -529,39 +572,39 @@ function Ethereum() {
    * @returns
    */
   this.watchAt = (contractName, contractAddress, eventName, filter, callback) => {
-    this._checkConnectionError();
+    // this._checkConnectionError();
 
     // Allow no filter to be passed in
     if (typeof filter === 'function' && !callback) {
       callback = filter;
     }
 
-    const contract = this.builtContract(contractName);
-    contract.setProvider(this._provider);
-    const contractInstance = contract.at(contractAddress);
+    const contract = this.builtContractExec(contractName, contractAddress);
 
     // Check to see if valid event
-    if (eventName !== 'allEvents' && (typeof contractInstance[eventName] !== 'function' ||
-      contractInstance[eventName].hasOwnProperty('call'))) {
+    if (eventName !== 'allEvents' && (typeof contract.events[eventName] !== 'function' ||
+    contract.events[eventName].hasOwnProperty('call'))) {
       throw new Error('Invalid event: ' + eventName + ' is not an event of ' + contractName);
     }
 
-    let myEvent = contractInstance[eventName]();
 
     filter = (filter && typeof filter === 'object') ? filter : {};
     filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
 
-    myEvent.watch((err, log) => {
-      if (err) {
+    const watchEvents = contract.events[eventName](filter);
+    watchEvents
+      .on("data", (event) => {
+        callback(null, event);
+        console.log(event);
+      })
+      .on("error", (error) => {
         callback(err, null);
-      } else if (logFilter(log, filter)) {
-        callback(null, log);
-      }
-    });
+        console.log(err);
+      })
 
     return {
       stop: function() {
-        myEvent.stopWatching();
+        watchEvents.unsubscribe();
       }
     };
 
@@ -575,7 +618,7 @@ function Ethereum() {
    */
   this.getBalance = (index, type) => {
     type = type || 'ether';
-    this._checkConnectionError();
+    // this._checkConnectionError();
     if (this._connectionType === 'ipc') {
       return promisify(callback => {
         promisify(this.web3.eth.getAccounts)()
@@ -602,7 +645,7 @@ function Ethereum() {
    * @return {Promise}
    */
   this.createAccount = (password) => {
-    this._checkConnectionError('ipc');
+    // this._checkConnectionError('ipc');
     return createAccount(password, this.web3IPC);
   };
 
@@ -614,7 +657,7 @@ function Ethereum() {
    * @return {boolean}
    */
   this.unlockAccount = (index, password, timeLength) => {
-    this._checkConnectionError('ipc');
+    // this._checkConnectionError('ipc');
     return unlockAccount(index, password, timeLength, this.web3IPC);
   };
 

@@ -1,4 +1,5 @@
-pragma solidity ^0.4.3;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
 contract BadBank {
 
@@ -8,7 +9,7 @@ contract BadBank {
 
   address admin;
 
-  constructor() public {
+  constructor() {
     admin = msg.sender;
   }
 
@@ -16,7 +17,7 @@ contract BadBank {
     if (msg.sender == admin) {
       uint amount = address(this).balance;
 
-      if (msg.sender.send(address(this).balance)) {
+      if (payable(msg.sender).send(address(this).balance)) {
         emit stealEvent(amount);
       }
     }

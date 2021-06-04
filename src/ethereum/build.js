@@ -15,17 +15,21 @@ module.exports = promisify((contractFiles, contractPath, buildPath, callback) =>
     fs.mkdirSync(buildPath);
   }
 
-  const contractNames = [];
+  let contractNames = [];
 
   for (let contractName in contractsCompiled) {
     const contractCompiled = contractsCompiled[contractName];
     const contractCompiledString = JSON.stringify(contractCompiled, null, ' ');
 
     contractNames.push(contractName);
-    const fileBuildPath = path.join(buildPath, contractName + '.json');
+    const fileBuildPath = path.join(buildPath, contractName.slice(0, -4) + '.json');
 
     fs.writeFileSync(fileBuildPath, contractCompiledString);
   }
+
+  contractNames = contractNames.map(contractName => {
+    return contractName.split('.').slice(0, -1).join('.')
+  });
 
   callback(null, contractNames);
 });
