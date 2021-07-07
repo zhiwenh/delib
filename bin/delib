@@ -74,6 +74,15 @@ program
   .action((files, options) => {
     options = optionActions(options, 'none');
 
+    if (files.length === 0) {
+      files = fs.readdirSync(path.join(config.projectRoot, delib.contracts.paths.contract));
+      files = files.filter(file => {
+        return file.indexOf('.sol') >= 0;
+      }).map(file => {
+        return file.split('.').slice(0, -1).join('.')
+      });
+    }
+
     let contractPaths = [];
     for (let i = 0; i < files.length; i++) {
       const contractPath = path.join(config.projectRoot, delib.contracts.paths.contract, files[i] + '.sol');
@@ -120,7 +129,33 @@ program
   .option('-c --ipchost [path]', 'Relative path to IPC host')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
+  .option('-l --links <links>', 'Library contract addresses')
   .action((contractName, args, options) => {
+    let links;
+
+    if (options.links) {
+      const linksStr = options.links.replace(/'/g,'');
+      let linksArr = [];
+
+      if (linksStr.match(',')) {
+        linksArr = linksStr.split(',');
+        linksArr = linksArr.map(link => {
+          return link.trim();
+        }).map(link => {
+          return link.split(' ');
+        });
+      } else {
+        linksArr = [linksStr.split(' ')];
+      }
+
+      links = {};
+
+      for (let i = 0; i < linksArr.length; i++) {
+        links[linksArr[i][0]] = linksArr[i][1];
+      }
+    }
+
+    console.log(links);
     options = optionActions(options);
 
     // Check if built contract exists
@@ -133,10 +168,10 @@ program
     }
 
     console.log('Deploying:', builtPath);
-    delib.deploy(contractName, args, options)
-      .then((contractAddress) => {
+    delib.deploy(contractName, args, options, links)
+      .then((contractInstance) => {
         // console.log('Address path:', path.join(config.projectRoot, delib.contracts.paths.address));
-        console.log('Contract address:', contractAddress);
+        console.log('Contract address:', contractInstance._address);
         delib.closeIPC();
       })
       .catch(err => {
@@ -181,9 +216,7 @@ program
 
     // Check if contract method exists. The returned contract instance has custom methods. The actual methods are __methodName
     const contractInstance = delib.exec(contractName, contractAddress);
-    console.log('contractInstance', contractInstance);
     const abis = contractInstance.abi ;
-    console.log(abis);
     function checkMethod(method, abis) {
       for (let i = 0; i < abis.length; i++) {
         if (abis[i].name === method && abis[i].type === 'function') {
@@ -201,7 +234,7 @@ program
     }
 
     args.push(options);
-    const methodPromise = !callOption ? contractInstance.methods[method].apply(this, args) : contractInstance.call[method].apply(this, args);
+    const methodPromise = !callOption ? contractInstance[method].apply(this, args) : contractInstance.call[method].apply(this, args);
 
     methodPromise
       .then(txRes => {
@@ -239,9 +272,7 @@ program
     // Check if event exists
     const contract = delib.builtContractExec(contractName);
     const contractAddress = delib.contracts.addresses.get(contractName);
-    console.log(contract);
     const events = contract.events;
-    console.log(events);
     function checkEvent(eventName, events) {
       for (let key in events) {
         if (key === eventName) {

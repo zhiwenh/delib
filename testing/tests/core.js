@@ -207,7 +207,6 @@ test('Getting Bank contract event logs', t => {
     })
     // .then(logs => {
     //   const web3 = delib.init();
-    //   console.log(logs);
     //   t.equal(logs.length, 2, 'Expect depositEvent to return 2 logs with the filter object { args: { _amount: callback for 5 } }');
       //
       // const filter = {
@@ -301,7 +300,6 @@ test('Watching for Bank contract event logs', t => {
       return delib.exec('Bank').withdraw(1, {gas: gas});
     })
     .then((tx) => {
-      console.log('deposit logs', depositLogs);
       t.equal(depositLogs.length, 3, 'Expect 3 deposit logs');
       t.equal(Number(depositLogs[0].returnValues._amount), 10, 'Expect 1st deposit to have an amount of 3');
       t.equal(Number(depositLogs[1].returnValues._amount), 3, 'Expect 2nd deposit to have an amount of 4');

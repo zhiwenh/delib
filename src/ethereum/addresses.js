@@ -50,36 +50,12 @@ function Addresses() {
       return true;
     }
 
-    const links2 = {};
-    if (typeof links === 'object' && !Array.isArray(links) && !isEmpty(links)) {
-      // To make the actual contract be first property in the json objects
-      links2[contractName] = contractAddress;
-      for (let name in links) {
-        links2[name] = links[name];
-      }
-    }
+    fileJSON.push({
+      address: contractAddress,
+      links: links
+    });
 
-    if (Array.isArray(fileJSON)) {
-      if (typeof links === 'object' && !Array.isArray(links) && !isEmpty(links)) {
-        fileJSON.push(links2);
-      } else {
-        fileJSON.push(contractAddress);
-      }
-    } else if (typeof fileJSON === 'object') {
-      if (typeof links === 'object' && !Array.isArray(links) && !isEmpty(links)) {
-        fileJSON = links2;
-      } else {
-        fileJSON = {};
-        fileJSON[contractName] = contractAddress;
-      }
-    } else if (typeof fileJSON === 'string') {
-      if (typeof links === 'object' && !Array.isArray(links) && !isEmpty(links)) {
-        fileJSON = links2;
-      } else {
-        fileJSON = contractAddress;
-      }
-    }
-
+    console.log('fileJSON', fileJSON);
     fs.writeFileSync(filePath, JSON.stringify(fileJSON, null, 2));
     return fileJSON.length;
   };

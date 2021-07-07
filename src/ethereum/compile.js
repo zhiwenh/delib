@@ -42,28 +42,32 @@ module.exports = (contractFiles, directoryPath) => {
     console.log(output.errors);
   }
 
+  console.log('output', output);
   // to have contract data in the proper format
   const contractsCompiled = {};
-  for (let contractName in output.contracts) {
-    const out = output.contracts[contractName];
-    const contractNameNoExtension = contractName.slice(0, -4);
+  for (let contractFileName in output.contracts) {
+    const out = output.contracts[contractFileName];
 
-    contractName = contractName.substring(contractName.indexOf(':') + 1, contractName.length);
-    contractsCompiled[contractName] = {};
-    contractsCompiled[contractName].contractName = contractNameNoExtension;
-    contractsCompiled[contractName].abi = out[contractNameNoExtension].abi;
+    for (let contractName in out) {
+      contractName = contractName.substring(contractName.indexOf(':') + 1, contractName.length);
+      contractsCompiled[contractName] = {};
+      contractsCompiled[contractName].contractName = contractName;
+      contractsCompiled[contractName].abi = out[contractName].abi;
 
-    contractsCompiled[contractName].metadata = out[contractNameNoExtension].metadata;
+      contractsCompiled[contractName].metadata = out[contractName].metadata;
 
-    contractsCompiled[contractName].bytecode = out[contractNameNoExtension].evm.bytecode.object;
+      contractsCompiled[contractName].bytecode = out[contractName].evm.bytecode.object;
 
-    contractsCompiled[contractName].deployedBytecode = out[contractNameNoExtension].evm.deployedBytecode.object;
-    contractsCompiled[contractName].immutableReferences = out[contractNameNoExtension].evm.deployedBytecode.immutableReferences;
+      contractsCompiled[contractName].deployedBytecode = out[contractName].evm.deployedBytecode.object;
+      contractsCompiled[contractName].immutableReferences = out[contractName].evm.deployedBytecode.immutableReferences;
 
-    contractsCompiled[contractName].generatedSources = out[contractNameNoExtension].evm.deployedBytecode.generatedSources;
-    contractsCompiled[contractName].sourceMap = out[contractNameNoExtension].evm.deployedBytecode.sourceMap;
-    contractsCompiled[contractName].devdoc = out[contractNameNoExtension].devdoc;
-    contractsCompiled[contractName].userdoc = out[contractNameNoExtension].userdoc;
+      contractsCompiled[contractName].generatedSources = out[contractName].evm.deployedBytecode.generatedSources;
+      contractsCompiled[contractName].sourceMap = out[contractName].evm.deployedBytecode.sourceMap;
+      contractsCompiled[contractName].devdoc = out[contractName].devdoc;
+      contractsCompiled[contractName].userdoc = out[contractName].userdoc;
+    }
+
+
 
   }
 

@@ -22,14 +22,10 @@ module.exports = promisify((contractFiles, contractPath, buildPath, callback) =>
     const contractCompiledString = JSON.stringify(contractCompiled, null, ' ');
 
     contractNames.push(contractName);
-    const fileBuildPath = path.join(buildPath, contractName.slice(0, -4) + '.json');
+    const fileBuildPath = path.join(buildPath, contractName +'.json');
 
     fs.writeFileSync(fileBuildPath, contractCompiledString);
   }
-
-  contractNames = contractNames.map(contractName => {
-    return contractName.split('.').slice(0, -1).join('.')
-  });
 
   callback(null, contractNames);
 });
