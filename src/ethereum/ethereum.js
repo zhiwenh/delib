@@ -264,7 +264,7 @@ function Ethereum() {
             return contract.deploy({data: byteCode}).send(deployOptions);
           })
           .then(instance => {
-            self.contracts.addresses.set(contractName, instance.options.address);
+            self.contracts.addresses.set(contractName, instance.options.address, links);
             callback(null, instance);
           })
           .catch(err => {
@@ -297,20 +297,14 @@ function Ethereum() {
           const contractInfo = this.getContractInfo(contractName);
           let byteCode = this.getByteCode(contractName);
 
-          console.log('byteCode', byteCode);
-
           var linkReferences = linker.findLinkReferences(byteCode)
-          console.log(linkReferences);
-          console.log(links);
           if (links) {
-            console.log('here');
             byteCode = linker.linkBytecode(byteCode, links);
           }
 
           // const contractData = contract.new.getData(args, {data: byteCode});
           // transactionOptions.data = contractData;
 
-          console.log('byteCode', byteCode);
           return contract.deploy({data: byteCode}).estimateGas();
 
           // return promisify(this.web3.eth.estimateGas)(transactionOptions);
@@ -347,16 +341,6 @@ function Ethereum() {
       })[0] || '';
     }
   };
-
-  this.deploy.link = (contractName, links, options) => {
-    if (args === undefined) args = [];
-    args = Array.isArray(args) ? args : [args];
-    options = this._optionsUtil(this.options, options);
-    const contract = this.builtContractDeployment(contractName);
-
-    this.addresses.set(contractName, )
-
-  }
 
   /**
    * Calls a deployed contract

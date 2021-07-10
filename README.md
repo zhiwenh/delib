@@ -187,6 +187,15 @@ Deploy a contract and pass in two arguments for its constructor. If no gas amoun
 delib deploy Contract hello 30
 ```
 
+### Deploy contract with library
+**delib deploy `<contractName> [args...] --links "fileWhereLibraryIs:libraryName libraryContractAddress"`**
+
+
+```
+delib deploy Contract hello 30 --links "libraryFile:libraryName 0x6Fa3B5424DbA7e7dAb49f8d88bc51f2caD1cBcEb"
+```
+
+
 ### Display built contracts
 **delib contracts**
 
@@ -408,7 +417,7 @@ delib.build('Test')
 ```
 
 ### Deploy contracts
-**delib.deploy(contractName, args, options)**
+**delib.deploy(contractName, args, options, links)**
 
 The addresses of your deployed contracts are saved in your project's `addresses/` folder. Passing in an array for the constructor arguments is optional, however to pass in an options object you will need to pass in an empty arguments array. The promise returns an instance of the contract which you can use to make method calls.
 
@@ -448,6 +457,30 @@ delib.deploy.estimate('Test', [arg1, arg2, arg3])
 ```
 
 You can get an array of all previously deployed addresses with `delib.contracts.addresses.getAll('contractName')`. The most recently deployed address is the array's last index. Use this to access previously deploy contracts.
+
+### Deploy contracts with a library
+**delib.deploy(contractName, args, options, links)**
+
+To deploy contracts with a library have the links parameter property be an object with the file name of where the library is stored, :, plus the library name. The value of the object will be the library address. Example: `{'fileName:libraryName': contractAddress}`
+
+```
+options = {
+  gas: 0 // Set gas at 0 to have it estimated for you
+}
+
+delib.deploy('Test', [arg1, arg2, arg3], options, links)
+  .then(instance => {
+    const address = instance.address;
+
+    return instance.testMethod();
+  })
+  .then(tx => {
+
+  })
+  .catch(err => {
+
+  });
+```
 
 ### Execute contract methods
 **delib.exec(contractName)**  
@@ -787,7 +820,7 @@ Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ``
 | `-b --built` | `<path>` | Path to build contracts folder |
 
 <a name="Cli+deploy"></a>
-#### delib deploy `<contractName> [args...], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
+#### delib deploy `<contractName> [args...], -i --account <index>, -f --from <address>, -t --to <address>, --links "libraryFileName:libraryName libraryContractAddress", -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Deploy a built Solidity smart contract and save its address for later use with the CLI or library. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `built/` and `addresses/` folders.
 
 | Params | Type | Description |
@@ -797,6 +830,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-i --account` | `<index>` | Account to use for transaction. Takes the account index |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
+| `--links` | `libraryFileName:libraryName libraryContractAddress` | To transaction option' |
 | `-v --value` | `<ether>` | Value transaction option in wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
@@ -1122,7 +1156,7 @@ Require a built contract file with the project paths being used. It returns an [
 | contractName | <code>string</code> | Name of contract |
 
 <a name="Ethereum+deploy"></a>
-#### delib.deploy(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  
+#### delib.deploy(contractName, args, options, links) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  
 Deploy a built contract. If you have `delib.options` value set to 0 or pass in the option then your gas cost will be automatically estimated. The address is saved in your project's `addresses/` folder and will be used for future contract calls and transactions.
 
 **Returns**: <code>Promise</code> - The response is a Contract instance of the deployed instance. You can call methods on it.
@@ -1132,6 +1166,7 @@ Deploy a built contract. If you have `delib.options` value set to 0 or pass in t
 | contractName | <code>string</code> | Name of built contract located in the directory provided in delib.js |
 | args | <code>Array</code> | Arguments to be passed into the deployed contract as initial parameters. |
 | options | <code>Object</code> | Transaction options. |
+| links | <code>Object</code> | Links to libraries. Property is the library file name, :, then library name. The value is the library contract address |
 
 <a name="Ethereum+deploy+estimate"></a>
 #### delib.deploy.estimate(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>number</code>

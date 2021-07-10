@@ -42,7 +42,6 @@ module.exports = (contractFiles, directoryPath) => {
     console.log(output.errors);
   }
 
-  console.log('output', output);
   // to have contract data in the proper format
   const contractsCompiled = {};
   for (let contractFileName in output.contracts) {

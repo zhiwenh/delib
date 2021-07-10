@@ -85,11 +85,7 @@ function Addresses() {
       if (Array.isArray(fileArray[i])) {
         continue;
       } else if (typeof fileArray[i] === 'object') {
-        if (!fileArray[i].hasOwnProperty(contractName)) continue;
-        if (fileArray[i][contractName].length === 42) {
-          address = fileArray[i][contractName];
-          break;
-        }
+        address = fileArray[i].address;
       } else {
         if (fileArray[i].length === 42) {
           address = fileArray[i];
