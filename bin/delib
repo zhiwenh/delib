@@ -103,10 +103,12 @@ program
       .then((contracts) => {
         // console.log('Built path:', path.join(config.projectRoot, delib.contracts.paths.built));
         console.log('Contracts built:', contracts.join(', '));
+        process.exit();
         delib.closeIPC();
       })
       .catch(err => {
         console.log(err);
+        process.exit();
         delib.closeIPC();
       });
   });
@@ -131,8 +133,8 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .option('-l --links <links>', 'Library contract addresses')
   .action((contractName, args, options) => {
+    delib.init();
     let links;
-    console.log(args);
     if (options.links) {
       const linksStr = options.links.replace(/'/g,'');
       let linksArr = [];
@@ -171,10 +173,12 @@ program
       .then((contractInstance) => {
         // console.log('Address path:', path.join(config.projectRoot, delib.contracts.paths.address));
         console.log('Contract address:', contractInstance._address);
+        process.exit();
         delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
+        process.exit();
         delib.closeIPC();
       });
   });
@@ -199,6 +203,7 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .option('--call', 'Forces method execution with a call')
   .action((contractName, method, args, options) => {
+    delib.init();
     const callOption = options.call; // Whether or not to call transaction
     options = optionActions(options);
 
@@ -238,10 +243,12 @@ program
     methodPromise
       .then(txRes => {
         console.log('Response:', txRes);
+        process.exit();
         delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
+        process.exit();
         delib.closeIPC();
       });
 
@@ -258,6 +265,7 @@ program
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
+    delib.init();
     optionActions(options);
 
     const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
@@ -294,10 +302,12 @@ program
         console.log('Event logs:');
         logs = logs.map(log => { return log.args; });
         console.log(logs);
+        process.exit();
         delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
+        process.exit();
         delib.closeIPC();
       });
   });
@@ -312,6 +322,7 @@ program
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, options) => {
+    delib.init();
     optionActions(options);
 
     const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
@@ -393,10 +404,12 @@ program
       delib.getBalance(index, denomination)
         .then(balance => {
           console.log(balance);
+          process.exit();
           delib.closeIPC();
         })
         .catch(err => {
           console.error(err);
+          process.exit();
           delib.closeIPC();
         });
     }
@@ -412,10 +425,12 @@ program
     delib.createAccount(password)
       .then(address => {
         console.log(address);
+        process.exit();
         delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
+        process.exit();
         delib.closeIPC();
       });
   });
@@ -430,10 +445,12 @@ program
     time = time || 60 * 60 * 24;
     delib.unlockAccount(index, password, time)
       .then(bool => {
+        process.exit();
         delib.closeIPC();
       })
       .catch(err => {
         console.error(err);
+        process.exit();
         delib.closeIPC();
       });
   });

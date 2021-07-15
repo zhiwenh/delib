@@ -10,8 +10,7 @@ module.exports = {
 
   /** RPC connection options */
   rpc: {
-    host: 'localhost',
-    port: 8545
+    rpcPath: 'http://localhost:8545'
   },
 
   /** IPC connection options */

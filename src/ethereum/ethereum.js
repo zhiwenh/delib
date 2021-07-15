@@ -60,15 +60,11 @@ function Ethereum() {
    * @param {number} rpcPort
    * @returns {Web3}
    */
-  this.init = (rpcHost, rpcPort) => {
-    this.web3RPC = init(rpcHost, rpcPort);
+  this.init = (rpcPath) => {
+    this.web3RPC = init(rpcPath);
     this._connectionType = 'rpc';
-    this._provider = undefined;
-
-    // if (this.checkConnection('rpc')) {
     this.web3 = this.web3RPC;
     this._provider = this.web3RPC.currentProvider;
-    // }
 
     return this.web3; // Return web3 object used
   };
@@ -82,50 +78,11 @@ function Ethereum() {
     this.web3IPC = initIPC(ipcPath);
     this._connectionType = 'ipc';
     this._provider = undefined;
+    this.web3 = this.web3IPC;
+    this._provider = this.web3IPC.currentProvider;
 
-    if (this.checkConnection('ipc')) {
-      this.web3 = this.web3IPC;
-      this._provider = this.web3IPC.currentProvider;
-    }
 
     return this.web3;
-  };
-
-  /**
-   *
-   * @returns {boolean}
-   */
-  this.closeIPC = () => {
-    if (this.checkConnection('ipc')) {
-      this.web3IPC.currentProvider.connection.destroy();
-      return this.web3IPC.currentProvider.connection.destroyed;
-    }
-    return true;
-  };
-
-  /**
-   *
-   * @param {string} type
-   * @returns {bool}
-   */
-  this.checkConnection = (type) => {
-    // If type is undefined check current type being used
-    type = type || this._connectionType;
-    type = type.toLowerCase();
-    if (type === 'rpc') {
-      return this.web3RPC ? this.web3RPC.isConnected() : false;
-    }
-    if (type === 'ipc') {
-      if (!this.web3IPC) return false;
-      let status;
-      try {
-        status = this.web3IPC.isConnected();
-      } catch(e) {
-        status = false;
-      }
-      return status;
-    }
-    return false;
   };
 
   /**
@@ -134,18 +91,20 @@ function Ethereum() {
    * @returns {bool}
    */
   this.changeProvider = (type) => {
-    if (type === 'rpc' || type === 'RPC' && this.checkConnection('rpc')) {
+    if (type === 'rpc') {
       this.web3 = this.web3RPC;
       this._connectionType = 'rpc';
       this._provider = this.web3RPC.currentProvider;
       return true;
     }
-    if (type === 'ipc' || type === 'IPC' && this.checkConnection('ipc')) {
+
+    if (type === 'ipc') {
       this.web3 = this.web3IPC;
       this._connectionType = 'ipc';
       this._provider = this.web3IPC.currentProvider;
       return true;
     }
+
     return false;
   };
 
@@ -223,12 +182,11 @@ function Ethereum() {
    * @return {Promise}
    */
   this.deploy = (contractName, args, options, links) => {
-    // this._checkConnectionError();
+    this._checkConnectionError();
     if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
     const contract = this.builtContractDeployment(contractName);
-    // contract.setProvider(this._provider);
     var self = this;
 
     return promisify(callback => {
@@ -282,12 +240,11 @@ function Ethereum() {
    * @returns {number}
    */
   this.deploy.estimate = (contractName, args, options, links) => {
-    // this._checkConnectionError();
+    this._checkConnectionError();
     if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
     const contract = this.builtContractDeployment(contractName);
-    // contract.setProvider(this._provider);
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
@@ -302,12 +259,7 @@ function Ethereum() {
             byteCode = linker.linkBytecode(byteCode, links);
           }
 
-          // const contractData = contract.new.getData(args, {data: byteCode});
-          // transactionOptions.data = contractData;
-
           return contract.deploy({data: byteCode, arguments: args}).estimateGas();
-
-          // return promisify(this.web3.eth.estimateGas)(transactionOptions);
         })
         .then(gasEstimate => {
           callback(null, gasEstimate);
@@ -359,19 +311,13 @@ function Ethereum() {
    * @return {Contract} Contract
    */
   this.execAt = (contractName, contractAddress) => {
-    // this._checkConnectionError();
+    this._checkConnectionError();
     const contract = this.builtContractExec(contractName, contractAddress);
     /** Create mockContract to add new behavior to contract methods */
 
     const mockContract = {};
     mockContract.estimate = {}; // Gas estimate method
     mockContract.call = {}; // Gas estimate method
-    //
-    // for (let key in contract) {
-    //     if (key !== 'method') {
-    //       mockContract.methods[key] = contract[key];
-    //     }
-    // }
 
     // Gets all properties in contractInstance. Overwrites all contract methods with new functions and re references all the others.
     for (let key in contract.methods) {
@@ -501,7 +447,6 @@ function Ethereum() {
    * @return {Promise}
   */
   this.events = (contractName, eventName, blocksBack, filter) => {
-    // const addressPath = path.join(__dirname, RELATIVE_PATH, this.contracts.paths.address);
     const contractAddress = this.contracts.addresses.get(contractName);
     return this.eventsAt(contractName, contractAddress, eventName, blocksBack, filter);
   };
@@ -516,7 +461,7 @@ function Ethereum() {
    * @return {Promise}
   */
   this.eventsAt = (contractName, contractAddress, eventName, blocksBack, filter) => {
-    // this._checkConnectionError();
+    this._checkConnectionError();
     const contract = this.builtContractExec(contractName, contractAddress);
 
     // Check to see if valid event
@@ -573,7 +518,7 @@ function Ethereum() {
    * @returns
    */
   this.watchAt = (contractName, contractAddress, eventName, filter, callback) => {
-    // this._checkConnectionError();
+    this._checkConnectionError();
 
     // Allow no filter to be passed in
     if (typeof filter === 'function' && !callback) {
@@ -619,7 +564,7 @@ function Ethereum() {
    */
   this.getBalance = (index, type) => {
     type = type || 'ether';
-    // this._checkConnectionError();
+    this._checkConnectionError();
     if (this._connectionType === 'ipc') {
       return promisify(callback => {
         promisify(this.web3.eth.getAccounts)()
@@ -646,7 +591,7 @@ function Ethereum() {
    * @return {Promise}
    */
   this.createAccount = (password) => {
-    // this._checkConnectionError('ipc');
+    this._checkConnectionError('ipc');
     return createAccount(password, this.web3IPC);
   };
 
@@ -658,7 +603,7 @@ function Ethereum() {
    * @return {boolean}
    */
   this.unlockAccount = (index, password, timeLength) => {
-    // this._checkConnectionError('ipc');
+    this._checkConnectionError('ipc');
     return unlockAccount(index, password, timeLength, this.web3IPC);
   };
 
@@ -685,10 +630,6 @@ function Ethereum() {
     }
     type = type || this._connectionType;
     type = type.toLowerCase();
-    if (!this.checkConnection(type)) {
-      throw new Error('Invalid ' + type + ' connection');
-    }
   };
-
 }
 module.exports = new Ethereum();

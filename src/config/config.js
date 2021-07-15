@@ -72,8 +72,8 @@ if (isDefault === false) {
   if (typeof config.rpc !== 'object' || Array.isArray(config.rpc)) {
     config.rpc = defaultConfig.rpc;
   }
-  config.rpc.host = config.rpc.host || defaultConfig.rpc.host;
-  config.rpc.port = config.rpc.port || defaultConfig.rpc.port;
+
+  config.rpc.rpcPath = config.rpc.rpcPath || defaultConfig.rpc.rpcPath;
 
   if (typeof config.solc !== 'object' || Array.isArray(config.solc)) {
     config.solc = defaultConfig.solc;
