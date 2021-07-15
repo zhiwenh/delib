@@ -630,7 +630,7 @@ Response: apples
 <a name="support"></a>
 # Support
 
-If you found Delib useful please leave a star on [GitHub](https://github.com/zhiwenhuang/delib) or give feedback!
+If you found Delib useful please leave a star on [GitHub](https://github.com/zhiwenh/delib) or give feedback!
 
 # API Reference
 
