@@ -36,8 +36,8 @@ module.exports = {
     }
   },
 
-  /** solc options **/
+  /** solc options. Supported versions: 0.5.1 - 0.8.6 **/
   solc: {
-    version: '0.8.4'
+    version: '0.8.6'
   }
 };

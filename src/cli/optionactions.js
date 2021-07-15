@@ -26,10 +26,10 @@ module.exports = function(rawOptions, connection) {
       rawOptions.ipchost = path.join(process.cwd(), rawOptions.ipchost, 'geth.ipc');
     }
     eth.initIPC(rawOptions.ipchost);
-  } else if (rawOptions.ipchost || connection === 'ipc') {
-    eth.initIPC();
+  } else if (rawOptions.wspath && typeof rawOptions.wspath === 'string') {
+    eth.initws(rawOptions.wspath);
   } else {
-    eth.init(rawOptions.rpchost, rawOptions.rpcport);
+    eth.init(rawOptions.rpcPath);
   }
 
   /** Transaction option adjustments */

@@ -99,29 +99,6 @@ function Ethereum() {
   };
 
   /**
-   *
-   * @param {string} type
-   * @returns {bool}
-   */
-  this.changeProvider = (type) => {
-    if (type === 'rpc') {
-      this.web3 = this.web3RPC;
-      this._connectionType = 'rpc';
-      this._provider = this.web3RPC.currentProvider;
-      return true;
-    }
-
-    if (type === 'ipc') {
-      this.web3 = this.web3IPC;
-      this._connectionType = 'ipc';
-      this._provider = this.web3IPC.currentProvider;
-      return true;
-    }
-
-    return false;
-  };
-
-  /**
    * Builds Solidity contracts.
    * @param {array} contractFiles
    * @param {string} contractPath

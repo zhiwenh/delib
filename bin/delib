@@ -12,7 +12,7 @@ const info = require('./../src/cli/info');
 const contracts = require('./../src/cli/contracts');
 
 program
-  .version('4.1.19')
+  .version('4.3.0')
   .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
@@ -66,9 +66,9 @@ program
   .command('build [files...]')
   .alias('bu')
   .description('Build a Solidity contract')
-  .option('-h --rpchost <value>', 'RPC host')
-  .option('-r --rpcport <port>', 'RPC port')
+  .option('-h --rpcpath [path]>', 'RPC path')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
+  .option('-w --wspath [path]', 'Path to ws port')
   .option('-o --contract <path>', 'Relative path to contracts folder')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .action((files, options) => {
@@ -126,9 +126,9 @@ program
   .option('-p --gasprice <number>', 'Gas price transaction option')
   .option('-n --nonce <number>', 'Nonce transaction option')
   .option('-m --maxgas <number>', 'Max gas allowed when estimating')
-  .option('-h --rpchost <value>', 'RPC host')
-  .option('-r --rpcport <port>', 'RPC port')
+  .option('-h --rpcpath [path]>', 'RPC path')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
+  .option('-w --wspath [path]', 'Path to ws port')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .option('-l --links <links>', 'Library contract addresses')
@@ -196,9 +196,9 @@ program
   .option('-p --gasprice <number>', 'Gas price transaction option')
   .option('-n --nonce <number>', 'Nonce transaction option')
   .option('-m --maxgas <number>', 'Max gas allowed when estimating')
-  .option('-h --rpchost <value>', 'RPC host')
-  .option('-r --rpcport <port>', 'RPC port')
+  .option('-h --rpcpath [path]>', 'RPC path')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
+  .option('-w --wspath [path]', 'Path to ws port')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .option('--call', 'Forces method execution with a call')
@@ -258,9 +258,9 @@ program
   .command('events <contractName> <eventName> [blocksBack]')
   .alias('ev')
   .description('Get the logs of an event')
-  .option('-h --rpchost <value>', 'RPC host')
-  .option('-r --rpcport <port>', 'RPC port')
+  .option('-h --rpcpath [path]>', 'RPC path')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
+  .option('-w --wspath [path]', 'Path to ws port')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
@@ -313,9 +313,9 @@ program
   .command('watch <contractName> <eventName>')
   .alias('wa')
   .description('Set up listener to watch for logs of an event')
-  .option('-h --rpchost <value>', 'RPC host')
-  .option('-r --rpcport <port>', 'RPC port')
+  .option('-h --rpcpath [path]>', 'RPC path')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
+  .option('-w --wspath [path]', 'Path to ws port')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, options) => {

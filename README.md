@@ -10,7 +10,6 @@ Delib is designed to be easy to learn and allow freedom when developing with Eth
   * A command tool for smart contract interaction. It lets you compile, build, deploy, execute methods, and get their event logs.
   * Option to automatically estimate your transaction gas costs for contract deployment and methods.
   * The saving of deployed contract addresses to use or reference later.
-  * The ability to create and unlock Ethereum accounts using IPC.
 
 ## Table of Contents
   * [Requirements](#requirements)
@@ -27,14 +26,9 @@ Delib is designed to be easy to learn and allow freedom when developing with Eth
 
 ## Requirements
 
-You need to have an Ethereum node to connect with. Delib uses [geth](https://github.com/ethereum/go-ethereum/wiki/geth). The Mac OSX install commands with brew are shown below. [Click here](https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum) for additional install information.
+You need to have an Ethereum node to connect with. A good option for testing would be Ganache.
 
-```
-brew tap ethereum/ethereum
-brew install ethereum
-```
-
-Delib uses [npm web3](https://www.npmjs.com/package/web3) version 0.20.
+Delib uses [npm web3](https://www.npmjs.com/package/web3) version 1.3.6.
 
 <a name="install"></a>
 
@@ -86,7 +80,7 @@ You can have the init command create a custom project structure for you. If you 
 You don't need to create a project to use Delib. More information is given in the usage section.
 
 ### Configuration
-A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options.
+A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options. Delib supports solc 0.5.1 - 0.8.6.
 
 ```
 {
@@ -99,8 +93,7 @@ A file called `delib.js` gets made when you create a project. It contains your p
 
   /** RPC connection options */
   rpc: {
-    host: 'localhost',
-    port: 8545
+    rpcPath: 'http://localhost:8545'
   },
 
   /** IPC connection options */
@@ -108,6 +101,15 @@ A file called `delib.js` gets made when you create a project. It contains your p
     host: null // Relative path to IPC host
   }
 
+  /** WS connection options */
+  ws: {
+    wsPath: 'ws://localhost:8545'
+  },
+
+  /** solc options. Supported versions: 0.5.1 - 0.8.6 **/
+  solc: {
+    version: '0.8.6'
+  }
 };
 
 ```
@@ -121,19 +123,6 @@ Delib can be used outside a project. Outside a project file paths will be relati
 ### Contract addresses
 Your contract's deployed addresses are saved in a plain text file with a file name of `ContractnameAddresses`. Each address is separated by a new line, and the most recent address is at the bottom of the list. The library and command tool use that address when no address is specified and you can manually add your own addresses to this file.
 
-### Development node
-A good choice would be [devchain](https://www.npmjs.com/package/devchain) for your Ethereum development node. It gives you a development geth server and helps you create private Ethereum blockchains. You can adjust the blockchain's mining difficulty and it automates mining and account Ether distribution. To install:
-
-```
-npm install -g devchain
-```
-
-Another option is [testrpc](https://github.com/ethereumjs/testrpc).
-
-```
-npm install -g ethereumjs-testrpc
-```
-
 ### Library and command integration
 Building a contract with the command tool will allow it to be accessible with the library. Also, deploying a contract using the library will make the following command tool calls refer to the library's deployed address, and vice versa. You can deploy contracts and then quickly test whether your methods are working with commands.  
 
@@ -141,10 +130,10 @@ Building a contract with the command tool will allow it to be accessible with th
 <a name="Cli"></a>
 # Command Tool
 
-The command tool lets you interact with smart contracts both on and off the blockchain. It lets you compile and build Solidity contracts into a JavaScript file that you can then require. Then you can deploy the contract onto a blockchain and also execute methods and get event logs. It also allows you to create, unlock, and get the balance of your accounts.
+The command tool lets you interact with smart contracts both on and off the blockchain. It lets you compile and build Solidity contracts into a JavaScript file that you can then require. Then you can deploy the contract onto a blockchain and also execute methods and get event logs.
 
 ### Set connection options and project paths
-The default connection and file path options are taken from the `delib.js` config file. Outside a project all project paths will be relative to where you're calling the command, and the RPC connection will default to localhost at port 8545. You can also specify connection options and paths as options. Non IPC commands will connect via RPC unless you specify an IPC option.
+The default connection and file path options are taken from the `delib.js` config file. Outside a project all project paths will be relative to where you're calling the command, You can also specify connection options and paths as options.
 
 | Options | Type | Description |
 | --- | --- | --- |
@@ -173,7 +162,7 @@ The default transaction options for the commands are located in ```delib.js```. 
 ### Build contract
 **delib build `[files...]>`**
 
-Build a Solidity contract with the file name ```Contract.sol```.
+Build a Solidity contract with the file name ```Contract.sol```. If file name is left blank will build all the contracts in the contracts folder.
 
 ```
 delib build Contract
@@ -256,39 +245,6 @@ Set the address of a contract to use. This will set its address for both the com
 delib set Contract 0xa9b15bfe1d4e7bed407a011e54af36462fa0e067
 ```
 
-### Get account balance
-**delib balance `<accountIndex> [denomination]`**
-
-Get the Ether balance of your first account.
-
-```
-delib balance 0
-```
-
-Get the wei balance of your second account.
-
-```
-delib balance 1 wei
-```
-
-### Create an account
-**delib create `<password>`**
-
-Create an account with the password "hunter1".
-
-```
-delib create hunter1
-```
-
-### Unlock an account
-**delib unlock `<accountIndex> <password> [unlockTime]`**
-
-Unlock your first account for 10000 seconds.
-
-```
-delib unlock 0 hunter1 10000
-```
-
 ## [Command Tool API Link](#Cli+api)
 
 
@@ -324,7 +280,7 @@ delib.init();
 Specify your own connection arguments by passing in a RPC host and a RPC port number.
 
 ```
-delib.init('localhost', 8000);
+delib.init('http://localhost:8545');
 ```
 
 #### IPC provider
@@ -342,33 +298,14 @@ You can pass in an IPC path as an argument.
 delib.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform transaction you will need to changeProviders
 ```
 
-The IPC connection remains on until you close it. To close it use:
+#### WS provider
+**delib.initws(wsPath)**
 
 ```
-delib.closeIPC();
+delib.initws(wsPath);
 ```
 
-#### Switching providers
-**delib.changeProvider(type)**  
-
-The provider is set to the first one initialized. To switch between the two:
-
-```
-delib.changeProvider('rpc');
-
-delib.changeProvider('ipc');
-```
-These return a boolean indicating whether or not the change went thru.  
-
-You can also check their connection status.
-
-**delib.checkConnection(type)**
-
-```
-delib.checkConnection('rpc');
-
-delib.checkConnection('ipc');
-```
+You can pass in an IPC path as an argument.
 
 ### Adjust options
 **delib.account**  
@@ -542,7 +479,7 @@ delib.events('Test', 'testEvent', 100)
 You can watch a contract for when it gets a new event.
 
 ```
-delib.watch('Test', 'testEvent', function(err, log) {
+delib.watch('Test', 'testEvent', {}, function(err, log) {
   if (!err) {
     // Do something with the log  
   }
@@ -552,7 +489,7 @@ delib.watch('Test', 'testEvent', function(err, log) {
 To stop the watch listener set the watch method to a variable and call `.stop()` on it.
 
 ```
-const watch = delib.watch('Test', 'testEvent', function(err, log) {
+const watch = delib.watch('Test', 'testEvent', {}, function(err, log) {
   if (!err) {
     // Do something with the log  
   }
@@ -560,89 +497,6 @@ const watch = delib.watch('Test', 'testEvent', function(err, log) {
 
 watch.stop(); // Stops the event listener
 ```
-
-### Event filter object
-You can pass in a filter object to filter the results of your `events` and `watch` methods. You can set the properties of the filter as plain values, an array of values, or a callback. By default the `address` property is the contract address.
-
-If it's just a value it will need to match the log's property or it will be filtered. If its an array then one of the values will need to match. For callbacks, it takes the value of the log as its parameter, and it gets filtered if it returns anything other than true.
-
-Click [here](https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events) to see all the properties of the event log object.
-
-The following shows a filter that filters all logs *except* even numbered blocks, logs with an event argument name of James, and logs with age arguments of 18, 25, and 26.
-
-```
-filter = {
-  blockNumber: function(number) {
-    if (number % 2 === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  },
-  // args contains the actual event arguments
-  args: {
-    name: 'James',
-    age: [18 ,25, 26]
-  }
-};
-
-delib.events('Test', 'testEvent', 'all', filter)
-  .then(logs => {
-
-  })
-  .catch(err => {
-
-  });
-
-delib.watch('Test', 'testEvent', filter, function(err log) {
-  if (!err) {
-    // Do something with filtered log
-  }
-});
-```
-
-### Account balances
-**delib.getBalance(index, type)**
-
-The method to get the balance of an account takes in the account index and the Ether denomination you would like the result to be in. If using this with an IPC connection it will return a Promise.
-
-Get the balance of your first account in Ether, switch to IPC, then get it in wei:
-
-```
-delib.getBalance(0, 'Ether');
-
-delib.changeProvider('ipc');
-
-delib.getBalance(0, 'wei')
-  .then(balance => {
-
-  })
-```
-
-### Create accounts
-**delib.createAccount(password)**
-
-This only works with an IPC connection. It creates an encrpyted JSON file containing your public and private key in your Ethereum blockchain's data directory.
-
-```
-delib.createAccount('hunter1')
-  .then(address => {
-
-  })
-```
-
-### Unlock accounts
-**delib.unlockAccount(index, password, timeLength)**
-
-This only works with an IPC connection. Time length is in seconds.
-
-```
-delib.unlockAccount(1, 'hunter2', 10000)
-  .then(status => {
-
-  })
-```
-
 
 ## [Library API Link](#Ethereum+api)
 
@@ -663,7 +517,7 @@ npm install delib --save
 
 Create a contract file called ```Messages.sol``` in the `contracts/` folder. This contract sets and stores a simple message that can be watched for or retrieved.
 ```
-pragma solidity 0.4.23;
+pragma solidity 0.8.6;
 
 contract Messages {
 
@@ -674,16 +528,16 @@ contract Messages {
   address owner;
   string message;
 
-  constructor(string _message) public {
+  constructor(string memory _message) {
     owner = msg.sender;
     message = _message;
   }
 
-  function getOwner() public constant returns (address) {
+  function getOwner() public view returns (address) {
     return owner;
   }
 
-  function setMessage(string _message) public {
+  function setMessage(string memory _message) public {
     message = _message;
     emit messageEvent(_message);
   }
@@ -696,13 +550,13 @@ contract Messages {
 
 Build ```Messages.sol``` with the command tool.
 ```
-delib build Messages
+delib build
 ```
 A file called ```Messages.json``` will be created in the `built/` folder.
 
 Deploy Messages using a command with arguments for the constructor. Gas will be estimated for you.
 ```
-delib deploy Messages 'hello'
+delib deploy Messages hello
 ```
 A file called ```MessagesAddresss``` will be created in your `addresses/` folder with the deployed contract's address.
 
@@ -794,9 +648,6 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
     * [contracts](#Cli+contracts)
     * [info `<contractName>`](#Cli+info)
     * [set `<contractName> <contractAddress>`](#Cli+set)
-    * [balance `<accountIndex> [denomination]`](#Cli+balance)
-    * [create `<password>`](#Cli+create)
-    * [unlock `<accountIndex> <password> [time]`](#Cli+unlock)
 
 <a name="Cli+init"></a>
 #### delib init `-c --config`
@@ -921,45 +772,12 @@ Set the address of a contract to use.
 | `<contractAddress>` | `string` | The address to bind to the contract |
 | `-a --address` | `<path>` | Relative path to contract addresses |
 
-<a name="Cli+balance"></a>
-#### delib balance `<accountIndex> [denomination], -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path]`
-Get the balance of one of your account by its account index.
-
-| Params | Type | Description |
-| --- | --- | --- |
-| `<accountIndex>` | `number` | Index of account |
-| `[denomination]` | `string` | Denomination to get balance in. Defaults to 'ether' |
-| `-r --rpchost` | `<value>` | RPC host |
-| `-h --rpcport` | `<port>` | RPC port |
-| `-c --ipchost` | `[path]` | Relative path to IPC host |
-
-<a name="Cli+create"></a>
-#### delib create `<password>, -c --ipchost [path]`
-Create a new Ethereum account.
-
-| Params | Type | Description |
-| --- | --- | --- |
-| `<password>` | `string` | Account password |
-| `-c --ipchost` | `[path]` | Relative path to IPC host |
-
-<a name="Cli+unlock"></a>
-#### delib unlock `<accountIndex> <password> [time], -c --ipchost [path]`
-Unlock an Ethereum account by its account index. The argument `time` defaults to a day.
-
-| Params | Type | Description |
-| --- | --- | --- |
-| `<accountIndex>` | `number` | Index of account |
-| `<password>` | `string` | Account password |
-| `[time]` | `number` | Time to leave account unlocked in seconds |
-| `-c --ipchost` | `[path]` | Relative path to IPC host |
-
-<a name="Ethereum+api"></a>
-
 ## Library
 * [delib](#Ethereum+api)
     * [.web3](#Ethereum+web3)
     * [.web3RPC](#Ethereum+web3RPC)
     * [.web3IPC](#Ethereum+web3IPC)
+    * [.web3ws](#Ethereum+web3ws)
     * [.gasAdjust](#Ethereum+gasAdjust)
     * [.options](#Ethereum+options)
     * [.account](#Ethereum+account)
@@ -972,12 +790,10 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
         * [.set(name, address)](#Ethereum+contracts+addresses+set) ⇒ <code>number</code>
         * [.get(name, index)](#Ethereum+contracts+addresses+get) ⇒ <code>string</code>
         * [.getAll(name)](#Ethereum+contracts+addresses+getAll) ⇒ <code>Array</code>
-    * [.checkConnection(type)](#Ethereum+checkConnection) ⇒ <code>boolean</code>
-    * [.changeProvider(type)](#Ethereum+changeProvider) ⇒ <code>boolean</code>
-    * [.init(rpcHost, rpcPort)](#Ethereum+init) ⇒ <code>Web3</code>
+    * [.init(rpcPath)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
+    * [.initws(wsPath)](#Ethereum+initws) ⇒ <code>Web3</code>
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
-    * [.builtContract(contractName)](#Ethereum+builtContract) ⇒ <code>Contract</code>
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
       * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
     * [.exec(contractName)](#Ethereum+exec) ⇒ <code>ContractInstance</code>
@@ -988,9 +804,6 @@ Unlock an Ethereum account by its account index. The argument `time` defaults to
     * [.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)](#Ethereum+eventsAt) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.watch(contractName, eventName, filter, callback)](#Ethereum+watch) ⇒ <code>Object</code>
     * [.watchAt(contractName, contractAddress, eventName, filter, callback)](#Ethereum+watchAt) ⇒ <code>Object</code>
-    * [.createAccount(password)](#Ethereum+createAccount) ⇒ <code>Promise</code> ⇒ <code>string</code>
-    * [.unlockAccount(index, password, timeLength)](#Ethereum+unlockAccount) ⇒ <code>Promise</code> ⇒ <code>boolean</code>
-    * [.getBalance(index, type)](#Ethereum+getBalance) ⇒ <code>number</code>
 
 
 <a name="Ethereum+web3"></a>
@@ -1004,6 +817,10 @@ The Web3 object used for RPC connections. Will first need to initialize a RPC co
 <a name="Ethereum+web3IPC"></a>
 #### delib.web3IPC
 The Web3 object used for IPC connections. Will first need to initialize an IPC connection with `delib.initIPC()`. This object will allow you to perform Web3 personal and admin tasks.
+
+<a name="Ethereum+web3ws"></a>
+#### delib.web3IPC
+The Web3 object used for WS connections.
 
 <a name="Ethereum+gasAdjust"></a>
 #### delib.gasAdjust
@@ -1082,16 +899,14 @@ Retrieves the addresses file of a contract and return an array of all its deploy
 | name | <code>string</code> | Name of built contract |
 
 <a name="Ethereum+init"></a>
-#### delib.init(rpcHost, rpcPort) ⇒ <code>Web3</code>
+#### delib.init(rpcPath) ⇒ <code>Web3</code>
 Initializes a RPC connection with an Ethereum node. The RPC provider can be set in the ```delib.js``` config file or you can pass it in as arguments. This needs to be called before performing any methods that interact with an Ethereum node.
 
 **Returns**: <code>Web3</code> - The Web3 object being used as a provider (RPC or IPC).
 
 | Param | Type | Description |
 | --- | --- | --- |
-| rpcHost | <code>string</code> | The host URL path to the RPC connection. Optional. If not given the rpcHost path will be taken from the config file. |
-| rpcPort | <code>number</code> | The port number to the RPC connection. Optional. If not given the rpcPort path will be taken from config file. |
-
+| rpcPath | <code>string</code> | The path to the RPC port. For example: `http://localhost:8545` |
 
 <a name="Ethereum+initIPC"></a>
 #### delib.initIPC(ipcPath) ⇒ <code>Web3</code>
@@ -1103,33 +918,15 @@ Initializes an IPC connection with an Ethereum node. The IPC provider can be set
 | --- | --- | --- |
 | ipcPath | <code>string</code> | Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'. Optional. |
 
+<a name="Ethereum+initws"></a>
+#### delib.initws(wsPath) ⇒ <code>Web3</code>
+Initializes a WS connection with an Ethereum node.
 
-<a name="Ethereum+closeIPC"></a>
-#### delib.closeIPC() => <code>boolean</code>
-Closes the IPC connection
-
-**Returns** <code>boolean</code> Status of the IPC connection
-
-<a name="Ethereum+checkConnection"></a>
-#### delib.checkConnection(type) => <code>boolean</code>
-Check the status of a certain connection type (IPC or RPC)
-
-**Returns** <code>boolean</code> Status of the connection.
+**Returns**: <code>Web3</code> - The Web3 object delib uses for its IPC connection.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| type | <code>string</code> | The connection type to test for ('rpc' or 'ipc') |
-
-
-<a name="Ethereum+changeProvider"></a>
-#### delib.changeProvider(type) => <code>boolean</code>
-Change the provider to use (RPC or IPC). It checks the connection status before switching. The connection will need to be initialized first before switching.
-
-**Returns** <code>boolean</code> If the change went thru.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| type | <code>string</code> | The provider to change to ('rpc' or 'ipc') |
+| ipcPath | <code>string</code> | Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'. Optional. |
 
 
 <a name="Ethereum+build"></a>
@@ -1143,17 +940,6 @@ Build a Solidity contract.
 | contractFiles | <code>array</code> | Array of contract file names in the contracts folder |
 | contractPath | <code>string</code> | Optional. Directory path where contract files are located. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object |
 | buildPath | <code>string</code> | Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object. |
-
-
-<a name="Ethereum+builtContract"></a>
-#### delib.builtContract(contractName)
-Require a built contract file with the project paths being used. It returns an [ether-pudding](#https://github.com/ConsenSys/ether-pudding) contract object.
-
-**Returns**: <code>Contract</code> - Ether-pudding contract object
-
-| Param | Type | Description |
-| --- | --- | --- |
-| contractName | <code>string</code> | Name of contract |
 
 <a name="Ethereum+deploy"></a>
 #### delib.deploy(contractName, args, options, links) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  
@@ -1277,37 +1063,3 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 | eventName | <code>string</code> | The name of the event method. |
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place |
 | callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log |
-
-<a name="Ethereum+createAccount"></a>
-#### delib.createAccount(password) ⇒ <code>Promise</code>
-Creates a new Ethereum account. Needs an IPC connection.
-
-**Returns**: <code>Promise</code> => <code>string</code> - Promise response is a string of the newly created account address.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| password | <code>string</code> | The password to create the new account with. |
-
-
-<a name="Ethereum+unlockAccount"></a>
-#### delib.unlockAccount(index, password, timeLength) ⇒ <code>boolean</code>
-Unlocks an Ethereum account. Needs an IPC connection.
-
-**Returns**: <code>Promise</code> => <code>boolean</code> - Promise response is status of whether or not the account got unlocked.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| index | <code>number</code> | The index of the account. |
-| password | <code>string</code> | Password of account. |
-| timeLength | <code>number</code> | Time in seconds to have account remain unlocked for. |
-
-<a name="Ethereum+getBalance"></a>
-#### delib.getBalance(index, type) ⇒ <code>number</code>
-Get the Ether balance of an account in a specified denomination.
-
-**Returns**: <code>number</code> - The amount of Ether contained in the account.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| index | <code>number</code> | Index of the account to check the balance of in Ether. |
-| type | <code>string</code> | The denomination. Default: 'ether' |
