@@ -153,6 +153,7 @@ function Ethereum() {
     }
     return contract;
   }
+  
   this.getContractInfo = (contractName) => {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
 
@@ -554,57 +555,6 @@ function Ethereum() {
       }
     };
 
-  };
-
-  /**
-   *
-   * @param {number} index
-   * @param {string} type
-   * @return {number}
-   */
-  this.getBalance = (index, type) => {
-    type = type || 'ether';
-    this._checkConnectionError();
-    if (this._connectionType === 'ipc') {
-      return promisify(callback => {
-        promisify(this.web3.eth.getAccounts)()
-          .then(accounts => {
-            index = (index && index >= 0 && index < accounts.length) ? index : 0;
-            return promisify(this.web3.eth.getBalance)(accounts[index]);
-          })
-          .then(amount => {
-            callback(null, Number(this.web3.fromWei(amount, type).toString()));
-          })
-          .catch(err => {
-            callback(err , null);
-          });
-      })();
-    }
-    index = (index && index >= 0 && index < this.web3.eth.accounts.length) ? index : 0;
-    const amount = this.web3.eth.getBalance(this.web3.eth.accounts[index]);
-    return Number(this.web3.fromWei(amount, type).toString());
-  };
-
-  /**
-   *
-   * @param {string}
-   * @return {Promise}
-   */
-  this.createAccount = (password) => {
-    this._checkConnectionError('ipc');
-    return createAccount(password, this.web3IPC);
-  };
-
-  /**
-   *
-   * @param {number} index
-   * @param {string} password
-   * @param {number} timeLength
-   * @return {boolean}
-   */
-  this.unlockAccount = (index, password, timeLength) => {
-    this._checkConnectionError('ipc');
-    return unlockAccount(index, password, timeLength, this.web3IPC);
   };
 
   /** Performs necessary option adjustments

@@ -18,6 +18,7 @@ module.exports = (contractFiles, directoryPath) => {
   if (!directoryPath) directoryPath = config.paths.contract;
   if (directoryPath[directoryPath.length - 1] !== '/') directoryPath += '/';
 
+  console.log(directoryPath);
   const input = {
     language: 'Solidity',
     sources: {},
@@ -43,12 +44,20 @@ module.exports = (contractFiles, directoryPath) => {
       }
     } else {
       return {
-          contents: fs.readFileSync(path.join(directoryPath, '..', 'node_modules', _path)).toString()
+          contents: fs.readFileSync(path.join(config.projectRoot, 'node_modules', _path)).toString()
       }
     }
   }
 
-  const output = JSON.parse(solc.compile(JSON.stringify(input), {import: findImports}));
+  let output;
+
+  if (config.solc.version.split('')[2] === 5) {
+    output = JSON.parse(solc.compile(JSON.stringify(input), findImports));
+  } else {
+    output = JSON.parse(solc.compile(JSON.stringify(input), {import: findImports}));
+
+  }
+
 
   if (output.errors) {
     console.log(output.errors);
