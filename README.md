@@ -286,8 +286,6 @@ delib.init('http://localhost:8545');
 #### IPC provider
 **delib.initIPC(ipcPath)**
 
-To connect with the options in `delib.js`:
-
 ```
 delib.initIPC();
 ```
@@ -304,8 +302,6 @@ delib.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform tra
 ```
 delib.initws(wsPath);
 ```
-
-You can pass in an IPC path as an argument.
 
 ### Adjust options
 **delib.account**  
@@ -517,6 +513,7 @@ npm install delib --save
 
 Create a contract file called ```Messages.sol``` in the `contracts/` folder. This contract sets and stores a simple message that can be watched for or retrieved.
 ```
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.6;
 
 contract Messages {
@@ -542,10 +539,11 @@ contract Messages {
     emit messageEvent(_message);
   }
 
-  function getMessage() public constant returns (string) {
+  function getMessage() public view returns (string memory) {
     return message;
   }
 }
+
 ```
 
 Build ```Messages.sol``` with the command tool.
