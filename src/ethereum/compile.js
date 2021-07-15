@@ -1,8 +1,8 @@
 'use strict';
 const fs = require('fs');
-const solc = require('solc'); // https://github.com/ethereum/solc-js
 const path = require('path');
 const config = require('./../config/config.js');
+const solc = require('solc' + config.solc.version);
 
 /**
 * Creates object containing necessary information for web3 contract creation, writes it to a JSON file, and also for ether-pudding building
@@ -36,7 +36,19 @@ module.exports = (contractFiles, directoryPath) => {
     input.sources[contract].content = fs.readFileSync(contractPath, 'UTF-8');
   });
 
-  const output = JSON.parse(solc.compile(JSON.stringify(input)));
+  function findImports(_path) {
+    if (_path[0] === '.') {
+      return {
+          contents: fs.readFileSync(path.join(directoryPath, _path)).toString()
+      }
+    } else {
+      return {
+          contents: fs.readFileSync(path.join(directoryPath, '..', 'node_modules', _path)).toString()
+      }
+    }
+  }
+
+  const output = JSON.parse(solc.compile(JSON.stringify(input), {import: findImports}));
 
   if (output.errors) {
     console.log(output.errors);

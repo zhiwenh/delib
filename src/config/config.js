@@ -74,6 +74,11 @@ if (isDefault === false) {
   }
   config.rpc.host = config.rpc.host || defaultConfig.rpc.host;
   config.rpc.port = config.rpc.port || defaultConfig.rpc.port;
+
+  if (typeof config.solc !== 'object' || Array.isArray(config.solc)) {
+    config.solc = defaultConfig.solc;
+  }
+  config.solc.version = config.solc.version || defaultConfig.solc.version;
 }
 /***********/
 

@@ -256,12 +256,12 @@ function Ethereum() {
         promisify(self.web3.eth.getAccounts)()
           .then(accounts => {
             deployOptions.from = deployOptions.from || accounts[deployOptions.account] || accounts[self.account];
-            args.push(deployOptions);
             let byteCode = self.getByteCode(contractName);
             if (links) {
               byteCode = linker.linkBytecode(byteCode, links);
             }
-            return contract.deploy({data: byteCode}).send(deployOptions);
+
+            return contract.deploy({data: byteCode, arguments: args}).send(deployOptions);
           })
           .then(instance => {
             self.contracts.addresses.set(contractName, instance.options.address, links);
@@ -305,7 +305,7 @@ function Ethereum() {
           // const contractData = contract.new.getData(args, {data: byteCode});
           // transactionOptions.data = contractData;
 
-          return contract.deploy({data: byteCode}).estimateGas();
+          return contract.deploy({data: byteCode, arguments: args}).estimateGas();
 
           // return promisify(this.web3.eth.estimateGas)(transactionOptions);
         })
@@ -447,11 +447,6 @@ function Ethereum() {
               .then(accounts => {
                 options.from = options.from || accounts[options.account] || accounts[this.account];
                 options.gas = undefined;
-                return contract.methods[methodName].estimateGas
-              })
-              .then(gasEstimate => {
-                // Change options to the estimated gas price
-                options.gas = Math.round(gasEstimate + gasEstimate * this.gasAdjust);
 
                 // Throw error if est gas is greater than max gas
                 if (options.maxGas && options.gas > options.maxGas) {

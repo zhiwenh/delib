@@ -132,7 +132,7 @@ program
   .option('-l --links <links>', 'Library contract addresses')
   .action((contractName, args, options) => {
     let links;
-
+    console.log(args);
     if (options.links) {
       const linksStr = options.links.replace(/'/g,'');
       let linksArr = [];
@@ -155,7 +155,6 @@ program
       }
     }
 
-    console.log(links);
     options = optionActions(options);
 
     // Check if built contract exists

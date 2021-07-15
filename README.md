@@ -830,7 +830,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-i --account` | `<index>` | Account to use for transaction. Takes the account index |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
-| `--links` | `libraryFileName:libraryName libraryContractAddress` | To transaction option' |
+| `--links` | `"libraryFileName:libraryName libraryContractAddress"` | Library links of the contract' |
 | `-v --value` | `<ether>` | Value transaction option in wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |

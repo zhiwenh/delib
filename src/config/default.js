@@ -30,5 +30,10 @@ module.exports = {
       gasprice: null, // Mean network gas price if not specified
       maxgas: null // Max gas allowed when estimating
     }
+  },
+
+  /** solc options **/
+  solc: {
+    version: '0.8.4'
   }
 };

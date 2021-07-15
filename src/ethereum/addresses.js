@@ -55,7 +55,6 @@ function Addresses() {
       links: links
     });
 
-    console.log('fileJSON', fileJSON);
     fs.writeFileSync(filePath, JSON.stringify(fileJSON, null, 2));
     return fileJSON.length;
   };
@@ -80,19 +79,8 @@ function Addresses() {
     index = index || fileArray.length - 1;
 
     // Make sure you get an address with a length of 42
-    let address;
-    for (let i = index; i >= 0; i--) {
-      if (Array.isArray(fileArray[i])) {
-        continue;
-      } else if (typeof fileArray[i] === 'object') {
-        address = fileArray[i].address;
-      } else {
-        if (fileArray[i].length === 42) {
-          address = fileArray[i];
-          break;
-        }
-      }
-    }
+
+    const address = fileArray[index].address;
 
     if (!address) {
       throw new Error('Could not get a valid address from ' + contractName);
