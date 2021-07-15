@@ -133,7 +133,8 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .option('-l --links <links>', 'Library contract addresses')
   .action((contractName, args, options) => {
-    delib.init();
+    options = optionActions(options);
+
     let links;
     if (options.links) {
       const linksStr = options.links.replace(/'/g,'');
@@ -157,7 +158,6 @@ program
       }
     }
 
-    options = optionActions(options);
 
     // Check if built contract exists
     const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
@@ -203,7 +203,6 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .option('--call', 'Forces method execution with a call')
   .action((contractName, method, args, options) => {
-    delib.init();
     const callOption = options.call; // Whether or not to call transaction
     options = optionActions(options);
 
@@ -265,7 +264,6 @@ program
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, blocksBack, options) => {
-    delib.init();
     optionActions(options);
 
     const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
@@ -300,7 +298,6 @@ program
     delib.eventsAt(contractName, contractAddress, eventName, blocksBack)
       .then(logs => {
         console.log('Event logs:');
-        logs = logs.map(log => { return log.args; });
         console.log(logs);
         process.exit();
         delib.closeIPC();
@@ -322,9 +319,8 @@ program
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
   .action((contractName, eventName, options) => {
-    delib.init();
     optionActions(options);
-
+    delib.initws();
     const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
@@ -335,6 +331,7 @@ program
 
     // Check if event exists
     const contract = delib.builtContractExec(contractName);
+
     const contractAddress = delib.contracts.addresses.get(contractName);
     const events = contract.events;
 
@@ -358,7 +355,7 @@ program
     console.log('Watching for events:');
     delib.watchAt(contractName, contractAddress, eventName, (err, log) => {
       if (!err) {
-        console.log(log.args);
+        console.log(log);
       }
     });
   });

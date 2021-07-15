@@ -12,12 +12,15 @@ module.exports = {
 
   /** RPC connection options */
   rpc: {
-    host: 'localhost',
-    port: 8545
+    rpcPath: 'http://localhost:8546'
   },
 
   /** IPC connection options */
   ipc: {
     host: null // Relative path to IPC host
+  },
+
+  ws: {
+    wsPath: 'ws://localhost:8546'
   }
 };

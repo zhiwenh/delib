@@ -18,6 +18,11 @@ module.exports = {
     host: null // Relative path to IPC host
   },
 
+  /** WS connection options */
+  ws: {
+    wsPath: 'ws://localhost:8545'
+  },
+
   /** CLI options */
   cli: {
     /** Default transaction options */

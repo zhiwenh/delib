@@ -18,7 +18,6 @@ module.exports = (contractFiles, directoryPath) => {
   if (!directoryPath) directoryPath = config.paths.contract;
   if (directoryPath[directoryPath.length - 1] !== '/') directoryPath += '/';
 
-  console.log(directoryPath);
   const input = {
     language: 'Solidity',
     sources: {},

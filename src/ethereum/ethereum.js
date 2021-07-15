@@ -6,8 +6,7 @@ const truffleContract = require('truffle-contract');
 const contracts = require('./contracts');
 const init = require('./init');
 const initIPC = require('./initipc');
-const createAccount = require('./createaccount');
-const unlockAccount = require('./unlockaccount');
+const initws = require('./initws');
 const build = require('./build');
 const optionsMerge = require('./utils/optionsmerge');
 const optionsFilter = require('./utils/optionsfilter');
@@ -27,6 +26,7 @@ function Ethereum() {
   this.web3; // Web3 object used by library
   this.web3RPC; // Web3 RPC object
   this.web3IPC; // Web3 IPC object
+  this.web3ws; // Web3 WS object
   this.gasAdjust = 0; // Deploy and exec gas estimate adjustments
 
   this._connectionType;
@@ -56,8 +56,7 @@ function Ethereum() {
 
   /**
    *
-   * @param {string} rpcHost
-   * @param {number} rpcPort
+   * @param {string} rpcPath
    * @returns {Web3}
    */
   this.init = (rpcPath) => {
@@ -83,6 +82,20 @@ function Ethereum() {
 
 
     return this.web3;
+  };
+
+  /**
+   *
+   * @param {string} wsPath
+   * @returns {Web3}
+   */
+  this.initws = (wsPath) => {
+    this.web3ws = initws(wsPath);
+    this._connectionType = 'ws';
+    this.web3 = this.web3ws;
+    this._provider = this.web3ws.currentProvider;
+
+    return this.web3; // Return web3 object used
   };
 
   /**
@@ -153,7 +166,7 @@ function Ethereum() {
     }
     return contract;
   }
-  
+
   this.getContractInfo = (contractName) => {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
 
@@ -534,19 +547,16 @@ function Ethereum() {
       throw new Error('Invalid event: ' + eventName + ' is not an event of ' + contractName);
     }
 
-
     filter = (filter && typeof filter === 'object') ? filter : {};
     filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
 
-    const watchEvents = contract.events[eventName](filter);
+    const watchEvents = contract.events[eventName]({filter: filter, fromBlock: 0});
     watchEvents
       .on("data", (event) => {
         callback(null, event);
-        console.log(event);
       })
-      .on("error", (error) => {
+      .on("error", (err) => {
         callback(err, null);
-        console.log(err);
       })
 
     return {

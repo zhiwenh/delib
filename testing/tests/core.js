@@ -56,7 +56,6 @@ test('Deploying Bank contract with gas estimate', t => {
 
   delib.deploy.estimate('Bank')
     .then(estimate => {
-      console.log('estimate', estimate);
       t.equal(estimate > 100000, true, 'Expect deploy.estimate to return an estimate greater than 100000');
       t.equal(estimate < 600000, true, 'Expect deploy.estimate to return an estimate less than 600000');
 
@@ -238,11 +237,12 @@ test('Getting Bank contract event logs', t => {
 test('Watching for Bank contract event logs', t => {
   const depositLogs = [];
   const withdrawLogs = [];
-  const web3 = delib.init();
+  const web3 = delib.initws();
   const gas = 100000;
 
   let withdrawWatch;
   let depositWatch;
+
   delib.deploy('Bank')
     .then(instance => {
 
@@ -273,6 +273,7 @@ test('Watching for Bank contract event logs', t => {
           console.error(err);
           t.fail();
         } else {
+          console.log('log', log);
           withdrawLogs.push(log);
         }
       });

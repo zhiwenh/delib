@@ -75,6 +75,12 @@ if (isDefault === false) {
 
   config.rpc.rpcPath = config.rpc.rpcPath || defaultConfig.rpc.rpcPath;
 
+  if (typeof config.ws !== 'object' || Array.isArray(config.ws)) {
+    config.ws = defaultConfig.ws;
+  }
+
+  config.ws.wsPath = config.ws.wsPath || defaultConfig.ws.wsPath;
+
   if (typeof config.solc !== 'object' || Array.isArray(config.solc)) {
     config.solc = defaultConfig.solc;
   }
