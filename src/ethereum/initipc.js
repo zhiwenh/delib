@@ -15,7 +15,7 @@ module.exports = (ipcPath) => {
   options.host = ipcPath || config.ipc.host;
   let web3IPC;
   try {
-    var web3 = new Web3(options.host, net); // mac os path
+    var web3 = new Web3(new Web3.providers.IpcProvider(ipcPath, net)); // mac os path
   } catch (e) {
     web3IPC = undefined;
   }

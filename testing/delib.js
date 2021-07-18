@@ -12,7 +12,7 @@ module.exports = {
 
   /** RPC connection options */
   rpc: {
-    rpcPath: 'http://localhost:8546'
+    rpcPath: 'http://localhost:8545'
   },
 
   /** IPC connection options */
@@ -21,6 +21,6 @@ module.exports = {
   },
 
   ws: {
-    wsPath: 'ws://localhost:8546'
+    wsPath: 'ws://localhost:8545'
   }
 };

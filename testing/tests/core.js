@@ -52,7 +52,7 @@ test('Building Bank contract', t => {
 });
 
 test('Deploying Bank contract with gas estimate', t => {
-  delib.init();
+  const web3 = delib.init();
 
   delib.deploy.estimate('Bank')
     .then(estimate => {
@@ -72,8 +72,7 @@ test('Deploying Bank contract with gas estimate', t => {
 });
 
 test('Deploying Bank contract with no gas estimate', t => {
-  delib.init();
-
+  const web3 = delib.init();
   delib.deploy('Bank', [], {gas: 800000})
     .then(instance => {
       t.notEqual(instance.options.address, undefined, 'Expect deploy to return an instance with an address property');
@@ -245,7 +244,6 @@ test('Watching for Bank contract event logs', t => {
 
   delib.deploy('Bank')
     .then(instance => {
-
       const filter = {
         args: {
           _amount: (amount) => {

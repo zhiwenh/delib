@@ -1,4 +1,5 @@
 'use strict';
+const Web3 = require('web3');
 const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
@@ -15,6 +16,7 @@ const logFilter = require('./utils/logfilter');
 const coder = require('web3-0.20.7/lib/solidity/coder');
 const config = require('./../config/config.js');
 const linker = require('solc/linker');
+const net = require('net');
 
 // Path from this file to your project's root or from where you run your script.
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
@@ -24,9 +26,6 @@ const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows bu
  */
 function Ethereum() {
   this.web3; // Web3 object used by library
-  this.web3RPC; // Web3 RPC object
-  this.web3IPC; // Web3 IPC object
-  this.web3ws; // Web3 WS object
   this.gasAdjust = 0; // Deploy and exec gas estimate adjustments
 
   this._connectionType;
@@ -60,12 +59,19 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.init = (rpcPath) => {
-    this.web3RPC = init(rpcPath);
-    this._connectionType = 'rpc';
-    this.web3 = this.web3RPC;
-    this._provider = this.web3RPC.currentProvider;
-
-    return this.web3; // Return web3 object used
+    if (this._connectionType === 'rpc') {
+      return this.web3;
+    } else if (this.web3) {
+      this.web3.setProvider(new Web3.providers.HttpProvider(config.rpc.rpcPath));
+      this._provider = this.web3.currentProvider;
+      this._connectionType = 'rpc';
+      return this.web3;
+    } else {
+      this.web3 = init(rpcPath);
+      this._connectionType = 'rpc';
+      this._provider = this.web3.currentProvider;
+      return this.web3;
+    }
   };
 
   /**
@@ -74,14 +80,19 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initIPC = (ipcPath) => {
-    this.web3IPC = initIPC(ipcPath);
-    this._connectionType = 'ipc';
-    this._provider = undefined;
-    this.web3 = this.web3IPC;
-    this._provider = this.web3IPC.currentProvider;
-
-
-    return this.web3;
+    if (this._connectionType === 'ipc') {
+      return this.web3;
+    } else if (this.web3) {
+      this.web3.setProvider(new Web3.providers.IpcProvider(config.ipc.ipcPath, net));
+      this._connectionType = 'ipc';
+      this._provider = this.web3.currentProvider;
+      return this.web3;
+    } else {
+      this.web3 = initIPC(ipcPath);
+      this._connectionType = 'ipc';
+      this._provider = this.web3.currentProvider;
+      return this.web3;
+    }
   };
 
   /**
@@ -90,12 +101,22 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initws = (wsPath) => {
-    this.web3ws = initws(wsPath);
-    this._connectionType = 'ws';
-    this.web3 = this.web3ws;
-    this._provider = this.web3ws.currentProvider;
+    if (this._connectionType === 'ws') {
+      return this.web3;
 
-    return this.web3; // Return web3 object used
+    } else if (this.web3) {
+      this.web3.setProvider(new Web3.providers.WebsocketProvider(config.ws.wsPath));
+      this._connectionType = 'ws';
+      this._provider = this.web3.currentProvider;
+      return this.web3;
+
+    } else {
+      this.web3 = initws(wsPath);
+      this._connectionType = 'ws';
+      this.web3 = this.web3ws;
+      this._provider = this.web3.currentProvider;
+      return this.web3;
+    }
   };
 
   /**
@@ -132,7 +153,6 @@ function Ethereum() {
 
   this.builtContractExec = (contractName, address) => {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
-
     let contract;
     try {
       const contractJSONString = fs.readFileSync(contractJSONPath);
@@ -187,6 +207,7 @@ function Ethereum() {
       }
       // Only estimate gas if options.gas is 0 or null
       options.gas = undefined;
+
       self.deploy.estimate(contractName, args, options, links)
         .then(gasEstimate => {
           options.gas = Math.round(gasEstimate + gasEstimate * self.gasAdjust);
