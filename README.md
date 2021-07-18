@@ -270,7 +270,7 @@ delib.contracts.paths.address = relative path to addresses folder';
 Your project's `delib.js` file sets up your RPC and IPC connections. You can also pass in connection options as arguments.
 
 #### RPC provider
-**delib.init(rpcHost, rpcPort)**
+**delib.init(rpcPath)**
 
 To connect with the options in `delib.js`:
 
@@ -300,7 +300,7 @@ delib.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform tra
 **delib.initws(wsPath)**
 
 ```
-delib.initws(wsPath);
+delib.initws('ws://localhost:8545');
 ```
 
 ### Adjust options
@@ -773,9 +773,6 @@ Set the address of a contract to use.
 ## Library
 * [delib](#Ethereum+api)
     * [.web3](#Ethereum+web3)
-    * [.web3RPC](#Ethereum+web3RPC)
-    * [.web3IPC](#Ethereum+web3IPC)
-    * [.web3ws](#Ethereum+web3ws)
     * [.gasAdjust](#Ethereum+gasAdjust)
     * [.options](#Ethereum+options)
     * [.account](#Ethereum+account)
@@ -807,18 +804,6 @@ Set the address of a contract to use.
 <a name="Ethereum+web3"></a>
 #### delib.web3
 The Web3 object being used as the current provider. Will first need to initialize a connection with `delib.init()` or `delib.initIPC()`;
-
-<a name="Ethereum+web3RPC"></a>
-#### delib.web3RPC
-The Web3 object used for RPC connections. Will first need to initialize a RPC connection with `delib.init()`.
-
-<a name="Ethereum+web3IPC"></a>
-#### delib.web3IPC
-The Web3 object used for IPC connections. Will first need to initialize an IPC connection with `delib.initIPC()`. This object will allow you to perform Web3 personal and admin tasks.
-
-<a name="Ethereum+web3ws"></a>
-#### delib.web3IPC
-The Web3 object used for WS connections.
 
 <a name="Ethereum+gasAdjust"></a>
 #### delib.gasAdjust
