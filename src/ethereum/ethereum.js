@@ -231,11 +231,24 @@ function Ethereum() {
               byteCode = linker.linkBytecode(byteCode, links);
             }
 
-            return contract.deploy({data: byteCode, arguments: args}).send(deployOptions);
+            const data = contract.deploy({data: byteCode, arguments: args}).encodeABI(deployOptions);
+
+            const transactionOptions = {
+              from: deployOptions.from,
+              gas: deployOptions.gas,
+              data: data
+            };
+
+            return self.web3.eth.sendTransaction(transactionOptions);
           })
-          .then(instance => {
-            self.contracts.addresses.set(contractName, instance.options.address, links);
-            callback(null, instance);
+          .then(tx => {
+            const contractJSONPath = path.resolve(path.join(config.projectRoot, self.contracts.paths.built, contractName + '.json'));
+            const contractJSONString = fs.readFileSync(contractJSONPath);
+            const contractInfo = JSON.parse(contractJSONString);
+
+            const contractInstance = new self.web3.eth.Contract(contractInfo.abi, tx.address);
+            self.contracts.addresses.set(contractName, tx.contractAddress, links);
+            callback(null, contractInstance);
           })
           .catch(err => {
             callback(err, null);
@@ -389,7 +402,17 @@ function Ethereum() {
               promisify(this.web3.eth.getAccounts)()
                 .then(accounts => {
                   options.from = options.from || accounts[options.account] || accounts[this.account];
-                  return contract.methods[methodName](...args).send(options);
+
+                  const data = contract.methods[methodName](...args).encodeABI();
+                  const transactionOptions = {
+                    from: options.from,
+                    to: contractAddress,
+                    gas: options.gas,
+                    value: options.value,
+                    data: data
+                  };
+
+                  return this.web3.eth.sendTransaction(transactionOptions);
                 })
                 .then(res => {
                   callback(null, res);
@@ -414,8 +437,16 @@ function Ethereum() {
                 return contract.methods[methodName](...args).estimateGas(options);
               })
               .then(gasEstimate => {
-                options.gas = gasEstimate;
-                return contract.methods[methodName](...args).send(options);
+                const data = contract.methods[methodName](...args).encodeABI();
+                const transactionOptions = {
+                  from: options.from,
+                  to: contractAddress,
+                  gas: gasEstimate,
+                  value: options.value,
+                  data: data
+                };
+
+                return this.web3.eth.sendTransaction(transactionOptions);
               })
               .then(res => {
                 callback(null, res);
