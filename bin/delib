@@ -12,7 +12,7 @@ const info = require('./../src/cli/info');
 const contracts = require('./../src/cli/contracts');
 
 program
-  .version('4.7.2')
+  .version('4.7.3')
   .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */

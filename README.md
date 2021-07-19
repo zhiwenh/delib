@@ -119,9 +119,6 @@ Your contract's deployed addresses are saved in a plain text file with a file na
 ### Library and command integration
 Building a contract with the command tool will allow it to be accessible with the library. Also, deploying a contract using the library will make the following command tool calls refer to the library's deployed address, and vice versa. You can deploy contracts and then quickly test whether your methods are working with commands.  
 
-## Connecting to a network
-To connect to a network use `delib.web3.eth.accounts.wallet.add()`. This will import your account into web3 which will then allow you to sign transactions to the network. 
-
 <a name="Cli"></a>
 # Command Tool
 
