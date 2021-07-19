@@ -12,7 +12,6 @@ Delib is designed to be easy to learn and allow freedom when developing with Eth
   * The saving of deployed contract addresses to use or reference later.
 
 ## Table of Contents
-  * [Requirements](#requirements)
   * [Installation and Setup](#install)
   * [Usage](#usage)
   * [Command Tool](#Cli)
@@ -23,10 +22,6 @@ Delib is designed to be easy to learn and allow freedom when developing with Eth
   * [Library API](#Ethereum+api)
 
 <a name="requirements"></a>
-
-## Requirements
-
-You need to have an Ethereum node to connect with. A good option for testing would be Ganache.
 
 <a name="install"></a>
 
@@ -124,6 +119,8 @@ Your contract's deployed addresses are saved in a plain text file with a file na
 ### Library and command integration
 Building a contract with the command tool will allow it to be accessible with the library. Also, deploying a contract using the library will make the following command tool calls refer to the library's deployed address, and vice versa. You can deploy contracts and then quickly test whether your methods are working with commands.  
 
+## Connecting to a network
+To connect to a network use `delib.web3.eth.accounts.wallet.add()`. This will import your account into web3 which will then allow you to sign transactions to the network. 
 
 <a name="Cli"></a>
 # Command Tool
