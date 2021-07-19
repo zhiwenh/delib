@@ -197,7 +197,6 @@ function Ethereum() {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
     const contractJSONString = fs.readFileSync(contractJSONPath);
     const contractInfo = JSON.parse(contractJSONString);
-
     return contractInfo.bytecode;
   }
 
@@ -206,6 +205,7 @@ function Ethereum() {
    * @param {string} contractName
    * @param {Array} args
    * @param {Object} options
+   * @param {Array} links
    * @return {Promise}
    */
   this.deploy = (contractName, args, options, links) => {
@@ -262,7 +262,7 @@ function Ethereum() {
             const contractJSONString = fs.readFileSync(contractJSONPath);
             const contractInfo = JSON.parse(contractJSONString);
 
-            const contractInstance = new self.web3.eth.Contract(contractInfo.abi, tx.address);
+            const contractInstance = new self.web3.eth.Contract(contractInfo.abi, tx.contractAddress);
             self.contracts.addresses.set(contractName, tx.contractAddress, links);
             callback(null, contractInstance);
           })

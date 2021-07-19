@@ -45,6 +45,7 @@ module.exports = function(rawOptions, connection) {
   if (rawOptions.nonce) options.nonce = rawOptions.nonce;
   if (rawOptions.accountIndex) options.accountIndex = rawOptions.accountIndex;
   if (rawOptions.maxgas) options.maxGas = rawOptions.maxgas;
+  if (rawOptions.links) options.links = rawOptions.links;
 
   return options;
 };
