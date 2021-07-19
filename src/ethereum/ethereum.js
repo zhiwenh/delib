@@ -119,6 +119,19 @@ function Ethereum() {
     }
   };
 
+  this.changeProvider = (path, type) => {
+    if (this.web3) {
+      if (type === 'rpc') {
+        this.web3.setProvider(new Web3.providers.HttpProvider(path));
+      } else if (type === 'ipc') {
+        this.web3.setProvider(new Web3.providers.IpcProvider(path, net));
+      } else if (type === 'ws') {
+        this.web3.setProvider(new Web3.providers.WebsocketProvider(path));
+      }
+      return this.web3;
+    }
+  }
+
   /**
    * Builds Solidity contracts.
    * @param {array} contractFiles
@@ -445,10 +458,12 @@ function Ethereum() {
                   value: options.value,
                   data: data
                 };
+                // return contract.methods[methodName](...args).send(options);
 
                 return this.web3.eth.sendTransaction(transactionOptions);
               })
               .then(res => {
+                console.log(res);
                 callback(null, res);
               })
               .catch(err => {

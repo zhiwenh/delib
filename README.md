@@ -28,8 +28,6 @@ Delib is designed to be easy to learn and allow freedom when developing with Eth
 
 You need to have an Ethereum node to connect with. A good option for testing would be Ganache.
 
-Delib uses [npm web3](https://www.npmjs.com/package/web3) version 1.3.6.
-
 <a name="install"></a>
 
 ## Installation and Setup
@@ -788,6 +786,7 @@ Set the address of a contract to use.
     * [.init(rpcPath)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.initws(wsPath)](#Ethereum+initws) ⇒ <code>Web3</code>
+    * [.changeProvider(path, type)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
       * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
@@ -885,7 +884,7 @@ Retrieves the addresses file of a contract and return an array of all its deploy
 #### delib.init(rpcPath) ⇒ <code>Web3</code>
 Initializes a RPC connection with an Ethereum node. The RPC provider can be set in the ```delib.js``` config file or you can pass it in as arguments. This needs to be called before performing any methods that interact with an Ethereum node.
 
-**Returns**: <code>Web3</code> - The Web3 object being used as a provider (RPC or IPC).
+**Returns**: <code>Web3</code> - The Web3 object delib uses for its RPC connection.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -905,11 +904,22 @@ Initializes an IPC connection with an Ethereum node. The IPC provider can be set
 #### delib.initws(wsPath) ⇒ <code>Web3</code>
 Initializes a WS connection with an Ethereum node.
 
-**Returns**: <code>Web3</code> - The Web3 object delib uses for its IPC connection.  
+**Returns**: <code>Web3</code> - The Web3 object delib uses for its websocket connection
 
 | Param | Type | Description |
 | --- | --- | --- |
 | ipcPath | <code>string</code> | Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'. Optional. |
+
+<a name="Ethereum+changeProvider"></a>
+#### delib.changeProvider(path, type) ⇒ <code>Web3</code>
+Changes web3 provider.
+
+**Returns**: <code>Web3</code> - The Web3 object delib uses for its connection.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| path | <code>string</code> | Path to the provider.
+| type | <code>string</code> | Type of provider to use.
 
 
 <a name="Ethereum+build"></a>
@@ -1035,7 +1045,7 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 
 <a name="Ethereum+watch"></a>
 #### delib.watchAt(contractName, contractAddress, eventName, filter, callback)
-Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`.
+Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`. Need a websocket connection to be able to watch for events.
 
 **Returns** <code>Object</code>
 
