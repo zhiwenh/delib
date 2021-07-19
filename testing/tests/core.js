@@ -24,20 +24,6 @@ const xtest = (describe, callback) => {
   console.log('  x Skipping: ', describe);
 };
 
-xtest('Initializing connection', t => {
-  delib.init();
-
-  t.equal(delib.checkConnection('rpc'), true, 'Expect checkConnection rpc to be true');
-
-  delib.initIPC('./chain1/devchain/geth.ipc');
-
-  t.equal(delib.checkConnection('ipc'), true, 'Expect checkConnect ipc to be true');
-
-  delib.closeIPC();
-
-  t.end();
-});
-
 test('Building Bank contract', t => {
   delib.build(['Bank', 'BadBank'])
     .then(contracts => {
@@ -236,7 +222,7 @@ test('Getting Bank contract event logs', t => {
 test('Watching for Bank contract event logs', t => {
   const depositLogs = [];
   const withdrawLogs = [];
-  const web3 = delib.initws();
+  const web3 = delib.changeProvider('ws');
   const gas = 100000;
 
   let withdrawWatch;

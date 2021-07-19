@@ -119,13 +119,22 @@ function Ethereum() {
     }
   };
 
-  this.changeProvider = (path, type) => {
+  /**
+   * Change web3 provider.
+   * @param {string} path
+   * @param {string} type
+   * @returns {Web3}
+   */
+  this.changeProvider = (type, path) => {
     if (this.web3) {
       if (type === 'rpc') {
+        path = path || config.rpc.rpcPath;
         this.web3.setProvider(new Web3.providers.HttpProvider(path));
       } else if (type === 'ipc') {
+        path = path || config.ipc.host;
         this.web3.setProvider(new Web3.providers.IpcProvider(path, net));
       } else if (type === 'ws') {
+        path = path || config.ws.wsPath;
         this.web3.setProvider(new Web3.providers.WebsocketProvider(path));
       }
       return this.web3;

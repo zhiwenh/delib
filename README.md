@@ -786,7 +786,7 @@ Set the address of a contract to use.
     * [.init(rpcPath)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.initws(wsPath)](#Ethereum+initws) ⇒ <code>Web3</code>
-    * [.changeProvider(path, type)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
+    * [.changeProvider(type, path)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
       * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
@@ -911,16 +911,15 @@ Initializes a WS connection with an Ethereum node.
 | ipcPath | <code>string</code> | Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'. Optional. |
 
 <a name="Ethereum+changeProvider"></a>
-#### delib.changeProvider(path, type) ⇒ <code>Web3</code>
+#### delib.changeProvider(type, path) ⇒ <code>Web3</code>
 Changes web3 provider.
 
 **Returns**: <code>Web3</code> - The Web3 object delib uses for its connection.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| path | <code>string</code> | Path to the provider.
 | type | <code>string</code> | Type of provider to use.
-
+| path | <code>string</code> | Path to the provider.
 
 <a name="Ethereum+build"></a>
 #### delib.build(contractFiles, contractPath, buildPath)
