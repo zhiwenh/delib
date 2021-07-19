@@ -15,7 +15,6 @@ library Array {
     }
 }
 
-
 contract Example {
   using MathLib for uint;
   using Array for uint[];
