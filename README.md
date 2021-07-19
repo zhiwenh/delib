@@ -73,7 +73,7 @@ You can have the init command create a custom project structure for you. If you 
 You don't need to create a project to use Delib. More information is given in the usage section.
 
 ### Configuration
-A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options. Delib supports solc 0.5.1 - 0.8.6.
+A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options. Delib supports solc 0.4.1 - 0.8.6.
 
 ```
 {
@@ -99,7 +99,7 @@ A file called `delib.js` gets made when you create a project. It contains your p
     wsPath: 'ws://localhost:8545'
   },
 
-  /** solc options. Supported versions: 0.5.1 - 0.8.6 **/
+  /** solc options. Supported versions: 0.4.1 - 0.8.6 **/
   solc: {
     version: '0.8.6'
   }

@@ -18,23 +18,54 @@ module.exports = (contractFiles, directoryPath) => {
   if (!directoryPath) directoryPath = config.paths.contract;
   if (directoryPath[directoryPath.length - 1] !== '/') directoryPath += '/';
 
-  const input = {
-    language: 'Solidity',
-    sources: {},
-    settings: {
-      outputSelection: {
-        '*': {
-          '*': ['*']
+  let input;
+  if (Number(config.solc.version.split('')[2]) === 4) {
+    input = {};
+
+    contractFiles.forEach(function(contract) {
+      if (!contract.endsWith('.sol')) contract += '.sol';
+      const contractPath = directoryPath + contract;
+      input[contract] = {content: null};
+      input[contract] = fs.readFileSync(contractPath, 'UTF-8');
+    });
+  } else if (config.solc.version === '0.5.0') {
+    input = {
+      language: 'Solidity',
+      sources: {},
+      settings: {
+        outputSelection: {
+          '*': {
+              '*': ['*'],
+          },
+        },
+      },
+    };
+
+    contractFiles.forEach(function(contract) {
+      if (!contract.endsWith('.sol')) contract += '.sol';
+      const contractPath = directoryPath + contract;
+      input.sources[contract] = {content: null};
+      input.sources[contract].content = fs.readFileSync(contractPath, 'UTF-8');
+    });
+  } else {
+    input = {
+      language: 'Solidity',
+      sources: {},
+      settings: {
+        outputSelection: {
+          '*': {
+            '*': ['*']
+          }
         }
       }
-    }
-  };
-  contractFiles.forEach(function(contract) {
-    if (!contract.endsWith('.sol')) contract += '.sol';
-    const contractPath = directoryPath + contract;
-    input.sources[contract] = {content: null};
-    input.sources[contract].content = fs.readFileSync(contractPath, 'UTF-8');
-  });
+    };
+    contractFiles.forEach(function(contract) {
+      if (!contract.endsWith('.sol')) contract += '.sol';
+      const contractPath = directoryPath + contract;
+      input.sources[contract] = {content: null};
+      input.sources[contract].content = fs.readFileSync(contractPath, 'UTF-8');
+    });
+  }
 
   function findImports(_path) {
     if (_path[0] === '.') {
@@ -50,42 +81,52 @@ module.exports = (contractFiles, directoryPath) => {
 
   let output;
 
-  if (config.solc.version.split('')[2] === 5) {
+  if (Number(config.solc.version.split('')[2]) === 4) {
+    output = solc.compile({sources: input}, findImports);
+  } else if (config.solc.version === '0.5.0') {
+    try {
+      output = JSON.parse(solc.compile(JSON.stringify(input)), 1, findImports);
+    } catch (e) {
+      console.log(e);
+    }
+  } else if (Number(config.solc.version.split('')[2]) === 5) {
     output = JSON.parse(solc.compile(JSON.stringify(input), findImports));
   } else {
     output = JSON.parse(solc.compile(JSON.stringify(input), {import: findImports}));
-
   }
-
 
   if (output.errors) {
     console.log(output.errors);
   }
 
-  // to have contract data in the proper format
-  const contractsCompiled = {};
-  for (let contractFileName in output.contracts) {
-    const out = output.contracts[contractFileName];
+  if (Number(config.solc.version.split('')[2]) === 4) {
+    const contractsCompiled = {};
 
-    for (let contractName in out) {
-      contractName = contractName.substring(contractName.indexOf(':') + 1, contractName.length);
+    for (let contractFileName in output.contracts) {
+      const contractName = contractFileName.slice(contractFileName.indexOf(':') + 1);
+      const out = output.contracts[contractFileName];
       contractsCompiled[contractName] = {};
       contractsCompiled[contractName].contractName = contractName;
-      contractsCompiled[contractName].abi = out[contractName].abi;
-
-      contractsCompiled[contractName].metadata = out[contractName].metadata;
-
-      contractsCompiled[contractName].bytecode = out[contractName].evm.bytecode.object;
-
-      contractsCompiled[contractName].deployedBytecode = out[contractName].evm.deployedBytecode.object;
-      contractsCompiled[contractName].immutableReferences = out[contractName].evm.deployedBytecode.immutableReferences;
-
-      contractsCompiled[contractName].generatedSources = out[contractName].evm.deployedBytecode.generatedSources;
-      contractsCompiled[contractName].sourceMap = out[contractName].evm.deployedBytecode.sourceMap;
-      contractsCompiled[contractName].devdoc = out[contractName].devdoc;
-      contractsCompiled[contractName].userdoc = out[contractName].userdoc;
+      contractsCompiled[contractName].abi = JSON.parse(out.interface);
+      contractsCompiled[contractName].metadata = out.metadata;
+      contractsCompiled[contractName].bytecode = out.bytecode;
     }
-  }
 
-  return contractsCompiled;
+    return contractsCompiled;
+  } else {
+    const contractsCompiled = {};
+    for (let contractFileName in output.contracts) {
+      const out = output.contracts[contractFileName];
+      for (let contractName in out) {
+        contractName = contractName.substring(contractName.indexOf(':') + 1, contractName.length);
+        contractsCompiled[contractName] = {};
+        contractsCompiled[contractName].contractName = contractName;
+        contractsCompiled[contractName].abi = out[contractName].abi;
+        contractsCompiled[contractName].metadata = out[contractName].metadata;
+        contractsCompiled[contractName].bytecode = out[contractName].evm.bytecode.object;
+      }
+    }
+
+    return contractsCompiled;
+  }
 };

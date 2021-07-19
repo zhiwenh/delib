@@ -22,5 +22,9 @@ module.exports = {
 
   ws: {
     wsPath: 'ws://localhost:8545'
+  },
+
+  solc: {
+    version: '0.8.4'
   }
 };
