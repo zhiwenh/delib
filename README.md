@@ -771,6 +771,7 @@ Set the address of a contract to use.
 ## Library
 * [delib](#Ethereum+api)
     * [.web3](#Ethereum+web3)
+    * [.connectionType](#Ethereum+connectType)
     * [.gasAdjust](#Ethereum+gasAdjust)
     * [.options](#Ethereum+options)
     * [.account](#Ethereum+account)
