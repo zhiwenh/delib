@@ -11,7 +11,7 @@ const allowedOptions = {
   nonce: true,
 
   /** delib options */
-  account: true,
+  accountIndex: true,
   maxGas: true
 };
 

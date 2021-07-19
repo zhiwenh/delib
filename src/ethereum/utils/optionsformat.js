@@ -17,7 +17,7 @@ const optionsType = {
   nonce: 'number',
 
   /** delib options */
-  account: 'number',
+  accountIndex: 'number',
   maxGas: 'number'
 };
 
