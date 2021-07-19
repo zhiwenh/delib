@@ -305,7 +305,7 @@ delib.initws('ws://localhost:8545');
 **delib.account**  
 **delib.options**  
 
-To chooose a default account index for transactions use `delib.account`. The index corresponds to the `web3.eth.accounts` array. By default it is 0.
+To chooose a default account index for transactions use `delib.accountIndex`. The index corresponds to the `web3.eth.accounts` array. By default it is 0.
 
 ```
 delib.account = 0;
@@ -580,7 +580,7 @@ delib.exec('Messages').getMessage()
     console.log(message); // -> hello
 
     // Call another method with your 2nd account and pass in options
-    delib.account = 1;
+    delib.accountIndex = 1;
     return delib.exec('Messages').setMessage('coffee', {
       gas: 100000 // gas will no longer be estimated
     });
@@ -774,7 +774,7 @@ Set the address of a contract to use.
     * [.connectionType](#Ethereum+connectType)
     * [.gasAdjust](#Ethereum+gasAdjust)
     * [.options](#Ethereum+options)
-    * [.account](#Ethereum+account)
+    * [.accountIndex](#Ethereum+accountIndex)
     * [.contracts](#Ethereum+contracts)
       * [.paths](#Ethereum+contracts+paths)
         * [.contract](#Ethereum+contracts+paths)
@@ -812,9 +812,9 @@ The amount to adjust gas when doing automatic gas estimates. Default is 0. It's 
 gasEstimate = gasEstimate + gasEstimate * gasAdjust
 ```
 
-<a name="Ethereum+account"></a>
-#### delib.account
-The default index of the account used for transactions. The index uses the web3.eth.accounts array to get the account address. This can be overwritten by setting an address in `delib.options.from`, setting a `from` property in transaction options, or setting an `account` property (also an account index) in transaction options.
+<a name="Ethereum+accountIndex"></a>
+#### delib.accountIndex
+The default index of the account used for transactions. The index uses the web3.eth.accounts array to get the account address. This can be overwritten by setting an address in `delib.options.from`, setting a `from` property in transaction options, or setting an `accountIndex` property (also an account index) in transaction options.
 
 <a name="Ethereum+options"></a>
 #### delib.options

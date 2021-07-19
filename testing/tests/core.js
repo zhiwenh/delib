@@ -244,20 +244,16 @@ test('Watching for Bank contract event logs', t => {
 
       depositWatch = delib.watch('Bank', 'depositEvent', filter, (err, log) => {
         if (err) {
-          console.error(err);
           t.fail();
         } else {
           depositLogs.push(log);
         }
-
       });
 
       withdrawWatch = delib.watch('Bank', 'withdrawEvent', filter, (err, log) => {
         if (err) {
-          console.error(err);
           t.fail();
         } else {
-          console.log('log', log);
           withdrawLogs.push(log);
         }
       });
@@ -303,61 +299,3 @@ test('Watching for Bank contract event logs', t => {
       console.error(err);
     });
 });
-
-
-/** N/A Tests */
-/**
-xtest('Contract JSON addresses', t => {
-  delib.init();
-  delib.deploy('ConvertLib', [], {gas: 500000})
-    .then(instance => {
-      const convertAddresses = instance.address;
-
-      const links = {
-        ConvertLib: '0xe3ad5a4775e7cdf6bf1867f20c1cbc7d192df5bb'
-      };
-
-      delib.link('Bank2', links);
-      return delib.deploy('Bank2', [], {gas: 500000});
-    })
-    .then(instance => {
-      const address = delib.contracts.addresses.get('Bank2');
-      const links = delib.contracts.addresses.getLinks('Bank2');
-      const addressesArray = delib.contracts.addresses.getAll('Bank2');
-      const linksArray = delib.contracts.addresses.getAllLinks('Bank2');
-
-      const address2 = delib.contracts.addresses.get('Convert');
-      const links2 = delib.contracts.addresses.getLinks('Convert');
-      const addressesArray2 = delib.contracts.addresses.getAll('Convert');
-      const linksArray2 = delib.contracts.addresses.getAllLinks('Convert');
-
-      // console.log('address Bank2', address);
-      // console.log('links Bank2', links);
-      // console.log('addressesArray Bank2', addressesArray);
-      // console.log('linksArray Bank2', linksArray);
-      //
-      // console.log('address Convert', address2);
-      // console.log('links Convert', links2);
-      // console.log('addressesArray Convert', addressesArray2);
-      // console.log('linksArray Convert', linksArray2);
-
-      return delib.exec('Bank2').deposit({
-        value: 500000000000
-      });
-    })
-    .then(tx => {
-
-      return delib.exec('Bank2').call.checkAmountEther();
-    })
-    .then(amount => {
-      console.log('amount', amount);
-
-      t.end();
-      // return delib.exec('Bank2').checkAmountEther();
-    })
-    .catch(err => {
-      console.error(err);
-      t.fail();
-    });
-});
-*/

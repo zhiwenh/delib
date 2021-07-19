@@ -28,11 +28,13 @@ function Ethereum() {
   this.web3; // Web3 object used by library
   this.gasAdjust = 0; // Deploy and exec gas estimate adjustments
 
-  this._connectionType;
-  this._provider; // Provider to use for methods
+  this.connectionType;
 
   /** Account index used for transactions */
-  this.account = 0;
+  this.accountIndex = 0;
+
+  /** Account to use for transactions */
+  this.account;
 
   /** Default options */
   this.options = {
@@ -46,7 +48,7 @@ function Ethereum() {
     nonce: undefined,
 
     /** Default delib options*/
-    account: undefined,
+    accountIndex: undefined,
     maxGas: undefined
   };
 
@@ -59,17 +61,15 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.init = (rpcPath) => {
-    if (this._connectionType === 'rpc') {
+    if (this.connectionType === 'rpc') {
       return this.web3;
     } else if (this.web3) {
       this.web3.setProvider(new Web3.providers.HttpProvider(config.rpc.rpcPath));
-      this._provider = this.web3.currentProvider;
-      this._connectionType = 'rpc';
+      this.connectionType = 'rpc';
       return this.web3;
     } else {
       this.web3 = init(rpcPath);
-      this._connectionType = 'rpc';
-      this._provider = this.web3.currentProvider;
+      this.connectionType = 'rpc';
       return this.web3;
     }
   };
@@ -80,17 +80,15 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initIPC = (ipcPath) => {
-    if (this._connectionType === 'ipc') {
+    if (this.connectionType === 'ipc') {
       return this.web3;
     } else if (this.web3) {
       this.web3.setProvider(new Web3.providers.IpcProvider(config.ipc.ipcPath, net));
-      this._connectionType = 'ipc';
-      this._provider = this.web3.currentProvider;
+      this.connectionType = 'ipc';
       return this.web3;
     } else {
       this.web3 = initIPC(ipcPath);
-      this._connectionType = 'ipc';
-      this._provider = this.web3.currentProvider;
+      this.connectionType = 'ipc';
       return this.web3;
     }
   };
@@ -101,20 +99,18 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initws = (wsPath) => {
-    if (this._connectionType === 'ws') {
+    if (this.connectionType === 'ws') {
       return this.web3;
 
     } else if (this.web3) {
       this.web3.setProvider(new Web3.providers.WebsocketProvider(config.ws.wsPath));
-      this._connectionType = 'ws';
-      this._provider = this.web3.currentProvider;
+      this.connectionType = 'ws';
       return this.web3;
 
     } else {
       this.web3 = initws(wsPath);
-      this._connectionType = 'ws';
+      this.connectionType = 'ws';
       this.web3 = this.web3ws;
-      this._provider = this.web3.currentProvider;
       return this.web3;
     }
   };
@@ -247,7 +243,7 @@ function Ethereum() {
       function deployInstance(deployOptions) {
         promisify(self.web3.eth.getAccounts)()
           .then(accounts => {
-            deployOptions.from = deployOptions.from || accounts[deployOptions.account] || accounts[self.account];
+            deployOptions.from = self.account || deployOptions.from || accounts[deployOptions.accountIndex] || accounts[self.accountIndex];
             let byteCode = self.getByteCode(contractName);
             if (links) {
               byteCode = linker.linkBytecode(byteCode, links);
@@ -295,7 +291,7 @@ function Ethereum() {
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
-          options.from = options.from || accounts[options.account] || accounts[this.account];
+          options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = undefined;
           const contractInfo = this.getContractInfo(contractName);
@@ -381,7 +377,7 @@ function Ethereum() {
 
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = options.from || accounts[options.account] || accounts[this.account];
+                options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 return contract.methods[methodName](...args).call(options);
               })
               .then(value => {
@@ -400,7 +396,7 @@ function Ethereum() {
 
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = options.from || accounts[options.account] || accounts[this.account];
+                options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 options.gas = undefined;
                 return contract.methods[methodName](...args).estimateGas(options);
               })
@@ -423,7 +419,7 @@ function Ethereum() {
             if (options.gas && options.gas != 0) {
               promisify(this.web3.eth.getAccounts)()
                 .then(accounts => {
-                  options.from = options.from || accounts[options.account] || accounts[this.account];
+                  options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
 
                   const data = contract.methods[methodName](...args).encodeABI();
                   const transactionOptions = {
@@ -448,7 +444,7 @@ function Ethereum() {
             /** ACTUAL: WITH GAS ESTIMATE */
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = options.from || accounts[options.account] || accounts[this.account];
+                options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 options.gas = undefined;
 
                 // Throw error if est gas is greater than max gas
@@ -472,7 +468,6 @@ function Ethereum() {
                 return this.web3.eth.sendTransaction(transactionOptions);
               })
               .then(res => {
-                console.log(res);
                 callback(null, res);
               })
               .catch(err => {
@@ -638,10 +633,10 @@ function Ethereum() {
    * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
    */
   this._checkConnectionError = (type) => {
-    if (!this._connectionType) {
+    if (!this.connectionType) {
       throw new Error ('Not connected to any provider');
     }
-    type = type || this._connectionType;
+    type = type || this.connectionType;
     type = type.toLowerCase();
   };
 }

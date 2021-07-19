@@ -43,7 +43,7 @@ module.exports = function(rawOptions, connection) {
   if (rawOptions.gasprice) options.gasPrice = rawOptions.gasprice;
   if (rawOptions.data) options.data = rawOptions.data;
   if (rawOptions.nonce) options.nonce = rawOptions.nonce;
-  if (rawOptions.account) options.account = rawOptions.account;
+  if (rawOptions.accountIndex) options.accountIndex = rawOptions.accountIndex;
   if (rawOptions.maxgas) options.maxGas = rawOptions.maxgas;
 
   return options;

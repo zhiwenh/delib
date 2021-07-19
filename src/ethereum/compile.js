@@ -85,9 +85,6 @@ module.exports = (contractFiles, directoryPath) => {
       contractsCompiled[contractName].devdoc = out[contractName].devdoc;
       contractsCompiled[contractName].userdoc = out[contractName].userdoc;
     }
-
-
-
   }
 
   return contractsCompiled;
