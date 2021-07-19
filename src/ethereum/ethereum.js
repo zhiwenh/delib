@@ -3,7 +3,6 @@ const Web3 = require('web3');
 const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
-const truffleContract = require('truffle-contract');
 const contracts = require('./contracts');
 const init = require('./init');
 const initIPC = require('./initipc');
