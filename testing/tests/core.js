@@ -26,7 +26,6 @@ const xtest = (describe, callback) => {
 };
 
 test('Building contracts', t => {
-
   delib.build()
     .then(contracts => {
       t.equal(contracts[0], 'BadBank', 'Expect first contract to be BadBank');
@@ -42,10 +41,18 @@ test('Building contracts', t => {
 test('Deploying MathLib and Example contract', t => {
   const web3 = delib.init();
 
+  let mathLibAddress;
+  let arrayAddress;
+
   delib.deploy('MathLib')
     .then(instance => {
-      const mathLibAddress = instance.options.address;
-      return delib.deploy('Example', [], {}, [{'LibraryTest.sol:MathLib': mathLibAddress}]);
+      mathLibAddress = instance.options.address;
+      return delib.deploy('Array');
+    })
+    .then(instance => {
+      arrayAddress = instance.options.address;
+
+      return delib.deploy('Example', [], {}, [{'LibraryTest.sol:MathLib': mathLibAddress}, {'LibraryTest.sol:Array': arrayAddress}]);
     })
     .then(instance => {
       t.notEqual(instance.options.address, undefined, 'Expect deploy to return an instance with an address property');
