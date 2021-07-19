@@ -11,6 +11,7 @@ process.chdir(__dirname); // So use with npm test works
 const tape = require('tape');
 const tapes = require('tapes');
 const tapSpec = require('tap-spec');
+
 const delib = require('./../../index');
 
 tape.createStream()
@@ -24,11 +25,30 @@ const xtest = (describe, callback) => {
   console.log('  x Skipping: ', describe);
 };
 
-test('Building Bank contract', t => {
-  delib.build(['Bank', 'BadBank'])
+test('Building contracts', t => {
+
+  delib.build()
     .then(contracts => {
       t.equal(contracts[0], 'BadBank', 'Expect first contract to be BadBank');
       t.equal(contracts[1], 'Bank', 'Expect second contract to be Bank');
+      t.end();
+    })
+    .catch(err => {
+      console.error(err);
+      t.fail();
+    });
+});
+
+test('Deploying MathLib and Example contract', t => {
+  const web3 = delib.init();
+
+  delib.deploy('MathLib')
+    .then(instance => {
+      const mathLibAddress = instance.options.address;
+      return delib.deploy('Example', [], {}, [{'LibraryTest.sol:MathLib': mathLibAddress}]);
+    })
+    .then(instance => {
+      t.notEqual(instance.options.address, undefined, 'Expect deploy to return an instance with an address property');
       t.end();
     })
     .catch(err => {
