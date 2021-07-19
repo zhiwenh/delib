@@ -13,7 +13,6 @@ const optionsMerge = require('./utils/optionsmerge');
 const optionsFilter = require('./utils/optionsfilter');
 const optionsFormat = require('./utils/optionsformat');
 const logFilter = require('./utils/logfilter');
-const coder = require('web3-0.20.7/lib/solidity/coder');
 const config = require('./../config/config.js');
 const linker = require('solc/linker');
 const net = require('net');
@@ -311,30 +310,6 @@ function Ethereum() {
           callback(err, null);
         });
     })();
-
-    /**
-     * Called to encode constructor params. Taken from web3 library
-     * @method encodeConstructorParams
-     * @param {Array} abi - contract.abi
-     * @param {Array} constructor params
-     */
-    function encodeConstructorParams(abi, params) {
-      const newArr = [];
-
-      for (let i = 0; i < abi.length; i++) {
-        newArr.push(abi[i]);
-      }
-
-      return newArr.filter(function (json) {
-        return json.type === 'constructor' && json.inputs.length === params.length;
-      }).map(function (json) {
-        return json.inputs.map(function (input) {
-          return input.type;
-        });
-      }).map(function (types) {
-        return coder.encodeParams(types, params);
-      })[0] || '';
-    }
   };
 
   /**
