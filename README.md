@@ -2,7 +2,7 @@
 
 ![Delib Logo](/logo.jpg?raw=true "Delib Logo")
 
-Simple Ethereum framework for DApps and contract management
+Simple Ethereum framework for DApps, smart contract creation, and smart contract interaction.
 
 Delib is designed to be easy to learn and allow freedom when developing with Ethereum. Its features include:
 
