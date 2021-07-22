@@ -617,7 +617,7 @@ delib exec Messages getMessage
 Response: apples
 ```
 
-
+Go here for more example code: https://github.com/zhiwenh/delib/blob/master/testing/tests/core.js
 
 <a name="support"></a>
 # Support
