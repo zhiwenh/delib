@@ -560,36 +560,30 @@ Create a file called `script.js`
 ```
 const delib = require('delib');
 
-delib.init();
+async function  main() {
+  delib.init();
 
-// Adjust the default transaction options
-delib.options = {
-  value: 0,
-  gas: 100000,
-};
+  delib.options = {
+    value: 0,
+    gas: 100000,
+  };
 
-// Call a method on the contract Messages
-delib.exec('Messages').getMessage()
-  .then(message => {
-    console.log(message); // -> hello
+  // Call a method on the contract Messages
+  const message1 = await delib.exec('Messages').call.getMessage()
+  console.log(message1);
 
-    // Call another method with your 2nd account and pass in options
-    delib.accountIndex = 1;
-    return delib.exec('Messages').setMessage('coffee', {
-      gas: 100000 // gas will no longer be estimated
-    });
-  })
-  .then(tx => {
-    console.log(tx); // displays the transaction receipt
-    return delib.exec('Messages').getMessage();
-  })
-  .then(message => {
-    console.log(message); // -> coffee  
-  })
-  .catch(err => {
-    console.log(err);
-  });
+  // Call another method with your 2nd account and pass in options
+  delib.accountIndex = 1;
+
+  await delib.exec('Messages').setMessage('coffee', {gas: 0});
+
+  const message2 = await delib.exec('Messages').call.getMessage()
+  console.log(message2);
+}
+
+main();
 ```
+
 This script sets a message on the contract and calls it again to get the message saved.
 
 Upon running the script, your command for watching for messages set should show:
