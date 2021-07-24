@@ -53,7 +53,7 @@ function findConfig(originalDirectory, levels) {
 }
 
 const originalDirectory = process.cwd();
-const config = findConfig(originalDirectory, 10);
+const config = findConfig(originalDirectory, 30);
 
 /** Makes sure all the config options are there */
 if (isDefault === false) {
