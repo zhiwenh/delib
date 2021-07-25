@@ -572,7 +572,7 @@ function Ethereum() {
     filter = (filter && typeof filter === 'object') ? filter : {};
     filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
 
-    const watchEvents = contract.events[eventName]({filter: filter, fromBlock: 0});
+    const watchEvents = contract.events[eventName]({filter: filter});
     watchEvents
       .on("data", (event) => {
         callback(null, event);
