@@ -343,7 +343,7 @@ function Ethereum() {
       throw e;
     }
 
-    const contractAddress = this.contracts.addresses.get(contractName);
+    const contractAddress = this.contracts.addresses.get(contractName).address;
     return this.execAt(contractName, contractAddress);
   };
 
@@ -522,7 +522,7 @@ function Ethereum() {
       throw e;
     }
 
-    const contractAddress = this.contracts.addresses.get(contractName);
+    const contractAddress = this.contracts.addresses.get(contractName).address;
     return this.eventsAt(contractName, contractAddress, eventName, blocksBack, filter);
   };
 
@@ -592,7 +592,7 @@ function Ethereum() {
       throw e;
     }
 
-    const contractAddress = this.contracts.addresses.get(contractName);
+    const contractAddress = this.contracts.addresses.get(contractName).address;
     return this.watchAt(contractName, contractAddress, eventName, filter, callback);
   };
 
@@ -607,7 +607,7 @@ function Ethereum() {
    */
   this.watchAt = (contractName, contractAddress, eventName, filter, callback) => {
     this._checkConnectionError();
-    
+
     // Allow no filter to be passed in
     if (typeof filter === 'function' && !callback) {
       callback = filter;

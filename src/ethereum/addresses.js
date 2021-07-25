@@ -80,55 +80,13 @@ function Addresses() {
 
     // Make sure you get an address with a length of 42
 
-    const address = fileArray[index].address;
+    const address = fileArray[index];
 
     if (!address) {
       throw new Error('Could not get a valid address from ' + contractName);
     }
 
     return address;
-  };
-
-  this.getLinks = (contractName, index) => {
-    const fileName = contractName + ENDING;
-    const filePath = path.join(__dirname, RELATIVE_PATH, this.path, fileName);
-    this._checkPathError(contractName, filePath);
-    const fileString = fs.readFileSync(filePath, 'utf8');
-    let fileArray = JSON.parse(fileString);
-
-    if (!Array.isArray(fileArray)) {
-      fileArray = [fileArray];
-    }
-
-    index = index || fileArray.length - 1;
-
-    let links;
-    let address;
-    for (let i = index; i >= 0; i--) {
-      if (Array.isArray(fileArray[i])) {
-        continue;
-      } else if (typeof fileArray[i] === 'object') {
-        if (!fileArray[i].hasOwnProperty(contractName)) continue;
-        if (fileArray[i][contractName].length === 42) {
-          address = fileArray[i][contractName];
-          delete fileArray[i][contractName];
-          links = fileArray[i];
-          break;
-        }
-      } else {
-        if (fileArray[i].length === 42) {
-          address = fileArray[i];
-          links = {};
-          break;
-        }
-      }
-    }
-
-    if (!address) {
-      throw new Error('Could not get a valid address for links from ' + contractName);
-    }
-
-    return links;
   };
 
   /**
@@ -147,58 +105,7 @@ function Addresses() {
       fileArray = [fileArray];
     }
 
-    const addressesArray = [];
-
-    for (let i = 0; i < fileArray.length; i++) {
-      if (typeof fileArray[i] === 'object' && !Array.isArray(fileArray[i])) {
-        if (!fileArray[i].hasOwnProperty(contractName)) continue;
-        if (fileArray[i][contractName].length === 42) {
-          addressesArray.push(fileArray[i][contractName]);
-        }
-      } else if (typeof fileArray[i] === 'string') {
-        if (fileArray[i].length === 42) {
-          addressesArray.push(fileArray[i]);
-        }
-      }
-    }
-
-    return addressesArray;
-  };
-
-  /**
-   * Gets all links of addresses
-   * @param {string} contractName
-   * @returns {Array}
-   */
-  this.getAllLinks = (contractName) => {
-    const fileName = contractName + ENDING;
-    const filePath = path.join(__dirname, RELATIVE_PATH, this.path, fileName);
-    this._checkPathError(contractName, filePath);
-    const fileString = fs.readFileSync(filePath, 'utf8');
-    let fileArray = JSON.parse(fileString);
-
-    if (!Array.isArray(fileArray)) {
-      fileArray = [fileArray];
-    }
-
-    const linksArray = [];
-
-    for (let i = 0; i < fileArray.length; i++) {
-      if (typeof fileArray[i] === 'object' && !Array.isArray(fileArray[i])) {
-        if (!fileArray[i].hasOwnProperty(contractName)) continue;
-        if (fileArray[i][contractName].length === 42) {
-          linksArray.push(fileArray[i]);
-        }
-      } else if (typeof fileArray[i] === 'string') {
-        if (fileArray[i].length === 42) {
-          const linkObj = {};
-          linkObj[contractName] = fileArray[i];
-          linksArray.push(linkObj);
-        }
-      }
-    }
-
-    return linksArray;
+    return fileArray;
   };
 
   this._checkPathError = (contractName, pathway) => {
