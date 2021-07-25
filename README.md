@@ -577,7 +577,7 @@ async function  main() {
 
   await delib.exec('Messages').setMessage('coffee', {gas: 0});
 
-  const message2 = await delib.exec('Messages').call.getMessage()
+  const message2 = await delib.exec('Messages').call.getMessage();
   console.log(message2);
 }
 
@@ -589,13 +589,31 @@ This script sets a message on the contract and calls it again to get the message
 Upon running the script, your command for watching for messages set should show:
 ```
 Watching for events:
-{ _message: 'coffee' }
+{
+  logIndex: 0,
+  transactionIndex: 0,
+  transactionHash: '0xd1ddb1ffd3cdac21f9c4910081df28bbd0072ded49ab187a2572cc5983c1491f',
+  blockHash: '0xa1eb723a97585cb3e05662235bf0ce14dc5afb723366ce1c416a4338ab2dd654',
+  blockNumber: 375,
+  address: '0x08217011BF7DeeeEECBDA8a8a61A8035ca206e99',
+  type: 'mined',
+  id: 'log_672dc7c1',
+  returnValues: Result { '0': 'coffee', _message: 'coffee' },
+  event: 'messageEvent',
+  signature: '0x9fd40b777a67006201b62c0025adca7fed13f4f97a8c97e859b02a025adad78f',
+  raw: {
+    data: '0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000006636f666665650000000000000000000000000000000000000000000000000000',
+    topics: [
+      '0x9fd40b777a67006201b62c0025adca7fed13f4f97a8c97e859b02a025adad78f'
+    ]
+  }
+}
 ```
 
 You can then call methods on Messages in the command line.
 
 ```
-delib exec Messages getMessage
+delib exec Messages getMessage --call
 Response: coffee
 ```
 
@@ -603,11 +621,37 @@ Then you can set another message with the command line. Gas will be estimated fo
 
 ```
 delib exec Messages setMessage apples
-Response: 0x456e1934eef8c38b9de6c8fd09df0a285c8c42f86373d2c2a74157a68592209b
+Response: {
+  transactionHash: '0x0890c0deaccfc938a3bf7bc9b54f916cf9bfb6efa1970137cfa360b2683fe3a4',
+  transactionIndex: 0,
+  blockHash: '0xb07cebf4d19adc8731876e4e7bdd0b8fe131a301680a3c6abe693d34a05040bd',
+  blockNumber: 377,
+  from: '0x4488ce366ebe9bab151c050ed8a4b4b1a221da73',
+  to: '0x08217011bf7deeeeecbda8a8a61a8035ca206e99',
+  gasUsed: 31624,
+  cumulativeGasUsed: 31624,
+  contractAddress: null,
+  logs: [
+    {
+      logIndex: 0,
+      transactionIndex: 0,
+      transactionHash: '0x0890c0deaccfc938a3bf7bc9b54f916cf9bfb6efa1970137cfa360b2683fe3a4',
+      blockHash: '0xb07cebf4d19adc8731876e4e7bdd0b8fe131a301680a3c6abe693d34a05040bd',
+      blockNumber: 377,
+      address: '0x08217011BF7DeeeEECBDA8a8a61A8035ca206e99',
+      data: '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000066170706c65730000000000000000000000000000000000000000000000000000',
+      topics: [Array],
+      type: 'mined',
+      id: 'log_431d7908'
+    }
+  ],
+  status: true,
+  logsBloom: '0x00000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000001000000000000000000000200000000000000000000000000000000000000100000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+}
 ```
 
 ```
-delib exec Messages getMessage
+delib exec Messages getMessage --call
 Response: apples
 ```
 

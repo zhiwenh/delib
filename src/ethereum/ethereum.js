@@ -15,6 +15,7 @@ const logFilter = require('./utils/logfilter');
 const config = require('./../config/config.js');
 const linker = require('solc/linker');
 const net = require('net');
+const pathExists = require('path-exists').sync;
 
 // Path from this file to your project's root or from where you run your script.
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
@@ -108,7 +109,6 @@ function Ethereum() {
     } else {
       this.web3 = initws(wsPath);
       this.connectionType = 'ws';
-      this.web3 = this.web3ws;
       return this.web3;
     }
   };
@@ -154,6 +154,12 @@ function Ethereum() {
    * @returns {Contract}
    */
   this.builtContractDeployment = (contractName) => {
+    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    if (!pathExists(builtPath)) {
+      var e = new Error('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      throw e;
+    }
+
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
 
     let contract;
@@ -210,6 +216,13 @@ function Ethereum() {
    */
   this.deploy = (contractName, args, options, links) => {
     this._checkConnectionError();
+
+    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    if (!pathExists(builtPath)) {
+      var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
+      throw e;
+    }
+
     if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
@@ -282,6 +295,13 @@ function Ethereum() {
    */
   this.deploy.estimate = (contractName, args, options, links) => {
     this._checkConnectionError();
+
+    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    if (!pathExists(builtPath)) {
+      var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
+      throw e;
+    }
+
     if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
@@ -317,6 +337,12 @@ function Ethereum() {
    * @return {Contract}
    */
   this.exec = (contractName) => {
+    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    if (!pathExists(builtPath)) {
+      var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
+      throw e;
+    }
+
     const contractAddress = this.contracts.addresses.get(contractName);
     return this.execAt(contractName, contractAddress);
   };
@@ -329,6 +355,13 @@ function Ethereum() {
    */
   this.execAt = (contractName, contractAddress) => {
     this._checkConnectionError();
+
+    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    if (!pathExists(builtPath)) {
+      var e = new Error('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      throw e;
+    }
+
     const contract = this.builtContractExec(contractName, contractAddress);
     /** Create mockContract to add new behavior to contract methods */
 
@@ -483,6 +516,12 @@ function Ethereum() {
    * @return {Promise}
   */
   this.events = (contractName, eventName, blocksBack, filter) => {
+    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    if (!pathExists(builtPath)) {
+      var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
+      throw e;
+    }
+
     const contractAddress = this.contracts.addresses.get(contractName);
     return this.eventsAt(contractName, contractAddress, eventName, blocksBack, filter);
   };
@@ -498,6 +537,13 @@ function Ethereum() {
   */
   this.eventsAt = (contractName, contractAddress, eventName, blocksBack, filter) => {
     this._checkConnectionError();
+
+    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    if (!pathExists(builtPath)) {
+      var e = new Error('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
+      throw e;
+    }
+
     const contract = this.builtContractExec(contractName, contractAddress);
 
     // Check to see if valid event
@@ -540,6 +586,12 @@ function Ethereum() {
    * @returns
    */
   this.watch = (contractName, eventName, filter, callback) => {
+    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    if (!pathExists(builtPath)) {
+      var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
+      throw e;
+    }
+
     const contractAddress = this.contracts.addresses.get(contractName);
     return this.watchAt(contractName, contractAddress, eventName, filter, callback);
   };
@@ -555,7 +607,7 @@ function Ethereum() {
    */
   this.watchAt = (contractName, contractAddress, eventName, filter, callback) => {
     this._checkConnectionError();
-
+    
     // Allow no filter to be passed in
     if (typeof filter === 'function' && !callback) {
       callback = filter;
