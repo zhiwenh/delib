@@ -169,11 +169,11 @@ delib deploy Contract hello 30
 ```
 
 ### Deploy contract with library
-**delib deploy `<contractName> [args...] --links "fileWhereLibraryIs:libraryName libraryContractAddress"`**
+**delib deploy `<contractName> [args...] --links "fileWhereLibraryIs:libraryName libraryContractAddress, fileWhereLibraryIs2:libraryName2 libraryContractAddress2, "`**
 
 
 ```
-delib deploy Contract hello 30 --links "libraryFile:libraryName 0x6Fa3B5424DbA7e7dAb49f8d88bc51f2caD1cBcEb"
+delib deploy Contract hello 30 --links "libraryFile.sol:libraryName 0x6Fa3B5424DbA7e7dAb49f8d88bc51f2caD1cBcEb, libraryFile2.sol:libraryName 0x2e118C945Cf961D34757A4be26d7531Aa9D8c641"
 ```
 
 
@@ -896,7 +896,7 @@ Set an address for a contract to use for future transactions. It appends it to t
 #### delib.contracts.addresses.get(name, index)
 Retrieves the addresses file of a contract and gets a deployed contract address based on index. If no index parameter is given it will return the latest address, which is at the bottom of the addresses file.
 
-**Returns**: <code>string</code> - The contract address.
+**Returns**: <code>Object</code> - Object that contains the contract address.
 
 | Param | Type | Description |
 | --- | --- | --- |
