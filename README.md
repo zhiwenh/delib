@@ -305,7 +305,7 @@ To chooose a default account index for transactions use `delib.accountIndex`. Th
 delib.account = 0;
 ```
 
-`delib.options` contains the default options for your transactions. It contains the Ethereum transaction options as well as delib options. These options can be passed into deploy or contract method calls, and they'll overwrite the defaults.
+`delib.options` contains the default options for your transactions. It contains the Ethereum transaction options as well as Delib options. These options can be passed into deploy or contract method calls, and they'll overwrite the defaults.
 
 You can pass in an `account` option in your deploy or contract method call and it'll use that account index for your transaction.
 
