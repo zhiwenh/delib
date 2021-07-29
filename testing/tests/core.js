@@ -25,6 +25,24 @@ const xtest = (describe, callback) => {
   console.log('  x Skipping: ', describe);
 };
 
+test('Transfering Ether from one account to another', t => {
+  delib.init()
+  delib.web3.eth.getAccounts()
+    .then(accounts => {
+      console.log(accounts);
+
+      return delib.transfer(accounts[1], 100000)
+    })
+    .then(tx => {
+      console.log(tx);
+      t.end();
+    })
+    .catch(err => {
+      console.log(err);
+      t.fail()
+    })
+})
+
 test('Building contracts', t => {
   delib.build()
     .then(contracts => {

@@ -208,6 +208,71 @@ function Ethereum() {
 
   /**
    * Deploy a built contract.
+   * @param {string} toAccount
+   * @param {Number} value
+   * @param {Object} options
+   * @return {Object}
+   */
+  this.balanceOf = (accountOrIndex) => {
+    if (typeOf(accountOrIndex) === 'Number') {
+      return promisify(callback => {
+
+      });
+    }
+    this._checkConnectionError();
+
+    options = this._optionsUtil(this.options, options);
+
+    return promisify(callback => {
+      this.web3.eth.getAccounts()
+        .then(accounts => {
+          options.to = toAccount || options.to;
+          options.value = value || options.value;
+          options.from = accounts[this.accountIndex] || options.from;
+
+          return this.web3.eth.sendTransaction(options);
+        })
+        .then(tx => {
+          callback(null, tx);
+        })
+        .catch(err => {
+          callback(err, null);
+        });
+    })();
+  }
+
+  /**
+   * Deploy a built contract.
+   * @param {string} toAccount
+   * @param {Number} value
+   * @param {Object} options
+   * @return {Object}
+   */
+  this.transfer = (toAccount, value, options) => {
+    this._checkConnectionError();
+
+    options = this._optionsUtil(this.options, options);
+
+    return promisify(callback => {
+      this.web3.eth.getAccounts()
+        .then(accounts => {
+          options.to = toAccount || options.to;
+          options.value = value || options.value;
+          options.from = accounts[this.accountIndex] || options.from;
+
+          return this.web3.eth.sendTransaction(options);
+        })
+        .then(tx => {
+          callback(null, tx);
+        })
+        .catch(err => {
+          callback(err, null);
+        });
+    })();
+  }
+
+  /**
+   * Deploy a built contract.
    * @param {string} contractName
    * @param {Array} args
    * @param {Object} options
