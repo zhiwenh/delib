@@ -75,7 +75,7 @@ program
     options = optionActions(options, 'none');
 
     if (files.length === 0) {
-      files = fs.readdirSync(path.join(config.projectRoot, delib.contracts.paths.contract));
+      files = fs.readdirSync(path.join(config.projectRoot, delib.paths.contract));
       files = files.filter(file => {
         return file.indexOf('.sol') >= 0;
       }).map(file => {
@@ -85,7 +85,7 @@ program
 
     let contractPaths = [];
     for (let i = 0; i < files.length; i++) {
-      const contractPath = path.join(config.projectRoot, delib.contracts.paths.contract, files[i] + '.sol');
+      const contractPath = path.join(config.projectRoot, delib.paths.contract, files[i] + '.sol');
       if (!pathExists(contractPath)) {
         console.log('');
         console.log('  \'' + files[i] + '\' is not a valid contract at:', contractPath);
@@ -159,7 +159,7 @@ program
     }
 
     // Check if built contract exists
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, delib.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -206,7 +206,7 @@ program
     options = optionActions(options);
 
     // Check if built contract exists
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, delib.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -214,7 +214,7 @@ program
       return;
     }
 
-    const contractAddress = delib.contracts.addresses.get(contractName, 0);
+    const contractAddress = delib.addresses.get(contractName, 0);
 
     // Check if contract method exists. The returned contract instance has custom methods. The actual methods are __methodName
     const contractInstance = delib.exec(contractName, contractAddress);
@@ -265,7 +265,7 @@ program
   .action((contractName, eventName, blocksBack, options) => {
     optionActions(options);
 
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, delib.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -275,7 +275,8 @@ program
 
     // Check if event exists
     const contract = delib.builtContractExec(contractName);
-    const contractAddress = delib.contracts.addresses.get(contractName);
+    const contractAddress = delib.addresses.get(contractName).address;
+
     const events = contract.events;
     function checkEvent(eventName, events) {
       for (let key in events) {
@@ -320,7 +321,7 @@ program
   .action((contractName, eventName, options) => {
     optionActions(options);
     delib.initws();
-    const builtPath = path.join(config.projectRoot, delib.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, delib.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       console.log('');
       console.log('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -331,7 +332,7 @@ program
     // Check if event exists
     const contract = delib.builtContractExec(contractName);
 
-    const contractAddress = delib.contracts.addresses.get(contractName);
+    const contractAddress = delib.addresses.get(contractName).address;
     const events = contract.events;
 
     function checkEvent(eventName, events) {
@@ -381,7 +382,7 @@ program
   .description('Set the address of a contract to use')
   .action((contractName, contractAddress, options) => {
     optionActions(options);
-    delib.contracts.addresses.set(contractName, contractAddress);
+    delib.addresses.set(contractName, contractAddress);
   });
 
 /** Additional help */

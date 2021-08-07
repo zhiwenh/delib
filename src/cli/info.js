@@ -93,7 +93,7 @@ module.exports = (contractName, options) => {
   });
 
   try {
-    console.log('  Address:', eth.contracts.addresses.get(contractName));
+    console.log('  Address:', eth.addresses.get(contractName));
     console.log('');
   } catch(e) {
     //

@@ -1,7 +1,6 @@
 'use strict';
 const promisify = require('es6-promisify');
 const pathExists = require('path-exists').sync;
-const contracts = require('./contracts');
 const path = require('path');
 const config = require('./../config/config.js');
 
@@ -15,7 +14,7 @@ module.exports = promisify((contractFiles, contractPath, buildPath, callback) =>
 
   contractFiles = contractFiles ? contractFiles : [];
   if (contractFiles.length === 0) {
-    contractFiles = fs.readdirSync(path.join(config.projectRoot, contracts.paths.contract));
+    contractFiles = fs.readdirSync(path.join(config.projectRoot, config.paths.contract));
     contractFiles = contractFiles.filter(contractFile => {
       return contractFile.indexOf('.sol') >= 0;
     }).map(contractFile => {

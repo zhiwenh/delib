@@ -11,7 +11,7 @@ const web3 = require('web3');
  */
 module.exports = function(rawOptions, connection) {
   /** Path adjustments */
-  const ethPaths = eth.contracts.paths;
+  const ethPaths = eth.paths;
   ethPaths.contract = rawOptions.contract || ethPaths.contract;
   ethPaths.built = rawOptions.built || ethPaths.built;
   ethPaths.address = rawOptions.address || ethPaths.address;
