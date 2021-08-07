@@ -29,7 +29,6 @@ test('Transfering Ether from one account to another', t => {
   delib.init()
   delib.web3.eth.getAccounts()
     .then(accounts => {
-      console.log(accounts);
 
       return delib.transfer(accounts[1], 100000)
     })

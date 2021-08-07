@@ -3,7 +3,6 @@ const Web3 = require('web3');
 const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
-const contracts = require('./contracts');
 const init = require('./init');
 const initIPC = require('./initipc');
 const initws = require('./initws');
@@ -16,6 +15,7 @@ const config = require('./../config/config.js');
 const linker = require('solc/linker');
 const net = require('net');
 const pathExists = require('path-exists').sync;
+const addresses = require('./addresses.js');
 
 // Path from this file to your project's root or from where you run your script.
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
@@ -51,8 +51,14 @@ function Ethereum() {
     maxGas: undefined
   };
 
-  /** Contains contract related properties and methods */
-  this.contracts = contracts;
+  /** Paths to contract related folders */
+  this.paths = {
+    contract: config.paths.contract,
+    built: config.paths.built,
+    address: config.paths.address
+  };
+
+  this.addresses = addresses;
 
   /**
    *
@@ -143,8 +149,8 @@ function Ethereum() {
    * @returns {Promise}
    */
   this.build = (contractFiles, contractPath, buildPath) => {
-    contractPath = (contractPath) ? path.join(__dirname, RELATIVE_PATH, contractPath) : path.join(__dirname, RELATIVE_PATH, this.contracts.paths.contract);
-    buildPath = (buildPath) ? path.join(__dirname, RELATIVE_PATH, buildPath) : path.join(__dirname, RELATIVE_PATH, this.contracts.paths.built);
+    contractPath = (contractPath) ? path.join(__dirname, RELATIVE_PATH, contractPath) : path.join(__dirname, RELATIVE_PATH, this.paths.contract);
+    buildPath = (buildPath) ? path.join(__dirname, RELATIVE_PATH, buildPath) : path.join(__dirname, RELATIVE_PATH, this.paths.built);
     return build(contractFiles, contractPath, buildPath);
   };
 
@@ -154,13 +160,13 @@ function Ethereum() {
    * @returns {Contract}
    */
   this.builtContractDeployment = (contractName) => {
-    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
       throw e;
     }
 
-    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
+    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.paths.built, contractName + '.json'));
 
     let contract;
     try {
@@ -174,7 +180,7 @@ function Ethereum() {
   };
 
   this.builtContractExec = (contractName, address) => {
-    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
+    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.paths.built, contractName + '.json'));
     let contract;
     try {
       const contractJSONString = fs.readFileSync(contractJSONPath);
@@ -187,7 +193,7 @@ function Ethereum() {
   }
 
   this.getContractInfo = (contractName) => {
-    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
+    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.paths.built, contractName + '.json'));
 
     let contractInfo;
     try {
@@ -200,7 +206,7 @@ function Ethereum() {
   };
 
   this.getByteCode = (contractName) => {
-    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json'));
+    const contractJSONPath = path.resolve(path.join(config.projectRoot, this.paths.built, contractName + '.json'));
     const contractJSONString = fs.readFileSync(contractJSONPath);
     const contractInfo = JSON.parse(contractJSONString);
     return contractInfo.bytecode;
@@ -282,7 +288,7 @@ function Ethereum() {
   this.deploy = (contractName, args, options, links) => {
     this._checkConnectionError();
 
-    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
       throw e;
@@ -319,7 +325,7 @@ function Ethereum() {
       function deployInstance(deployOptions) {
         promisify(self.web3.eth.getAccounts)()
           .then(accounts => {
-            deployOptions.from = self.account || self.web3.eth.accounts.wallet[0] ||  deployOptions.from || accounts[deployOptions.accountIndex] || accounts[self.accountIndex];
+            options.from = self.account || self.web3.eth.accounts.wallet[0] ? self.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[self.accountIndex];
             let byteCode = self.getByteCode(contractName);
             if (links) {
               byteCode = linker.linkBytecode(byteCode, links);
@@ -336,12 +342,12 @@ function Ethereum() {
             return self.web3.eth.sendTransaction(transactionOptions);
           })
           .then(tx => {
-            const contractJSONPath = path.resolve(path.join(config.projectRoot, self.contracts.paths.built, contractName + '.json'));
+            const contractJSONPath = path.resolve(path.join(config.projectRoot, self.paths.built, contractName + '.json'));
             const contractJSONString = fs.readFileSync(contractJSONPath);
             const contractInfo = JSON.parse(contractJSONString);
 
             const contractInstance = new self.web3.eth.Contract(contractInfo.abi, tx.contractAddress);
-            self.contracts.addresses.set(contractName, tx.contractAddress, links);
+            self.addresses.set(contractName, tx.contractAddress, links);
             callback(null, contractInstance);
           })
           .catch(err => {
@@ -361,7 +367,7 @@ function Ethereum() {
   this.deploy.estimate = (contractName, args, options, links) => {
     this._checkConnectionError();
 
-    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
       throw e;
@@ -374,7 +380,7 @@ function Ethereum() {
     return promisify(callback => {
       promisify(this.web3.eth.getAccounts)()
         .then(accounts => {
-          options.from = this.account || this.web3.eth.accounts.wallet[0] || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+          options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = undefined;
           const contractInfo = this.getContractInfo(contractName);
@@ -402,13 +408,13 @@ function Ethereum() {
    * @return {Contract}
    */
   this.exec = (contractName) => {
-    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
       throw e;
     }
 
-    const contractAddress = this.contracts.addresses.get(contractName).address;
+    const contractAddress = this.addresses.get(contractName).address;
     return this.execAt(contractName, contractAddress);
   };
 
@@ -421,7 +427,7 @@ function Ethereum() {
   this.execAt = (contractName, contractAddress) => {
     this._checkConnectionError();
 
-    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
       throw e;
@@ -449,7 +455,7 @@ function Ethereum() {
 
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = this.account || this.web3.eth.accounts.wallet[0] || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+                options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 return contract.methods[methodName](...args).call(options);
               })
               .then(value => {
@@ -468,7 +474,7 @@ function Ethereum() {
 
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = this.account || this.web3.eth.accounts.wallet[0] || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+                options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 options.gas = undefined;
                 return contract.methods[methodName](...args).estimateGas(options);
               })
@@ -491,7 +497,7 @@ function Ethereum() {
             if (options.gas && options.gas != 0) {
               promisify(this.web3.eth.getAccounts)()
                 .then(accounts => {
-                  options.from = this.web3.eth.accounts.wallet[0] || this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+                  options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
 
                   const data = contract.methods[methodName](...args).encodeABI();
                   const transactionOptions = {
@@ -516,7 +522,7 @@ function Ethereum() {
             /** ACTUAL: WITH GAS ESTIMATE */
             promisify(this.web3.eth.getAccounts)()
               .then(accounts => {
-                options.from = this.account || this.web3.eth.accounts.wallet[0] || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+                options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 options.gas = undefined;
 
                 // Throw error if est gas is greater than max gas
@@ -581,13 +587,13 @@ function Ethereum() {
    * @return {Promise}
   */
   this.events = (contractName, eventName, blocksBack, filter) => {
-    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
       throw e;
     }
 
-    const contractAddress = this.contracts.addresses.get(contractName).address;
+    const contractAddress = this.addresses.get(contractName).address;
     return this.eventsAt(contractName, contractAddress, eventName, blocksBack, filter);
   };
 
@@ -603,7 +609,7 @@ function Ethereum() {
   this.eventsAt = (contractName, contractAddress, eventName, blocksBack, filter) => {
     this._checkConnectionError();
 
-    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
       throw e;
@@ -651,13 +657,13 @@ function Ethereum() {
    * @returns
    */
   this.watch = (contractName, eventName, filter, callback) => {
-    const builtPath = path.join(config.projectRoot, this.contracts.paths.built, contractName + '.json');
+    const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
       throw e;
     }
 
-    const contractAddress = this.contracts.addresses.get(contractName).address;
+    const contractAddress = this.addresses.get(contractName).address;
     return this.watchAt(contractName, contractAddress, eventName, filter, callback);
   };
 
