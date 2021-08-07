@@ -120,6 +120,49 @@ function Ethereum() {
   };
 
   /**
+   *
+   * @param {string} privateKey
+   * @returns {Object}
+   */
+  this.addAccount = (privateKey) => {
+    return promisify(callback => {
+      try {
+        const key = this.web3.eth.accounts.wallet.add(privateKey);
+        callback(null, key);
+
+      } catch (error) {
+        callback(error, null);
+      }
+    })();
+  }
+
+  /**
+   *
+   * @returns {Array}
+   */
+  this.getAccounts = () => {
+    return promisify(callback => {
+      const allAccounts = [];
+      this.web3.eth.getAccounts()
+        .then(accounts1 => {
+          for (let i = 0; i < accounts1.length; i++) {
+            allAccounts.push(accounts1[i]);
+          }
+          const accounts2 = this.web3.eth.accounts.wallet;
+
+          for (let i = 0; i < accounts2.length; i++) {
+            allAccounts.push(accounts2[i].address);
+          }
+
+          callback(null, allAccounts)
+        })
+        .catch(err => {
+          callback(err, null);
+        })
+    })();
+  }
+
+  /**
    * Change web3 provider.
    * @param {string} path
    * @param {string} type
@@ -221,11 +264,11 @@ function Ethereum() {
     this._checkConnectionError();
 
     return promisify(callback => {
-      this.web3.eth.getAccounts()
+      this.getAccounts()
         .then(accounts => {
           let address
           if (!accountOrIndex) {
-            address = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || accounts[this.accountIndex];
+            address = this.account || accounts[this.accountIndex];
           } else {
             if (typeof(accountOrIndex) === 'number') {
               address = accounts[accountOrIndex];
@@ -257,11 +300,11 @@ function Ethereum() {
     options = this._optionsUtil(this.options, options);
 
     return promisify(callback => {
-      this.web3.eth.getAccounts()
+      this.getAccounts()
         .then(accounts => {
           options.to = toAccount || options.to;
           options.value = value || options.value;
-          options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+          options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
 
           return this.web3.eth.sendTransaction(options);
         })
@@ -320,9 +363,9 @@ function Ethereum() {
 
       // Deploys the contract and returns the instance only after its address is saved
       function deployInstance(deployOptions) {
-        promisify(self.web3.eth.getAccounts)()
+        promisify(self.getAccounts)()
           .then(accounts => {
-            options.from = self.account || self.web3.eth.accounts.wallet[0] ? self.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[self.accountIndex];
+            deployOptions.from = self.account || deployOptions.from || accounts[options.accountIndex] || accounts[self.accountIndex];
             let byteCode = self.getByteCode(contractName);
             if (links) {
               byteCode = linker.linkBytecode(byteCode, links);
@@ -375,9 +418,9 @@ function Ethereum() {
     options = this._optionsUtil(this.options, options);
     const contract = this.builtContractDeployment(contractName);
     return promisify(callback => {
-      promisify(this.web3.eth.getAccounts)()
+      promisify(this.getAccounts)()
         .then(accounts => {
-          options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+          options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = undefined;
           const contractInfo = this.getContractInfo(contractName);
@@ -450,9 +493,9 @@ function Ethereum() {
           return promisify(callback => {
             const options = argOptions(args);
 
-            promisify(this.web3.eth.getAccounts)()
+            promisify(this.getAccounts)()
               .then(accounts => {
-                options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+                options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 return contract.methods[methodName](...args).call(options);
               })
               .then(value => {
@@ -469,9 +512,9 @@ function Ethereum() {
           return promisify(callback => {
             const options = argOptions(args);
 
-            promisify(this.web3.eth.getAccounts)()
+            promisify(this.getAccounts)()
               .then(accounts => {
-                options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+                options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 options.gas = undefined;
                 return contract.methods[methodName](...args).estimateGas(options);
               })
@@ -492,9 +535,9 @@ function Ethereum() {
 
             /** ACTUAL: NO GAS ESTIMATE */
             if (options.gas && options.gas != 0) {
-              promisify(this.web3.eth.getAccounts)()
+              promisify(this.getAccounts)()
                 .then(accounts => {
-                  options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+                  options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
 
                   const data = contract.methods[methodName](...args).encodeABI();
                   const transactionOptions = {
@@ -517,9 +560,9 @@ function Ethereum() {
             }
 
             /** ACTUAL: WITH GAS ESTIMATE */
-            promisify(this.web3.eth.getAccounts)()
+            promisify(this.getAccounts)()
               .then(accounts => {
-                options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
+                options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
                 options.gas = undefined;
 
                 // Throw error if est gas is greater than max gas

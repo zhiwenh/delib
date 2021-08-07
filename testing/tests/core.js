@@ -51,6 +51,22 @@ test('Transfering Ether from one account to another', t => {
     })
 })
 
+test('Adding account', t => {
+  delib.addAccount('c12531487c04583fb5e101c3588e77bf37913f0feca3848779432f09115369bf')
+    .then(res => {
+      console.log(res);
+      return delib.getAccounts()
+    })
+    .then(accounts => {
+      console.log('accounts', accounts);
+      t.end();
+    })
+    .catch(err => {
+      console.log(err);
+      t.fail();
+    })
+});
+
 test('Building contracts', t => {
   delib.build()
     .then(contracts => {
