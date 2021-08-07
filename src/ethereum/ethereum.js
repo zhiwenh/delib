@@ -214,36 +214,33 @@ function Ethereum() {
 
   /**
    * Deploy a built contract.
-   * @param {string} toAccount
-   * @param {Number} value
-   * @param {Object} options
-   * @return {Object}
+   * @param {string or number} accountOrIndex
+   * @return {Number}
    */
   this.balanceOf = (accountOrIndex) => {
-    if (typeOf(accountOrIndex) === 'Number') {
-      return promisify(callback => {
-
-      });
-    }
     this._checkConnectionError();
-
-    options = this._optionsUtil(this.options, options);
 
     return promisify(callback => {
       this.web3.eth.getAccounts()
         .then(accounts => {
-          options.to = toAccount || options.to;
-          options.value = value || options.value;
-          options.from = accounts[this.accountIndex] || options.from;
-
-          return this.web3.eth.sendTransaction(options);
+          let address
+          if (!accountOrIndex) {
+            address = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || accounts[this.accountIndex];
+          } else {
+            if (typeof(accountOrIndex) === 'number') {
+              address = accounts[accountOrIndex];
+            } else {
+              address = accountOrIndex;
+            }
+          }
+          return this.web3.eth.getBalance(address);
         })
-        .then(tx => {
-          callback(null, tx);
+        .then(res => {
+          callback(null, res);
         })
         .catch(err => {
           callback(err, null);
-        });
+        })
     })();
   }
 
@@ -264,7 +261,7 @@ function Ethereum() {
         .then(accounts => {
           options.to = toAccount || options.to;
           options.value = value || options.value;
-          options.from = accounts[this.accountIndex] || options.from;
+          options.from = this.account || this.web3.eth.accounts.wallet[0] ? this.web3.eth.accounts.wallet[0].address : undefined || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
 
           return this.web3.eth.sendTransaction(options);
         })

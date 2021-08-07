@@ -27,13 +27,22 @@ const xtest = (describe, callback) => {
 
 test('Transfering Ether from one account to another', t => {
   delib.init()
-  delib.web3.eth.getAccounts()
-    .then(accounts => {
+  let balance1;
 
-      return delib.transfer(accounts[1], 100000)
+  delib.balanceOf(1)
+    .then(res => {
+      balance1 = res;
+      return delib.web3.eth.getAccounts()
+    })
+    .then(accounts => {
+      return delib.transfer(accounts[1], 100000, {from: accounts[0]})
     })
     .then(tx => {
+      return delib.balanceOf(1);
       console.log(tx);
+    })
+    .then(balance2 => {
+      t.equal(balance2 - balance1, 98304, 'Expect balance of other account to have increased by 98304');
       t.end();
     })
     .catch(err => {
