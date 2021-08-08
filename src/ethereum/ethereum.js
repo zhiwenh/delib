@@ -1,5 +1,6 @@
 'use strict';
 const Web3 = require('web3');
+const ethers = require('ethers');
 const promisify = require('es6-promisify');
 const path = require('path');
 const fs = require('fs');
@@ -124,10 +125,17 @@ function Ethereum() {
    * @param {string} privateKey
    * @returns {Object}
    */
-  this.addAccount = (privateKey) => {
+  this.addAccount = (privateKeyOrMnemonic) => {
     return promisify(callback => {
       try {
-        const key = this.web3.eth.accounts.wallet.add(privateKey);
+        let key;
+        if (privateKeyOrMnemonic.indexOf(' ') === -1) {
+          key = this.web3.eth.accounts.wallet.add(privateKeyOrMnemonic);
+        } else {
+          const wallet = ethers.Wallet.fromMnemonic(privateKeyOrMnemonic);
+          const privateKey = wallet.privateKey;
+          key = this.web3.eth.accounts.wallet.add(privateKey);
+        }
         callback(null, key);
 
       } catch (error) {

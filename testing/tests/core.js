@@ -39,7 +39,6 @@ test('Transfering Ether from one account to another', t => {
     })
     .then(tx => {
       return delib.balanceOf(1);
-      console.log(tx);
     })
     .then(balance2 => {
       t.equal(balance2 - balance1, 98304, 'Expect balance of other account to have increased by 98304');
@@ -52,13 +51,12 @@ test('Transfering Ether from one account to another', t => {
 })
 
 test('Adding account', t => {
-  delib.addAccount('c12531487c04583fb5e101c3588e77bf37913f0feca3848779432f09115369bf')
+  delib.addAccount('jealous expect hundred young unlock disagree major siren surge acoustic machine catalog')
     .then(res => {
-      console.log(res);
       return delib.getAccounts()
     })
     .then(accounts => {
-      console.log('accounts', accounts);
+      t.equal(accounts[accounts.length - 1], '0x1008C71D0AbCd7a9ce751FE6c2782D381489258F', 'Expect accounts list to contain newly added account');
       t.end();
     })
     .catch(err => {
