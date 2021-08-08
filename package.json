@@ -1,7 +1,7 @@
 {
   "name": "delib",
   "author": "Zhiwen Huang <zhiwen555@gmail.com>",
-  "version": "4.7.16",
+  "version": "5.0.0",
   "description": "Simple Ethereum framework for DApps, smart contract creation, and smart contract interaction",
   "keywords": [
     "web3",
