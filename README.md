@@ -73,7 +73,8 @@ You can have the init command create a custom project structure for you. If you 
 You don't need to create a project to use Delib. More information is given in the usage section.
 
 ### Configuration
-A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options. Delib supports solc 0.4.1 - 0.8.6.
+A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options. Delib supports solc 0.4.1 - 0.8.6. If you wish to add an account with a private key or mnemonic you may do so in the config file as well. Just
+add your private key or mnemonic to the array and you can use the account to send transactions with the library and command tool.
 
 ```
 {
@@ -102,7 +103,13 @@ A file called `delib.js` gets made when you create a project. It contains your p
   /** solc options. Supported versions: 0.4.1 - 0.8.6 **/
   solc: {
     version: '0.8.6'
-  }
+  },
+
+  /** Add accounts. The values of the array will be the private keys or
+  mnemonics of the accounts you wish to add  **/
+  accounts: [
+
+  ]
 };
 
 ```
@@ -144,7 +151,7 @@ The default transaction options for the commands are located in ```delib.js```. 
 | `-i --account` | `<index>` | Account index to use for transaction |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
-| `-v --value` | `<ether>` | Value transaction option in wei |
+| `-v --value` | `<number>` | Value transaction option in wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
@@ -154,7 +161,7 @@ The default transaction options for the commands are located in ```delib.js```. 
 ### Build contract
 **delib build `[files...]>`**
 
-Build a Solidity contract with the file name ```Contract.sol```. If file name is left blank will build all the contracts in the contracts folder.
+Build a Solidity contract with the file name ```Contract.sol```. If file name is left blank it will build all the contracts in the contracts folder.
 
 ```
 delib build Contract
@@ -237,6 +244,13 @@ Set the address of a contract to use. This will set its address for both the com
 delib set Contract 0xa9b15bfe1d4e7bed407a011e54af36462fa0e067
 ```
 
+### Display all accounts
+**delib accounts**
+
+List all account addresses and indexes. The indexes can you used in the `--account` options, which takes the index of the account you wish to use.
+```
+delib accounts
+```
 ## [Command Tool API Link](#Cli+api)
 
 
@@ -246,16 +260,16 @@ delib set Contract 0xa9b15bfe1d4e7bed407a011e54af36462fa0e067
 The library gives you the freedom to customize your DApp development to fit your specific needs. You can easily write your own contract migration scripts, interact with contracts from within your app, and write contract tests.
 
 ### File paths
-**delib.contracts.paths**
+**delib.paths**
 
-To specify your own file paths use the `delib.contracts.paths` object. Inside a project the paths will be relative to your project root (where `delib.js` is located). Outside a project they will be relative to your process point of entry.
+To specify your own file paths use the `delib.paths` object. Inside a project the paths will be relative to your project root (where `delib.js` is located). Outside a project they will be relative to your process point of entry.
 
 ```
-delib.contracts.paths.contract = 'relative path to contract folder';
+delib.paths.contract = 'relative path to contract folder';
 
-delib.contracts.paths.built = 'relative path to built folder';
+delib.paths.built = 'relative path to built folder';
 
-delib.contracts.paths.address = relative path to addresses folder';
+delib.paths.address = relative path to addresses folder';
 ```
 
 ### Connections
@@ -486,6 +500,31 @@ const watch = delib.watch('Test', 'testEvent', {}, function(err, log) {
 watch.stop(); // Stops the event listener
 ```
 
+### Add accounts
+**delib.addAccounts(privateKeyOrMnemonic)**  
+
+Add an account to the delib account list. The account will then be able to make transactions by setting a from option or
+by setting an accountIndex option. The accounts are stored in web3.eth.accounts.wallet.
+
+```
+delib.addAccounts('privateKey')
+```
+
+### Get a list of all available accounts
+**delib.getAccounts()**  
+This method returns a list of all available accounts. The accounts are taken from the default web3 storage as well as web3.eth.accounts.wallet.
+
+```
+delib.getAccounts()
+  .then(accounts => {
+    console.log(accounts)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+```
+
+
 ## [Library API Link](#Ethereum+api)
 
 
@@ -673,6 +712,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
     * [exec `<contractName> <methodName> [args...]`](#Cli+exec)
     * [events `<contractName> <eventName> [fromBlock]`](#Cli+events)
     * [watch `<contractName> <eventName>`](#Cli+watch)
+    * [accounts](#Cli+accounts)
     * [contracts](#Cli+contracts)
     * [info `<contractName>`](#Cli+info)
     * [set `<contractName> <contractAddress>`](#Cli+set)
@@ -771,6 +811,10 @@ Watch for events
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | Relative path to IPC host |
 
+<a name="Cli+accounts"></a>
+#### delib accounts
+Retrieves a list of all accounts and displays their indexes as well. The indexes can be used in the `--account` option which takes the index of the account you wish to use.
+
 <a name="Cli+contracts"></a>
 #### delib contracts `-b --built <path>`
 Retrieves a list of all built contracts.
@@ -818,7 +862,11 @@ Set the address of a contract to use.
     * [.init(rpcPath)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.initws(wsPath)](#Ethereum+initws) ⇒ <code>Web3</code>
+    * [.addAccount(privateKeyOrMnemonic)](#Ethereum+addAccount) ⇒ <code>Object</code>
+    * [.getAccounts()](#Ethereum+getAccounts) ⇒ <code>Array</code>
     * [.changeProvider(type, path)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
+    * [.balanceOf(accountOrIndex)](#Ethereum+balanceOf) ⇒ <code>Number</code>
+    * [.transfer(toAccount, value, options)](#Ethereum+transfer) ⇒ <code>Object</code>
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
       * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
@@ -942,6 +990,24 @@ Initializes a WS connection with an Ethereum node.
 | --- | --- | --- |
 | ipcPath | <code>string</code> | Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'. Optional. |
 
+<a name="Ethereum+addAccount"></a>
+#### delib.addAccount(privateKeyOrMnemonic) ⇒ <code>Object</code>
+Adds an account to delib and web3 that can be to used to send transactions. Uses web3.eth.accounts.wallet.add to add the account to web3.
+
+**Returns**: <code>Object</code> - The key of the account created.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| privateKeyOrMnemonic | <code>string</code> | The private key or mnemonic of the account you wish to add |
+
+<a name="Ethereum+getAccounts"></a>
+#### delib.getAccounts() ⇒ <code>Array</code>
+Gets all the accounts in web3. This includes the accounts retrieved when using the web3.eth.getAccounts() method and the accounts in the
+web3.eth.accounts.wallet.
+
+**Returns**: <code>Array</code> - An array of account addresses
+
+
 <a name="Ethereum+changeProvider"></a>
 #### delib.changeProvider(type, path) ⇒ <code>Web3</code>
 Changes web3 provider.
@@ -952,6 +1018,29 @@ Changes web3 provider.
 | --- | --- | --- |
 | type | <code>string</code> | Type of provider to use.
 | path | <code>string</code> | Path to the provider.
+
+<a name="Ethereum+balanceOf"></a>
+#### delib.balanceOf(accountOrIndex) ⇒ <code>Number</code>
+Gets the balance of an account by its address or index in the delib.getAccounts() account array.
+
+**Returns**: <code>Number</code> - The balance of the account
+
+| Param | Type | Description |
+| --- | --- | --- |
+| accountOrIndex | <code>string</code> | The account address or account index of the account you wish to get the balance of. |
+
+<a name="Ethereum+transfer"></a>
+#### delib.transfer(toAccount, value, options) ⇒ <code>Object</code>
+Transfers Ether from one account to another.
+
+**Returns**: <code>Object</code> - The transaction response
+
+| Param | Type | Description |
+| --- | --- | --- |
+| toAccount | <code>string</code> | The account address you wish to transfer Ether to. |
+| value | <code>number</code> | In value in wei of the balance you wish to send. |
+| options | <code>Object</code> | Options to include in the transaction. |
+
 
 <a name="Ethereum+build"></a>
 #### delib.build(contractFiles, contractPath, buildPath)

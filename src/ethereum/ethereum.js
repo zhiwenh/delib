@@ -76,7 +76,7 @@ function Ethereum() {
       this.web3 = init(rpcPath);
 
       if (this._presetAdded === false) {
-        this.addPresetAccounts();
+        this._addPresetAccounts();
         this._presetAdded = true;
       }
 
@@ -91,11 +91,6 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initIPC = (ipcPath) => {
-    if (this._presetAdded === false) {
-      this.addPresetAccounts();
-      this._presetAdded = true;
-    }
-
     if (this.connectionType === 'ipc') {
       return this.web3;
     } else if (this.web3) {
@@ -106,7 +101,7 @@ function Ethereum() {
       this.web3 = initIPC(ipcPath);
 
       if (this._presetAdded === false) {
-        this.addPresetAccounts();
+        this._addPresetAccounts();
         this._presetAdded = true;
       }
 
@@ -121,11 +116,6 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initws = (wsPath) => {
-    if (this._presetAdded === false) {
-      this.addPresetAccounts();
-      this._presetAdded = true;
-    }
-
     if (this.connectionType === 'ws') {
       return this.web3;
 
@@ -138,7 +128,7 @@ function Ethereum() {
       this.web3 = initws(wsPath);
 
       if (this._presetAdded === false) {
-        this.addPresetAccounts();
+        this._addPresetAccounts();
         this._presetAdded = true;
       }
 
@@ -234,7 +224,7 @@ function Ethereum() {
    * @param {string} contractName
    * @returns {Contract}
    */
-  this.builtContractDeployment = (contractName) => {
+  this._builtContractDeployment = (contractName) => {
     const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error('  \'' + contractName + '\' is not a valid built contract at:', builtPath);
@@ -254,7 +244,7 @@ function Ethereum() {
     return contract;
   };
 
-  this.builtContractExec = (contractName, address) => {
+  this._builtContractExec = (contractName, address) => {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.paths.built, contractName + '.json'));
     let contract;
     try {
@@ -267,7 +257,7 @@ function Ethereum() {
     return contract;
   }
 
-  this.getContractInfo = (contractName) => {
+  this._getContractInfo = (contractName) => {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.paths.built, contractName + '.json'));
 
     let contractInfo;
@@ -280,7 +270,7 @@ function Ethereum() {
     return contractInfo;
   };
 
-  this.getByteCode = (contractName) => {
+  this._getByteCode = (contractName) => {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.paths.built, contractName + '.json'));
     const contractJSONString = fs.readFileSync(contractJSONPath);
     const contractInfo = JSON.parse(contractJSONString);
@@ -353,7 +343,7 @@ function Ethereum() {
    *
    * @return {Array}
    */
-  this.addPresetAccounts = () => {
+  this._addPresetAccounts = () => {
     if (config.accounts.length === 0) return;
     else {
       const privateKeyAndMnemonicArr = config.accounts;
@@ -385,7 +375,7 @@ function Ethereum() {
     if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
-    const contract = this.builtContractDeployment(contractName);
+    const contract = this._builtContractDeployment(contractName);
     var self = this;
 
     return promisify(callback => {
@@ -414,7 +404,7 @@ function Ethereum() {
         promisify(self.getAccounts)()
           .then(accounts => {
             deployOptions.from = self.account || deployOptions.from || accounts[options.accountIndex] || accounts[self.accountIndex];
-            let byteCode = self.getByteCode(contractName);
+            let byteCode = self._getByteCode(contractName);
             if (links) {
               byteCode = linker.linkBytecode(byteCode, links);
             }
@@ -464,15 +454,15 @@ function Ethereum() {
     if (args === undefined) args = [];
     args = Array.isArray(args) ? args : [args];
     options = this._optionsUtil(this.options, options);
-    const contract = this.builtContractDeployment(contractName);
+    const contract = this._builtContractDeployment(contractName);
     return promisify(callback => {
       promisify(this.getAccounts)()
         .then(accounts => {
           options.from = this.account || options.from || accounts[options.accountIndex] || accounts[this.accountIndex];
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = undefined;
-          const contractInfo = this.getContractInfo(contractName);
-          let byteCode = this.getByteCode(contractName);
+          const contractInfo = this._getContractInfo(contractName);
+          let byteCode = this._getByteCode(contractName);
 
           var linkReferences = linker.findLinkReferences(byteCode)
           if (links) {
@@ -521,7 +511,7 @@ function Ethereum() {
       throw e;
     }
 
-    const contract = this.builtContractExec(contractName, contractAddress);
+    const contract = this._builtContractExec(contractName, contractAddress);
     /** Create mockContract to add new behavior to contract methods */
 
     const mockContract = {};
@@ -647,7 +637,7 @@ function Ethereum() {
       }
     }
 
-    const contractInfo = this.getContractInfo(contractName);
+    const contractInfo = this._getContractInfo(contractName);
 
     mockContract.abi = contractInfo.abi;
     /** Checks for options based on args */
@@ -703,7 +693,7 @@ function Ethereum() {
       throw e;
     }
 
-    const contract = this.builtContractExec(contractName, contractAddress);
+    const contract = this._builtContractExec(contractName, contractAddress);
 
     // Check to see if valid event
     if (eventName !== 'allEvents' && (typeof contract.events[eventName] !== 'function' ||
@@ -772,7 +762,7 @@ function Ethereum() {
       callback = filter;
     }
 
-    const contract = this.builtContractExec(contractName, contractAddress);
+    const contract = this._builtContractExec(contractName, contractAddress);
 
     // Check to see if valid event
     if (eventName !== 'allEvents' && (typeof contract.events[eventName] !== 'function' ||
