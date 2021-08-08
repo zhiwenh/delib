@@ -360,6 +360,24 @@ program
     });
   });
 
+/** Retrieves a list of all accounts */
+program
+  .command('accounts')
+  .description('Retrieves a list of all accounts')
+  .action(options => {
+    optionActions(options);
+    delib.getAccounts()
+      .then(accounts => {
+        console.log('Index', 'Account');
+        for (let i = 0; i < accounts.length; i++) {
+          console.log(i, '   ', accounts[i]);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+      })
+  });
+
 /** Retrieves a list of all contracts */
 program
   .command('contracts')
@@ -384,6 +402,7 @@ program
     optionActions(options);
     delib.addresses.set(contractName, contractAddress);
   });
+
 
 /** Additional help */
 program.on('--help', help);

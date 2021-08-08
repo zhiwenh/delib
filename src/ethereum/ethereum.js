@@ -17,6 +17,7 @@ const linker = require('solc/linker');
 const net = require('net');
 const pathExists = require('path-exists').sync;
 const addresses = require('./addresses.js');
+const paths = require('./paths.js');
 
 // Path from this file to your project's root or from where you run your script.
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot); // allows building and requiring built contracts to the correct directory paths
@@ -53,13 +54,11 @@ function Ethereum() {
   };
 
   /** Paths to contract related folders */
-  this.paths = {
-    contract: config.paths.contract,
-    built: config.paths.built,
-    address: config.paths.address
-  };
+  this.paths = paths;
 
   this.addresses = addresses;
+
+  this._presetAdded = false;
 
   /**
    *
@@ -75,6 +74,12 @@ function Ethereum() {
       return this.web3;
     } else {
       this.web3 = init(rpcPath);
+
+      if (this._presetAdded === false) {
+        this.addPresetAccounts();
+        this._presetAdded = true;
+      }
+
       this.connectionType = 'rpc';
       return this.web3;
     }
@@ -86,6 +91,11 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initIPC = (ipcPath) => {
+    if (this._presetAdded === false) {
+      this.addPresetAccounts();
+      this._presetAdded = true;
+    }
+
     if (this.connectionType === 'ipc') {
       return this.web3;
     } else if (this.web3) {
@@ -94,6 +104,12 @@ function Ethereum() {
       return this.web3;
     } else {
       this.web3 = initIPC(ipcPath);
+
+      if (this._presetAdded === false) {
+        this.addPresetAccounts();
+        this._presetAdded = true;
+      }
+
       this.connectionType = 'ipc';
       return this.web3;
     }
@@ -105,6 +121,11 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.initws = (wsPath) => {
+    if (this._presetAdded === false) {
+      this.addPresetAccounts();
+      this._presetAdded = true;
+    }
+
     if (this.connectionType === 'ws') {
       return this.web3;
 
@@ -115,6 +136,12 @@ function Ethereum() {
 
     } else {
       this.web3 = initws(wsPath);
+
+      if (this._presetAdded === false) {
+        this.addPresetAccounts();
+        this._presetAdded = true;
+      }
+
       this.connectionType = 'ws';
       return this.web3;
     }
@@ -126,22 +153,19 @@ function Ethereum() {
    * @returns {Object}
    */
   this.addAccount = (privateKeyOrMnemonic) => {
-    return promisify(callback => {
-      try {
-        let key;
-        if (privateKeyOrMnemonic.indexOf(' ') === -1) {
-          key = this.web3.eth.accounts.wallet.add(privateKeyOrMnemonic);
-        } else {
-          const wallet = ethers.Wallet.fromMnemonic(privateKeyOrMnemonic);
-          const privateKey = wallet.privateKey;
-          key = this.web3.eth.accounts.wallet.add(privateKey);
-        }
-        callback(null, key);
-
-      } catch (error) {
-        callback(error, null);
+    try {
+      let key;
+      if (privateKeyOrMnemonic.indexOf(' ') === -1) {
+        key = this.web3.eth.accounts.wallet.add(privateKeyOrMnemonic);
+      } else {
+        const wallet = ethers.Wallet.fromMnemonic(privateKeyOrMnemonic);
+        const privateKey = wallet.privateKey;
+        key = this.web3.eth.accounts.wallet.add(privateKey);
       }
-    })();
+      return key;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -325,6 +349,22 @@ function Ethereum() {
     })();
   }
 
+  /**
+   *
+   * @return {Array}
+   */
+  this.addPresetAccounts = () => {
+    if (config.accounts.length === 0) return;
+    else {
+      const privateKeyAndMnemonicArr = config.accounts;
+      const keys = [];
+      for (let i = 0; i < privateKeyAndMnemonicArr.length; i++) {
+        const key = this.addAccount(privateKeyAndMnemonicArr[i]);
+        keys.push(key);
+      }
+      return keys;
+    }
+  }
   /**
    * Deploy a built contract.
    * @param {string} contractName

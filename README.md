@@ -807,15 +807,14 @@ Set the address of a contract to use.
     * [.gasAdjust](#Ethereum+gasAdjust)
     * [.options](#Ethereum+options)
     * [.accountIndex](#Ethereum+accountIndex)
-    * [.contracts](#Ethereum+contracts)
-      * [.paths](#Ethereum+contracts+paths)
-        * [.contract](#Ethereum+contracts+paths)
-        * [.built](#Ethereum+contracts+paths)
-        * [.address](#Ethereum+contracts+paths)
-      * [.addresses](#Ethereum+contracts+addresses) ⇒ <code>Array</code>
-        * [.set(name, address)](#Ethereum+contracts+addresses+set) ⇒ <code>number</code>
-        * [.get(name, index)](#Ethereum+contracts+addresses+get) ⇒ <code>string</code>
-        * [.getAll(name)](#Ethereum+contracts+addresses+getAll) ⇒ <code>Array</code>
+    * [.paths](#Ethereum+paths)
+      * [.contract](#Ethereum+paths)
+      * [.built](#Ethereum+paths)
+      * [.address](#Ethereum+paths)
+    * [.addresses](#Ethereum+addresses) ⇒ <code>Array</code>
+      * [.set(name, address)](#Ethereum+addresses+set) ⇒ <code>number</code>
+      * [.get(name, index)](#Ethereum+addresses+get) ⇒ <code>string</code>
+      * [.getAll(name)](#Ethereum+addresses+getAll) ⇒ <code>Array</code>
     * [.init(rpcPath)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.initws(wsPath)](#Ethereum+initws) ⇒ <code>Web3</code>
@@ -869,20 +868,20 @@ The default options for `delib` methods. This object contains the default transa
 }
 ```
 
-<a name="Ethereum+contracts+paths"></a>
-#### delib.contracts.paths
+<a name="Ethereum+paths"></a>
+#### delib.paths
 An object that contains the paths to the Solidity contracts, built contracts, and contract addresses. If using delib in a project these paths will be relative to your project root, otherwise they will be relative to your scripts. Assign paths to this object if you don't want to create a project or if you want to customize the paths.
 
 ```
-delib.contracts.paths = {
+delib.paths = {
   solidity: 'path to solidity contracts',
   built: 'path to built contracts',
   addresses: 'path to contract addresses'
 }
 ```
 
-<a name="Ethereum+contracts+addresses+set"></a>
-#### delib.contracts.addresses.set(name, address)
+<a name="Ethereum+addresses+set"></a>
+#### delib.addresses.set(name, address)
 Set an address for a contract to use for future transactions. It appends it to the addresses file of that particular contract, or creates it if it doesn't exist.
 
 **Returns**: <code>number</code> - The index of the set address.
@@ -892,8 +891,8 @@ Set an address for a contract to use for future transactions. It appends it to t
 | name | <code>string</code> | Name of built contract |
 | address | <code>string</code> | The address of the contract |
 
-<a name="Ethereum+contracts+addresses+get"></a>
-#### delib.contracts.addresses.get(name, index)
+<a name="Ethereum+addresses+get"></a>
+#### delib.addresses.get(name, index)
 Retrieves the addresses file of a contract and gets a deployed contract address based on index. If no index parameter is given it will return the latest address, which is at the bottom of the addresses file.
 
 **Returns**: <code>Object</code> - Object that contains the contract address.
@@ -903,8 +902,8 @@ Retrieves the addresses file of a contract and gets a deployed contract address 
 | name | <code>string</code> | Name of built contract |
 | index | <code>number</code> | The index of the contract address |
 
-<a name="Ethereum+contracts+addresses+getAll"></a>
-#### delib.contracts.addresses.getAll(name)
+<a name="Ethereum+addresses+getAll"></a>
+#### delib.addresses.getAll(name)
 Retrieves the addresses file of a contract and return an array of all its deployed addresses.
 
 **Returns**: <code>Array</code> - An array of deployed contract addresses.

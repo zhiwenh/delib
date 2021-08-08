@@ -3,7 +3,7 @@ const promisify = require('es6-promisify');
 const pathExists = require('path-exists').sync;
 const path = require('path');
 const config = require('./../config/config.js');
-
+const paths = require('./paths.js');
 /*
   @ contractFiles - array - an array of contract.sol
   @ directoryPath - string - path where contract files are located. Optional. Will be taken from config
@@ -14,7 +14,7 @@ module.exports = promisify((contractFiles, contractPath, buildPath, callback) =>
 
   contractFiles = contractFiles ? contractFiles : [];
   if (contractFiles.length === 0) {
-    contractFiles = fs.readdirSync(path.join(config.projectRoot, config.paths.contract));
+    contractFiles = fs.readdirSync(path.join(config.projectRoot, paths.contract));
     contractFiles = contractFiles.filter(contractFile => {
       return contractFile.indexOf('.sol') >= 0;
     }).map(contractFile => {

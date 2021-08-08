@@ -25,6 +25,22 @@ const xtest = (describe, callback) => {
   console.log('  x Skipping: ', describe);
 };
 
+test('Accounts should preload', t => {
+  delib.init();
+  delib.getAccounts()
+    .then(accounts => {
+      t.equal(accounts[accounts.length - 3], '0xbAC3445BD79019140361B2667385b82d520d409d', 'Expect the address to be preloaded');
+      t.equal(accounts[accounts.length - 2], '0xFB06BDa4C709660a946c9020ae2c09903DffFc69', 'Expect the address to be preloaded');
+      t.equal(accounts[accounts.length - 1], '0x84ABBFC9a6FC35AB259219A312CeC516c53C23c9', 'Expect the address to be preloaded');
+
+      t.end()
+    })
+    .catch(err => {
+      console.error(err);
+      t.fail()
+    });
+});
+
 test('Transfering Ether from one account to another', t => {
   delib.init()
   let balance1;
@@ -45,22 +61,21 @@ test('Transfering Ether from one account to another', t => {
       t.end();
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       t.fail()
     })
 })
 
 test('Adding account', t => {
-  delib.addAccount('jealous expect hundred young unlock disagree major siren surge acoustic machine catalog')
-    .then(res => {
-      return delib.getAccounts()
-    })
+  delib.addAccount('jealous expect hundred young unlock disagree major siren surge acoustic machine catalog');
+
+  delib.getAccounts()
     .then(accounts => {
       t.equal(accounts[accounts.length - 1], '0x1008C71D0AbCd7a9ce751FE6c2782D381489258F', 'Expect accounts list to contain newly added account');
       t.end();
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
       t.fail();
     })
 });

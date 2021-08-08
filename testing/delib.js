@@ -26,5 +26,11 @@ module.exports = {
 
   solc: {
     version: '0.8.4'
-  }
+  },
+
+  accounts: [
+    'adult cool base able ensure circle inform else fan abandon shop warrior van beef enough',
+    'outdoor envelope exhibit angry sweet lawn tobacco extend album network power ostrich palm argue clever',
+    '57e56473f9f7596dbf7a2ad3673c452baf5aa4fe21a0d09446efd9ad84cc5c2e'
+  ]
 };

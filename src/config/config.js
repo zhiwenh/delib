@@ -85,6 +85,10 @@ if (isDefault === false) {
     config.solc = defaultConfig.solc;
   }
   config.solc.version = config.solc.version || defaultConfig.solc.version;
+
+  if (typeof config.solc !== 'object' || Array.isArray(config.solc)) {
+    config.accounts = defaultConfig.accounts;
+  }
 }
 /***********/
 
