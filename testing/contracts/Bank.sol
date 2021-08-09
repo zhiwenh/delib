@@ -6,12 +6,12 @@ import "BadBank.sol";
 contract Bank is BadBank {
 
   event depositEvent(
-    address _user,
+    address indexed _user,
     uint _amount
   );
 
   event withdrawEvent(
-    address _user,
+    address indexed _user,
     uint _amount
   );
 

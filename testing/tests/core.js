@@ -101,16 +101,16 @@ test('Deploying MathLib and Example contract', t => {
 
   delib.deploy('MathLib')
     .then(instance => {
-      mathLibAddress = instance.options.address;
+      mathLibAddress = instance.address;
       return delib.deploy('Array');
     })
     .then(instance => {
-      arrayAddress = instance.options.address;
+      arrayAddress = instance.address;
 
       return delib.deploy('Example', [], {}, [{'LibraryTest.sol:MathLib': mathLibAddress}, {'LibraryTest.sol:Array': arrayAddress}]);
     })
     .then(instance => {
-      t.notEqual(instance.options.address, undefined, 'Expect deploy to return an instance with an address property');
+      t.notEqual(instance.address, undefined, 'Expect deploy to return an instance with an address property');
       t.end();
     })
     .catch(err => {
@@ -130,7 +130,7 @@ test('Deploying Bank contract with gas estimate', t => {
       return delib.deploy('Bank');
     })
     .then(instance => {
-      t.notEqual(instance.options.address, undefined, 'Expect deploy to return an instance with an address property');
+      t.notEqual(instance.address, undefined, 'Expect deploy to return an instance with an address property');
       t.end();
     })
     .catch(err => {
@@ -143,7 +143,7 @@ test('Deploying Bank contract with no gas estimate', t => {
   const web3 = delib.init();
   delib.deploy('Bank', [], {gas: 800000})
     .then(instance => {
-      t.notEqual(instance.options.address, undefined, 'Expect deploy to return an instance with an address property');
+      t.notEqual(instance.address, undefined, 'Expect deploy to return an instance with an address property');
       t.end();
     })
     .catch(err => {
@@ -214,12 +214,42 @@ test('Executing Bank contract methods with no gas estimate', t => {
     });
 });
 
+test('Testing deploy instance', t => {
+  delib.init();
+  const gas = 100000;
+
+  let contractInstance;
+  delib.deploy('Bank')
+    .then(instance => {
+      contractInstance = instance;
+      return contractInstance.deposit({
+        value: 4
+      });
+    })
+    .then(tx => {
+      t.ok(tx, 'Expect deposit method with a value of 4 to return a tx response');
+      return contractInstance.call.checkAmount();
+    })
+    .then(amount => {
+      t.equal(Number(amount), 4, 'Expect checkAmount method to return 4');
+      t.end();
+    })
+    .catch(err => {
+      console.error(err);
+      t.fail();
+    });
+});
+
 test('Getting Bank contract event logs', t => {
   delib.init();
   const gas = 100000;
 
+  let instance;
+
   delib.deploy('Bank')
-    .then(instance => {
+    .then(instance1 => {
+      instance = instance1;
+
       const promises = [
         delib.exec('Bank').deposit({value: 3, account: 0, gas: gas}),
         delib.exec('Bank').deposit({value: 4, account: 0, gas: gas}),
@@ -262,43 +292,35 @@ test('Getting Bank contract event logs', t => {
     })
     .then(logs => {
       t.equal(logs.length, 9, 'Expect the depositEvent to return 9 logs');
-
-      return delib.events('Bank', 'withdrawEvent', 'all');
-    })
-    .then(logs => {
-      t.equal(logs.length, 3, 'Expect withdrawEvent to return 3 logs');
-
+      // return delib.events('Bank', 'withdrawEvent', 'all');
       t.end();
-      // return delib.events('Bank', 'depositEvent', 'all', filter);
     })
     // .then(logs => {
-    //   const web3 = delib.init();
-    //   t.equal(logs.length, 2, 'Expect depositEvent to return 2 logs with the filter object { args: { _amount: callback for 5 } }');
-      //
-      // const filter = {
-      //   args: {
-      //     _user: [web3.eth.accounts[0], web3.eth.accounts[1]],
-      //     _amount: (amount) => {
-      //       if (Number(amount) === 3) {
-      //         return true;
-      //       } else {
-      //         return false;
-      //       }
-      //     }
-      //   }
-      // };
-      //
-      // return delib.events('Bank', 'depositEvent', 'all', filter);
+    //   t.equal(logs.length, 3, 'Expect withdrawEvent to return 3 logs');
+    //   const filter = { _user: '0x32A1BB9ada15253e6068Bdd0204251cbE400346D' }
+    //
+    //   return delib.events('Bank', 'depositEvent', 'all', filter);
+    // })
+    // .then(logs => {
+    //   t.equal(logs.length, 2, 'Expect depositEvent to return 2 logs with the filter object');
+    //
+    //   const filter = {
+    //     fiter: {
+    //       _user: [4]
+    //     }
+    //   };
+    //
+    //   return delib.events('Bank', 'depositEvent', 'all', filter);
     // })
     // .then(logs => {
     //   t.equal(logs.length, 2, 'Expect depositEvent to return 2 logs with the filter object { args: { _user: [acc0, acc1], _amount: callback for 3 } }');
     //
     //   t.end();
     // })
-    .catch(err => {
-      console.error(err);
-      t.fail();
-    });
+    // .catch(err => {
+    //   console.error(err);
+    //   t.fail();
+    // });
 });
 
 test('Watching for Bank contract event logs', t => {

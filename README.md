@@ -616,9 +616,9 @@ contract Messages {
 
 ```
 
-Build ```Messages.sol``` with the command tool.
+Compile ```Messages.sol``` with the command tool.
 ```
-delib build
+delib compile
 ```
 A file called ```Messages.json``` will be created in the `built/` folder.
 

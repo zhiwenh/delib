@@ -12,7 +12,7 @@ const info = require('./../src/cli/info');
 const contracts = require('./../src/cli/contracts');
 
 program
-  .version('5.0.6') 
+  .version('5.0.6')
   .usage('[options][command][options]');
 
 /** Initializes DeLib by creating a configuration file and the contracts folder. */
@@ -97,12 +97,12 @@ program
 
     contractPaths = contractPaths.length === 1 ? contractPaths[0] : contractPaths;
 
-    console.log('Building: ', contractPaths);
+    console.log('Compiling: ', contractPaths);
 
     delib.build(files)
       .then((contracts) => {
         // console.log('Built path:', path.join(config.projectRoot, delib.contracts.paths.built));
-        console.log('Contracts built:', contracts.join(', '));
+        console.log('Contracts compiled:', contracts.join(', '));
         process.exit();
         delib.closeIPC();
       })
@@ -112,6 +112,58 @@ program
         delib.closeIPC();
       });
   });
+
+  /** Compile a Solidity contract from paths in delib configuration file. Default is './contracts/' */
+  program
+    .command('compile [files...]')
+    .alias('cp')
+    .description('Build a Solidity contract')
+    .option('-h --rpcpath [path]>', 'RPC path')
+    .option('-c --ipchost [path]', 'Relative path to IPC host')
+    .option('-w --wspath [path]', 'Path to ws port')
+    .option('-o --contract <path>', 'Relative path to contracts folder')
+    .option('-b --built <path>', 'Relative path to built contracts folder')
+    .action((files, options) => {
+      options = optionActions(options, 'none');
+
+      if (files.length === 0) {
+        files = fs.readdirSync(path.join(config.projectRoot, delib.paths.contract));
+        files = files.filter(file => {
+          return file.indexOf('.sol') >= 0;
+        }).map(file => {
+          return file.split('.').slice(0, -1).join('.')
+        });
+      }
+
+      let contractPaths = [];
+      for (let i = 0; i < files.length; i++) {
+        const contractPath = path.join(config.projectRoot, delib.paths.contract, files[i] + '.sol');
+        if (!pathExists(contractPath)) {
+          console.log('');
+          console.log('  \'' + files[i] + '\' is not a valid contract at:', contractPath);
+          console.log('');
+          return;
+        }
+        contractPaths.push(contractPath);
+      }
+
+      contractPaths = contractPaths.length === 1 ? contractPaths[0] : contractPaths;
+
+      console.log('Compiling: ', contractPaths);
+
+      delib.build(files)
+        .then((contracts) => {
+          // console.log('Built path:', path.join(config.projectRoot, delib.contracts.paths.built));
+          console.log('Contracts compiled:', contracts.join(', '));
+          process.exit();
+          delib.closeIPC();
+        })
+        .catch(err => {
+          console.log(err);
+          process.exit();
+          delib.closeIPC();
+        });
+    });
 
 /** Deploy a Solidity contract from paths in delib configuration file. Default is './contracts/'. */
 program
@@ -171,7 +223,7 @@ program
     delib.deploy(contractName, args, options, links)
       .then((contractInstance) => {
         // console.log('Address path:', path.join(config.projectRoot, delib.contracts.paths.address));
-        console.log('Contract address:', contractInstance._address);
+        console.log('Contract address:', contractInstance.address);
         process.exit();
         delib.closeIPC();
       })

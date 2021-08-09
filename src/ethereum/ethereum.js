@@ -433,7 +433,8 @@ function Ethereum() {
 
             const contractInstance = new self.web3.eth.Contract(contractInfo.abi, tx.contractAddress);
             self.addresses.set(contractName, tx.contractAddress, links);
-            callback(null, contractInstance);
+            const contractInstanceWithMethods = self.execAt(contractName, tx.contractAddress);
+            callback(null, contractInstanceWithMethods);
           })
           .catch(err => {
             callback(err, null);
@@ -660,6 +661,8 @@ function Ethereum() {
       return options;
     }
 
+    mockContract.address = contractAddress;
+
     return mockContract;
   };
 
@@ -713,7 +716,7 @@ function Ethereum() {
         .then(block => {
           filter = (filter && typeof filter === 'object') ? filter : {};
           // Create the default contract address filter
-          filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
+          // filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
 
           let fromBlock = (!blocksBack || blocksBack === 'all') ?  0 : block.number - blocksBack;
           const toBlock = 'latest';
