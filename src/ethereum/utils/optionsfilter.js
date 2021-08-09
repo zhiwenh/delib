@@ -7,6 +7,7 @@ const allowedOptions = {
   value: true,
   gas: true,
   gasPrice: true,
+  gasLimit: true,
   data: true,
   nonce: true,
 

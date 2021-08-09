@@ -13,6 +13,7 @@ const optionsType = {
   value: 'number',
   gas: 'number',
   gasPrice: 'number',
+  gasLimit: 'number',
   data: 'string',
   nonce: 'number',
 

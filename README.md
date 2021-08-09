@@ -309,21 +309,27 @@ delib.initIPC('<path>/<to>/geth.ipc'); // To use the IPC provider to perform tra
 delib.initws('ws://localhost:8545');
 ```
 
+#### Close WS connection
+**delib.closeWSConnection()**
+
+```
+delib.closeWSConnection();
+```
+
 ### Adjust options
 **delib.account**  
+**delib.accountIndex**
 **delib.options**  
 
-To chooose a default account index for transactions use `delib.accountIndex`. The index corresponds to the `web3.eth.accounts` array. By default it is 0.
+To choose the default account to use for transactions use `delib.account`.
 
-```
-delib.account = 0;
-```
+To choose a default account index for transactions use `delib.accountIndex`. The index corresponds to the `delib.getAccounts()` array. `delib.getAccounts()` gets the accounts from the web3.eth.getAccounts() method and 'web3.eth.accounts.wallet'. By default `delib.accountIndex` is 0.xw
 
 `delib.options` contains the default options for your transactions. It contains the Ethereum transaction options as well as Delib options. These options can be passed into deploy or contract method calls, and they'll overwrite the defaults.
 
-You can pass in an `account` option in your deploy or contract method call and it'll use that account index for your transaction.
+You can pass in an `accountIndex` option in your deploy or contract method transactions and it'll use that account index for your transaction.
 
-If a `gas` option of 0 is specified gas will be estimated for you, and `maxGas` is the max gas allowed in gas estimates.
+If a `gas` option of 0 is specified gas will be estimated for you, and `maxGas` is the max gas allowed in transactions.
 
 
 ```
@@ -334,11 +340,12 @@ delib.options = {
   value: undefined,
   gas: 0,
   gasPrice: undefined,
+  gasLimit: 0,
   data: undefined,
   nonce: undefined,
 
   /** Default delib options*/
-  account: undefined,
+  accountIndex: undefined,
   maxGas: undefined  
 };
 ```
