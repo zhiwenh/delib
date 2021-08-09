@@ -350,6 +350,63 @@ delib.options = {
 };
 ```
 
+### Add accounts
+**delib.addAccounts(privateKeyOrMnemonic)**  
+
+Add an account to the delib account list. The account will then be able to make transactions by setting a from option in the transaction options or
+by setting an accountIndex option. The accounts are stored in web3.eth.accounts.wallet.
+
+```
+delib.addAccounts('privateKey')
+```
+
+### Get a list of all available accounts
+**delib.getAccounts()**  
+This method returns a list of all available accounts. The accounts are taken from the default web3 storage as well as web3.eth.accounts.wallet.
+
+```
+delib.getAccounts()
+  .then(accounts => {
+    console.log(accounts)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+```
+
+### Transfer Ether from one account to another account
+**delib.transfer(toAccount, value, options)**  
+
+Transfers Ether from oen account to another account. `toAccount` is the address of the account you are trying to send Ether to, `value` is the value in wei, and options
+are the optional transaction options you can send with the transaction.
+
+```
+delib.transfer('0x08217011BF7DeeeEECBDA8a8a61A8035ca206e99', 10, {})
+```
+
+### Get the balance of a account
+**delib.balanceOf(accountOrIndex)**  
+Gets the balance of an account based on its address or its index in `delib.getAccounts()`
+
+```
+delib.balanceOf(1)
+  .then(balance => {
+    console.log(balance); // balance of the account with the index 1
+  })
+  .catch(err => {
+    console.log(err)
+  })
+
+
+delib.balanceOf('0x08217011BF7DeeeEECBDA8a8a61A8035ca206e99')
+  .then(balance => {
+    console.log(balance); // balance of the account with the address of 0x08217011BF7DeeeEECBDA8a8a61A8035ca206e99
+  })
+  .catch(err => {
+    console.log(err)
+  })
+```
+
 ### Build contracts
 **delib.build(contractFiles, contractPath, buildPath)**
 
@@ -482,8 +539,8 @@ delib.events('Test', 'testEvent', 100)
 ```
 
 ### Watch events
-**delib.watch(contractName, eventName, filter, callback)**  
-**delib.watchAt(contractName, contractAddress, eventName, filter, callback)**
+**delib.watch(contractName, eventName, options, callback)**  
+**delib.watchAt(contractName, contractAddress, eventName, options, callback)**
 
 You can watch a contract for when it gets a new event.
 
@@ -506,31 +563,6 @@ const watch = delib.watch('Test', 'testEvent', {}, function(err, log) {
 
 watch.stop(); // Stops the event listener
 ```
-
-### Add accounts
-**delib.addAccounts(privateKeyOrMnemonic)**  
-
-Add an account to the delib account list. The account will then be able to make transactions by setting a from option or
-by setting an accountIndex option. The accounts are stored in web3.eth.accounts.wallet.
-
-```
-delib.addAccounts('privateKey')
-```
-
-### Get a list of all available accounts
-**delib.getAccounts()**  
-This method returns a list of all available accounts. The accounts are taken from the default web3 storage as well as web3.eth.accounts.wallet.
-
-```
-delib.getAccounts()
-  .then(accounts => {
-    console.log(accounts)
-  })
-  .catch(err => {
-    console.log(err)
-  })
-```
-
 
 ## [Library API Link](#Ethereum+api)
 
@@ -1163,7 +1195,7 @@ Gets the event logs for an event.
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
 
 <a name="Ethereum+watch"></a>
-#### delib.watch(contractName, eventName, filter, callback)
+#### delib.watch(contractName, eventName, options, callback)
 Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`.
 
 **Returns** <code>Object</code>
@@ -1172,11 +1204,11 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 | --- | --- | --- |
 | contractName | <code>string</code> | Name of built contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place. |
+| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place. Can also set a fromBlock value. If not set it will default to the current block number.|
 | callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log. |
 
 <a name="Ethereum+watch"></a>
-#### delib.watchAt(contractName, contractAddress, eventName, filter, callback)
+#### delib.watchAt(contractName, contractAddress, eventName, options, callback)
 Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`. Need a websocket connection to be able to watch for events.
 
 **Returns** <code>Object</code>
@@ -1186,5 +1218,4 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 | contractName | <code>string</code> | Name of built contract. |
 | contractAddress | <code>string</code> | Address of the contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place. |
-| callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log. |
+| options | <code>Object</code> | bject to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place. Can also set a fromBlock value. If not set it will default to the current block number.|

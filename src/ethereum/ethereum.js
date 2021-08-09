@@ -737,11 +737,11 @@ function Ethereum() {
    * Watch an event
    * @param {string} contractName
    * @param {string} eventName
-   * @param {Object} filter
+   * @param {Object} options
    * @param {Function} callback
    * @returns
    */
-  this.watch = (contractName, eventName, filter, callback) => {
+  this.watch = (contractName, eventName, options, callback) => {
     const builtPath = path.join(config.projectRoot, this.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
       var e = new Error(contractName + ' is not a valid built contract at: ' + builtPath);
@@ -749,7 +749,7 @@ function Ethereum() {
     }
 
     const contractAddress = this.addresses.get(contractName).address;
-    return this.watchAt(contractName, contractAddress, eventName, filter, callback);
+    return this.watchAt(contractName, contractAddress, eventName, options, callback);
   };
 
   /**
@@ -757,16 +757,16 @@ function Ethereum() {
    * @param {string} contractName
    * @param {string} contractAddress
    * @param {string} eventName
-   * @param {Object} filter - Optional. Can replace with callback
+   * @param {Object} options - Optional. Can replace with callback
    * @param {Function} callback
    * @returns
    */
-  this.watchAt = (contractName, contractAddress, eventName, filter, callback) => {
+  this.watchAt = (contractName, contractAddress, eventName, options, callback) => {
     this._checkConnectionError();
 
     // Allow no filter to be passed in
-    if (typeof filter === 'function' && !callback) {
-      callback = filter;
+    if (typeof options === 'function' && !callback) {
+      callback = options;
     }
 
     const contract = this._builtContractExec(contractName, contractAddress);
@@ -777,15 +777,15 @@ function Ethereum() {
       throw new Error('Invalid event: ' + eventName + ' is not an event of ' + contractName);
     }
 
-    filter = (filter && typeof filter === 'object') ? filter : {};
-    filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
+    options = (options && typeof options === 'object') ? options : {};
+    options.address = options.hasOwnProperty('address') ? options.address : contractAddress;
 
     let watchEvents;
 
     this.web3.eth.getBlockNumber()
       .then(blockNumber => {
-        blockNumber = filter.blockNumber ? filter.blockNumber : blockNumber;
-        watchEvents = contract.events[eventName]({filter: filter, fromBlock: blockNumber});
+        blockNumber = options.blockNumber ? options.blockNumber : blockNumber;
+        watchEvents = contract.events[eventName]({options: options, fromBlock: blockNumber});
         watchEvents
           .on("data", (event) => {
             callback(null, event);
