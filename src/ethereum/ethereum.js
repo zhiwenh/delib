@@ -835,42 +835,6 @@ function Ethereum() {
    * Check the status of a certain connection type and throws error if not connected
    * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
    */
-  this._checkConnectionError = (type) => {
-    if (!this.connectionType) {
-      throw new Error ('Not connected to any provider');
-    }
-    type = type || this.connectionType;
-    type = type.toLowerCase();
-  };
-
-  /**
-   * Check the status of a certain connection type and throws error if not connected
-   * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
-   */
-  this._checkConnectionError = (type) => {
-    if (!this.connectionType) {
-      throw new Error ('Not connected to any provider');
-    }
-    type = type || this.connectionType;
-    type = type.toLowerCase();
-  };
-
-  /**
-   * Check the status of a certain connection type and throws error if not connected
-   * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
-   */
-  this._checkConnectionError = (type) => {
-    if (!this.connectionType) {
-      throw new Error ('Not connected to any provider');
-    }
-    type = type || this.connectionType;
-    type = type.toLowerCase();
-  };
-
-  /**
-   * Check the status of a certain connection type and throws error if not connected
-   * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
-   */
   this.closeConnection = (type) => {
     if (!this.connectionType) {
       throw new Error ('Not connected to any provider');
