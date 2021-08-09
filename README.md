@@ -739,7 +739,7 @@ Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ``
 | `-b --built` | `<path>` | Path to build contracts folder |
 
 <a name="Cli+deploy"></a>
-#### delib deploy `<contractName> [args...], -i --account <index>, -f --from <address>, -t --to <address>, --links "libraryFileName:libraryName libraryContractAddress", -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
+#### delib deploy `<contractName> [args...], -i --account <index>, -f --from <address>, -t --to <address>, --links "libraryFileName:libraryName libraryContractAddress", -v --value <number>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`
 Deploy a built Solidity smart contract and save its address for later use with the CLI or library. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `built/` and `addresses/` folders.
 
 | Params | Type | Description |
@@ -750,7 +750,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
 | `--links` | `"libraryFileName:libraryName libraryContractAddress"` | Library links of the contract' |
-| `-v --value` | `<ether>` | Value transaction option in wei |
+| `-v --value` | `<number>` | Value transaction option in wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
@@ -762,7 +762,7 @@ Deploy a built Solidity smart contract and save its address for later use with t
 | `-a --address` | `<path>` | Relative path to contract addresses folder |
 
 <a name="Cli+exec"></a>
-#### delib exec `<contractName> <methodName> [args...], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <ether>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path> --call`
+#### delib exec `<contractName> <methodName> [args...], -i --account <index>, -f --from <address>, -t --to <address>, -v --value <number>, -g --gas <number>, -p --gasprice <number>, -n --nonce <number>, -m --maxgas <number>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path> --call`
 Perform a transaction or call a deployed contract's method. You can pass in a list of arguments. The most recent deployed contract address or set command address will be used.
 
 | Params | Type | Description |
@@ -773,7 +773,7 @@ Perform a transaction or call a deployed contract's method. You can pass in a li
 | `-i --account` | `<index>` | Account to use for transaction. Takes the account index |
 | `-f --from` | `<address>` | From transaction option. Replaces --account |
 | `-t --to` | `<address>` | To transaction option' |
-| `-v --value` | `<ether>` | Value transaction option in wei |
+| `-v --value` | `<number>` | Value transaction option in wei |
 | `-g --gas` | `<number>` | Gas transaction option. Estimated if not given or set to 0 |
 | `-p --gasprice` | `<number>` | Gas price transaction option |
 | `-n --nonce` | `<number>` | Nonce transaction option |
@@ -862,6 +862,7 @@ Set the address of a contract to use.
     * [.init(rpcPath)](#Ethereum+init) ⇒ <code>Web3</code>
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.initws(wsPath)](#Ethereum+initws) ⇒ <code>Web3</code>
+    * [.closeWSConnnection()](#Ethereum+closeWSConnnection) ⇒ <code></code>
     * [.addAccount(privateKeyOrMnemonic)](#Ethereum+addAccount) ⇒ <code>Object</code>
     * [.getAccounts()](#Ethereum+getAccounts) ⇒ <code>Array</code>
     * [.changeProvider(type, path)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
@@ -968,7 +969,7 @@ Initializes a RPC connection with an Ethereum node. The RPC provider can be set 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| rpcPath | <code>string</code> | The path to the RPC port. For example: `http://localhost:8545` |
+| rpcPath | <code>string</code> | The path to the RPC port. For example: `http://localhost:8545`. |
 
 <a name="Ethereum+initIPC"></a>
 #### delib.initIPC(ipcPath) ⇒ <code>Web3</code>
@@ -984,11 +985,15 @@ Initializes an IPC connection with an Ethereum node. The IPC provider can be set
 #### delib.initws(wsPath) ⇒ <code>Web3</code>
 Initializes a WS connection with an Ethereum node.
 
-**Returns**: <code>Web3</code> - The Web3 object delib uses for its websocket connection
+**Returns**: <code>Web3</code> - The Web3 object delib uses for its websocket. connection
 
 | Param | Type | Description |
 | --- | --- | --- |
-| ipcPath | <code>string</code> | Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'. Optional. |
+| wsPath | <code>string</code> | WS connection path |
+
+<a name="Ethereum+closeWSConnnection"></a>
+#### delib.closeWSConnnection(wsPath)
+Closes the web3 websocket connection.
 
 <a name="Ethereum+addAccount"></a>
 #### delib.addAccount(privateKeyOrMnemonic) ⇒ <code>Object</code>
@@ -1005,7 +1010,7 @@ Adds an account to delib and web3 that can be to used to send transactions. Uses
 Gets all the accounts in web3. This includes the accounts retrieved when using the web3.eth.getAccounts() method and the accounts in the
 web3.eth.accounts.wallet.
 
-**Returns**: <code>Array</code> - An array of account addresses
+**Returns**: <code>Array</code> - An array of account addresses.
 
 
 <a name="Ethereum+changeProvider"></a>
@@ -1033,7 +1038,7 @@ Gets the balance of an account by its address or index in the delib.getAccounts(
 #### delib.transfer(toAccount, value, options) ⇒ <code>Object</code>
 Transfers Ether from one account to another.
 
-**Returns**: <code>Object</code> - The transaction response
+**Returns**: <code>Object</code> - The transaction response.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1160,8 +1165,8 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 | --- | --- | --- |
 | contractName | <code>string</code> | Name of built contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place |
-| callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log |
+| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place. |
+| callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log. |
 
 <a name="Ethereum+watch"></a>
 #### delib.watchAt(contractName, contractAddress, eventName, filter, callback)
@@ -1174,5 +1179,5 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 | contractName | <code>string</code> | Name of built contract. |
 | contractAddress | <code>string</code> | Address of the contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place |
-| callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log |
+| filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place. |
+| callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log. |
