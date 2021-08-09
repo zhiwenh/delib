@@ -14,6 +14,7 @@ let isDefault = false;
 
 function findConfig(originalDirectory, levels) {
   const directoryPath = process.cwd();
+
   const files = fs.readdirSync(directoryPath);
   for (let i = 0; i < files.length; i++) {
     if (files[i] === 'delib.js') {
@@ -21,6 +22,7 @@ function findConfig(originalDirectory, levels) {
       const configContents = require(path.join(relativePath, 'delib.js'));
       process.chdir(originalDirectory);
       configContents.projectRoot = directoryPath; // root of the project
+
       return configContents;
     }
   }
@@ -60,6 +62,7 @@ if (isDefault === false) {
   if (typeof config.paths !== 'object' || Array.isArray(config.paths)) {
     config.paths = defaultConfig.paths;
   }
+
   config.paths.contract = config.paths.contract || defaultConfig.paths.contract;
   config.paths.built = config.paths.built || defaultConfig.paths.built;
   config.paths.address = config.paths.address || defaultConfig.paths.address;
@@ -86,7 +89,7 @@ if (isDefault === false) {
   }
   config.solc.version = config.solc.version || defaultConfig.solc.version;
 
-  if (typeof config.solc !== 'object' || Array.isArray(config.solc)) {
+  if (!Array.isArray(config.accounts)) {
     config.accounts = defaultConfig.accounts;
   }
 }

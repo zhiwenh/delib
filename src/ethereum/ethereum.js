@@ -773,13 +773,22 @@ function Ethereum() {
     filter = (filter && typeof filter === 'object') ? filter : {};
     filter.address = filter.hasOwnProperty('address') ? filter.address : contractAddress;
 
-    const watchEvents = contract.events[eventName]({filter: filter});
-    watchEvents
-      .on("data", (event) => {
-        callback(null, event);
+    let watchEvents;
+
+    this.web3.eth.getBlockNumber()
+      .then(blockNumber => {
+        blockNumber = filter.blockNumber ? filter.blockNumber : blockNumber;
+        watchEvents = contract.events[eventName]({filter: filter, fromBlock: blockNumber});
+        watchEvents
+          .on("data", (event) => {
+            callback(null, event);
+          })
+          .on("error", (err) => {
+            callback(err, null);
+          })
       })
-      .on("error", (err) => {
-        callback(err, null);
+      .catch(err => {
+        throw err;
       })
 
     return {

@@ -274,7 +274,7 @@ program
     }
 
     // Check if event exists
-    const contract = delib.builtContractExec(contractName);
+    const contract = delib._builtContractExec(contractName);
     const contractAddress = delib.addresses.get(contractName).address;
 
     const events = contract.events;
@@ -330,7 +330,7 @@ program
     }
 
     // Check if event exists
-    const contract = delib.builtContractExec(contractName);
+    const contract = delib._builtContractExec(contractName);
 
     const contractAddress = delib.addresses.get(contractName).address;
     const events = contract.events;

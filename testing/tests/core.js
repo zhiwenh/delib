@@ -374,6 +374,7 @@ test('Watching for Bank contract event logs', t => {
       withdrawWatch.stop();
       depositWatch.stop();
 
+      delib.web3.currentProvider.connection.close();
       t.end();
     })
     .catch(err => {
