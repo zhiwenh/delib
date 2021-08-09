@@ -318,7 +318,7 @@ delib.closeWSConnection();
 
 ### Adjust options
 **delib.account**  
-**delib.accountIndex**
+**delib.accountIndex**   
 **delib.options**  
 
 To choose the default account to use for transactions use `delib.account`.
