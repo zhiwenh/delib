@@ -4,7 +4,7 @@
  */
 const path = require('path');
 const pathExists = require('path-exists').sync;
-const fs = require('fs-extra');
+const fs = require('fs');
 const config = require('./../config/config.js');
 
 const RELATIVE_PATH = path.relative(__dirname, config.projectRoot);

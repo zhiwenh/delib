@@ -245,11 +245,12 @@ test('Getting Bank contract event logs', t => {
   const gas = 100000;
 
   let instance;
+  let deploymentBlockNumber;
 
   delib.deploy('Bank')
     .then(instance1 => {
       instance = instance1;
-
+      deploymentBlockNumber = instance1.blockCreated;
       const promises = [
         delib.exec('Bank').deposit({value: 3, account: 0, gas: gas}),
         delib.exec('Bank').deposit({value: 4, account: 0, gas: gas}),
@@ -288,7 +289,16 @@ test('Getting Bank contract event logs', t => {
       return Promise.all(promises);
     })
     .then(logs => {
-      return delib.events('Bank', 'depositEvent', 'all');
+
+      return delib.web3.eth.getBlockNumber();
+    })
+    .then(blockNumber => {
+      const eventOptions = {
+        fromBlock: deploymentBlockNumber,
+        toBlock: blockNumber
+      };
+
+      return delib.events('Bank', 'depositEvent', eventOptions);
     })
     .then(logs => {
       t.equal(logs.length, 9, 'Expect the depositEvent to return 9 logs');
