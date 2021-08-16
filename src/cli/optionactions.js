@@ -1,5 +1,6 @@
 'use strict';
 const path = require('path');
+const paths = require('./../ethereum/paths');
 const eth = require('./../ethereum/ethereum');
 const config = require('./../config/config');
 const web3 = require('web3');
@@ -11,10 +12,9 @@ const web3 = require('web3');
  */
 module.exports = function(rawOptions, connection) {
   /** Path adjustments */
-  const ethPaths = eth.paths;
-  ethPaths.contract = rawOptions.contract || ethPaths.contract;
-  ethPaths.built = rawOptions.built || ethPaths.built;
-  ethPaths.address = rawOptions.address || ethPaths.address;
+  paths.contract = rawOptions.contract || paths.contract;
+  paths.built = rawOptions.built || paths.built;
+  paths.address = rawOptions.address || paths.address;
 
   if (connection === 'none') {
     return;
@@ -46,6 +46,8 @@ module.exports = function(rawOptions, connection) {
   if (rawOptions.accountIndex) options.accountIndex = rawOptions.accountIndex;
   if (rawOptions.maxgas) options.maxGas = rawOptions.maxgas;
   if (rawOptions.links) options.links = rawOptions.links;
+  if (rawOptions.fromblock) options.links = rawOptions.fromblock;
+  if (rawOptions.toblock) options.links = rawOptions.toblock;
 
   return options;
 };

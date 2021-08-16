@@ -228,6 +228,19 @@ function Ethereum() {
   };
 
   /**
+   * Builds Solidity contracts.
+   * @param {array} contractFiles
+   * @param {string} contractPath
+   * @param {string} buildPath
+   * @returns {Promise}
+   */
+  this.compile = (contractFiles, contractPath, buildPath) => {
+    contractPath = (contractPath) ? path.join(__dirname, RELATIVE_PATH, contractPath) : path.join(__dirname, RELATIVE_PATH, this.paths.contract);
+    buildPath = (buildPath) ? path.join(__dirname, RELATIVE_PATH, buildPath) : path.join(__dirname, RELATIVE_PATH, this.paths.built);
+    return build(contractFiles, contractPath, buildPath);
+  };
+
+  /**
    *
    * @param {string} contractName
    * @returns {Contract}

@@ -159,9 +159,18 @@ The default transaction options for the commands are located in ```delib.js```. 
 
 
 ### Build contract
+**delib compile `[files...]>`**
+
+Compile and build a Solidity contract with the file name ```Contract.sol```. If file name is left blank it will build all the contracts in the contracts folder.
+
+```
+delib compile Contract
+```
+
+
 **delib build `[files...]>`**
 
-Build a Solidity contract with the file name ```Contract.sol```. If file name is left blank it will build all the contracts in the contracts folder.
+Compile and build  a Solidity contract with the file name ```Contract.sol```. If file name is left blank it will build all the contracts in the contracts folder.
 
 ```
 delib build Contract
@@ -377,7 +386,7 @@ delib.getAccounts()
 ### Transfer Ether from one account to another account
 **delib.transfer(toAccount, value, options)**  
 
-Transfers Ether from oen account to another account. `toAccount` is the address of the account you are trying to send Ether to, `value` is the value in wei, and options
+Transfers Ether from one account to another account. `toAccount` is the address of the account you are trying to send Ether to, `value` is the value in wei, and options
 are the optional transaction options you can send with the transaction.
 
 ```
@@ -407,10 +416,24 @@ delib.balanceOf('0x08217011BF7DeeeEECBDA8a8a61A8035ca206e99')
   })
 ```
 
+### compile contracts
+**delib.compile(contractFiles, contractPath, buildPath)**
+
+Pass in a file name or an array of file names you wish you build from your project's `contracts/` folder to your project's `built/` folder. If `contractFiles` is left blank
+will compile all contracts in contracts folder.
+
+```
+delib.build('Test')
+  .then(contracts => {
+    console.log(contracts); // An array of all the contracts built.
+  });
+```
+
 ### Build contracts
 **delib.build(contractFiles, contractPath, buildPath)**
 
-Pass in a file name or an array of file names you wish you build from your project's `contracts/` folder to your project's `built/` folder.
+Pass in a file name or an array of file names you wish you build from your project's `contracts/` folder to your project's `built/` folder. If `contractFiles` is left blank
+will compile all contracts in contracts folder.
 
 ```
 delib.build('Test')
@@ -523,13 +546,13 @@ delib.exec('Test').estimate.testMethod(arg1, arg2)
 ```
 
 ### Get event logs
-**delib.events(contractName, eventName, blocksBack, filter)**  
+**delib.events(contractName, eventName, blockOptions, filter)**  
 **delib.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)**
 
 The code below gets the logs from an event called testEvent on the contract Test. It searches the last 100 blocks. To have it search all blocks pass in `'all'` instead of a number.
 
 ```
-delib.events('Test', 'testEvent', 100)
+delib.events('Test', 'testEvent', {fromBlock: 100, toBlock: 'latest'})
   .then(logs => {
 
   })
@@ -746,6 +769,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
 ## Command Tool
 * [delib](#Cli+api)
     * [init](#Cli+init)
+    * [compile `[files...]`](#Cli+compile)
     * [build `[files...]`](#Cli+build)
     * [deploy `<contractName> [args...]`](#Cli+deploy)
     * [exec `<contractName> <methodName> [args...]`](#Cli+exec)
@@ -763,6 +787,19 @@ Create the config file ```delib.js``` and the [project structure](#projectStruct
 | Params | Type | Description |
 | --- | --- | --- |
 | `-c --config` | `--` | If used the command will only create the delib.js config file |
+
+<a name="Cli+compile"></a>
+#### delib compile `[files...] -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -o --contract <path>, -b --built <path>`
+Compile and build a Solidity smart contract ```.sol``` into a JavaScript file ```.sol.js``` that you can require. File paths are set in the `delib.js` config file or passed in as command line options. By default these are your project's `contracts/` and `built/` folders.
+
+| Params | Type | Description |
+| --- | --- | --- |
+| `[files...]` | `string` | Names of Solidity contract |
+| `-r --rpchost` | `<value>` | RPC host |
+| `-h --rpcport` | `<port>` | RPC port |
+| `-c --ipchost` | `[path]` | Relative path to IPC host |
+| `-o --contract` | `<path>` | Path to contracts folder |
+| `-b --built` | `<path>` | Path to build contracts folder |
 
 <a name="Cli+build"></a>
 #### delib build `[files...] -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -o --contract <path>, -b --built <path>`
@@ -907,6 +944,7 @@ Set the address of a contract to use.
     * [.changeProvider(type, path)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
     * [.balanceOf(accountOrIndex)](#Ethereum+balanceOf) ⇒ <code>Number</code>
     * [.transfer(toAccount, value, options)](#Ethereum+transfer) ⇒ <code>Object</code>
+    * [.compile(contractFiles, contractPath, buildPath)](#Ethereum+compile)
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
       * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
@@ -914,8 +952,8 @@ Set the address of a contract to use.
       * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>ContractInstance</code>
     * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>ContractInstance</code>
       * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>ContractInstance</code>
-    * [.events(contractName, eventName, blocksBack, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
-    * [.eventsAt(contractName, contractAddress, eventName, blocksBack, filter)](#Ethereum+eventsAt) ⇒ <code>Promise</code> ⇒ <code>Array</code>
+    * [.events(contractName, eventName, blockOptions, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
+    * [.eventsAt(contractName, contractAddress, eventName, blockOptions, filter)](#Ethereum+eventsAt) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.watch(contractName, eventName, filter, callback)](#Ethereum+watch) ⇒ <code>Object</code>
     * [.watchAt(contractName, contractAddress, eventName, filter, callback)](#Ethereum+watchAt) ⇒ <code>Object</code>
 
@@ -1086,6 +1124,18 @@ Transfers Ether from one account to another.
 | options | <code>Object</code> | Options to include in the transaction. |
 
 
+<a name="Ethereum+compile"></a>
+#### delib.compile(contractFiles, contractPath, buildPath)
+Build a Solidity contract.
+
+**Returns**: <code>Array</code> - Contracts built.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contractFiles | <code>array</code> | Array of contract file names in the contracts folder |
+| contractPath | <code>string</code> | Optional. Directory path where contract files are located. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object |
+| buildPath | <code>string</code> | Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object. |
+
 <a name="Ethereum+build"></a>
 #### delib.build(contractFiles, contractPath, buildPath)
 Build a Solidity contract.
@@ -1168,7 +1218,7 @@ Calls a deployed contract at a specified address and methods called on the contr
 
 
 <a name="Ethereum+events"></a>
-#### delib.events(contractName, eventName, blocksBack, filter) ⇒ <code>Promise</code>
+#### delib.events(contractName, eventName, blockOptoins, filter) ⇒ <code>Promise</code>
 Gets the event logs of an event.
 
 **Returns**: <code>Promise</code> => <code>Array</code> - Promise response contains an array event logs.    
@@ -1177,7 +1227,7 @@ Gets the event logs of an event.
 | --- | --- | --- |
 | contractName | <code>string</code> | Name of built contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| blocksBack | <code>number</code> | The number of blocks back to get logs for. 'all' gets all blocks. Defaults to 'all'|
+| blockOptions | <code>Object</code> | An object with keys of fromBlock and toBlock. Example: {fromBlock: 100, toBlock: 200}.
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
 
 <a name="Ethereum+eventsAt"></a>
@@ -1191,7 +1241,7 @@ Gets the event logs for an event.
 | contractName | <code>string</code> | Name of built contract. |
 | contractAddress | <code>string</code> | Address of the contract. |
 | eventName | <code>string</code> | The name of the event method. |
-| blocksBack | <code>number</code> | The number of blocks back to get logs for. 'all' gets all blocks. Defaults to 'all' |
+| blockOptions | <code>number</code> | An object with keys of fromBlock and toBlock. Example: {fromBlock: 100, toBlock: 200}.
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
 
 <a name="Ethereum+watch"></a>

@@ -306,16 +306,19 @@ program
 
 /** Show the logs of a contract event. */
 program
-  .command('events <contractName> <eventName> [blocksBack]')
+  .command('events <contractName> <eventName>')
   .alias('ev')
-  .description('Get the logs of an event')
+  .description('Get the logs of an event. fromBlock deaults to 0 and toBlock defaults to latest')
   .option('-h --rpcpath [path]>', 'RPC path')
   .option('-c --ipchost [path]', 'Relative path to IPC host')
   .option('-w --wspath [path]', 'Path to ws port')
   .option('-b --built <path>', 'Relative path to built contracts folder')
   .option('-a --address <path>', 'Relative path to addresses folder')
-  .action((contractName, eventName, blocksBack, options) => {
-    optionActions(options);
+  .option('-f --fromblock <number>', 'From block to get events from')
+  .option('-t --toblock <number>', 'To block to get events from')
+  .action((contractName, eventName, options) => {
+    console.log(options);
+    optionActions(options, 'none');
 
     const builtPath = path.join(config.projectRoot, delib.paths.built, contractName + '.json');
     if (!pathExists(builtPath)) {
@@ -347,7 +350,8 @@ program
       return;
     }
 
-    delib.eventsAt(contractName, contractAddress, eventName, blocksBack)
+    const blockOptions = {fromBlock: options.fromblock, toBlock: options.toblock}
+    delib.eventsAt(contractName, contractAddress, eventName, blockOptions)
       .then(logs => {
         console.log('Event logs:');
         console.log(logs);
