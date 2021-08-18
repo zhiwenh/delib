@@ -224,16 +224,31 @@ delib exec Contract getNumbers --call
 ```
 
 ### Get the logs of an event
-**delib events `<contractName> <eventName> [blocksBack]`**
+**delib events `<contractName> <eventName>`**
 
 Get all the logs of an event called `numbersEvent`.
 ```
-delib events Contract numbersEvent all
+delib events Contract numbersEvent
 ```
 
-Get the logs from the last 10 blocks.
+Get the logs from blocks 3 - 10 .
 ```
-delib events Contract numbersEvent 10
+delib events Contract numbersEvent --fromblock 3 --toblock 10
+```
+
+Get the logs from blocks 3 to latest.
+```
+delib events Contract numbersEvent --fromblock 3
+```
+
+Get the logs from blocks 0 to 10.
+```
+delib events Contract numbersEvent --toblock 10
+```
+
+Get the logs from 10 blocks back.
+```
+delib events Contract numbersEvent --blocksback 10
 ```
 
 ### Watch for events
@@ -873,6 +888,9 @@ Get the logs of a deployed contract's event. By default it gets all logs startin
 | `-r --rpchost` | `<value>` | RPC host |
 | `-h --rpcport` | `<port>` | RPC port |
 | `-c --ipchost` | `[path]` | Relative path to IPC host |
+| `-f --fromblock` | `number` | From block to get events from |
+| `-t --toblock` | `number` | From block to get events from |
+.option('-f --fromblock <number>', To block to get events from)
 
 <a name="Cli+watch"></a>
 ### delib watch `<contractName> <eventName>, -h --rpchost <value>, -r --rpcport <port>, -c --ipchost [path], -b --built <path>, -a --address <path>`

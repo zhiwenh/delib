@@ -437,7 +437,7 @@ function Ethereum() {
               from: deployOptions.from,
               gas: deployOptions.gas,
               data: data,
-              value: deployOptions.value,
+              value: deployOptions.value
             };
             return self.web3.eth.sendTransaction(transactionOptions);
           })
@@ -608,7 +608,8 @@ function Ethereum() {
                     to: contractAddress,
                     gas: options.gas,
                     value: options.value,
-                    data: data
+                    data: data,
+                    gasLimit: options.gasLimit
                   };
 
                   return this.web3.eth.sendTransaction(transactionOptions);
@@ -642,7 +643,8 @@ function Ethereum() {
                   to: contractAddress,
                   gas: gasEstimate,
                   value: options.value,
-                  data: data
+                  data: data,
+                  gasLimit: options.gasLimit
                 };
                 // return contract.methods[methodName](...args).send(options);
 

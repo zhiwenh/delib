@@ -316,8 +316,10 @@ program
   .option('-a --address <path>', 'Relative path to addresses folder')
   .option('-f --fromblock <number>', 'From block to get events from')
   .option('-t --toblock <number>', 'To block to get events from')
+  .option('-t --blocksback <number>', 'Blocks back to get events from')
   .action((contractName, eventName, options) => {
-    console.log(options);
+    delib.init();
+
     optionActions(options, 'none');
 
     const builtPath = path.join(config.projectRoot, delib.paths.built, contractName + '.json');
@@ -350,19 +352,44 @@ program
       return;
     }
 
-    const blockOptions = {fromBlock: options.fromblock, toBlock: options.toblock}
-    delib.eventsAt(contractName, contractAddress, eventName, blockOptions)
-      .then(logs => {
-        console.log('Event logs:');
-        console.log(logs);
-        process.exit();
-        delib.closeIPC();
-      })
-      .catch(err => {
-        console.error(err);
-        process.exit();
-        delib.closeIPC();
-      });
+    if (options.blocksback) {
+      delib.web3.eth.getBlockNumber()
+        .then(blockNumber => {
+          let fromBlock = blockNumber - options.blocksback;
+          if (fromBlock < 0) fromBlock = 0;
+          const toBlock = 'latest';
+          const blockOptions = {fromBlock: fromBlock, toBlock: toBlock}
+
+          delib.eventsAt(contractName, contractAddress, eventName, blockOptions)
+            .then(logs => {
+              console.log('Event logs:');
+              console.log(logs);
+              process.exit();
+              delib.closeIPC();
+            })
+            .catch(err => {
+              console.error(err);
+              process.exit();
+              delib.closeIPC();
+            });
+        })
+    } else {
+      const blockOptions = {fromBlock: options.fromblock, toBlock: options.toblock}
+
+      console.log('blockOptions', blockOptions);
+      delib.eventsAt(contractName, contractAddress, eventName, blockOptions)
+        .then(logs => {
+          console.log('Event logs:');
+          console.log(logs);
+          process.exit();
+          delib.closeIPC();
+        })
+        .catch(err => {
+          console.error(err);
+          process.exit();
+          delib.closeIPC();
+        });
+    }
   });
 
 program
