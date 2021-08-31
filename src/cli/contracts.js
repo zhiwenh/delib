@@ -13,17 +13,15 @@ module.exports = (options) => {
   const builtPath = path.resolve(config.projectRoot, config.paths.built);
   let contracts = fs.readdirSync(builtPath);
   contracts = contracts.filter(contract => {
-    return contract.endsWith('.sol.js');
+    return contract.endsWith('.json');
   }).map(contract => {
     return path.parse(contract).name;
-  }).map(contract => {
-    return path.parse(contract).name;
-  });
+  })
 
   if (contracts.length === 0) {
     console.log('No built contracts');
   } else {
-    console.log('Built contracts:', contracts.join(','));
+    console.log('Built contracts:', contracts.join(', '));
   }
 
 };

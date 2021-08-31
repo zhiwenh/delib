@@ -278,7 +278,7 @@ function Ethereum() {
     return contract;
   }
 
-  this._getContractInfo = (contractName) => {
+  this.getContractInfo = (contractName) => {
     const contractJSONPath = path.resolve(path.join(config.projectRoot, this.paths.built, contractName + '.json'));
 
     let contractInfo;
@@ -349,6 +349,19 @@ function Ethereum() {
           options.value = value || options.value;
           options.from = options.from || accounts[options.accountIndex] || this.account || accounts[this.accountIndex];
 
+          if (!options.gas) {
+            this.web3.eth.estimateGas(options)
+              .then(gasEstimate => {
+                return this.web3.eth.sendTransaction(options);
+              })
+              .then(tx => {
+                callback(null, tx);
+              })
+              .catch(err => {
+                callback(err, null);
+              })
+          }
+
           return this.web3.eth.sendTransaction(options);
         })
         .then(tx => {
@@ -376,6 +389,33 @@ function Ethereum() {
       return keys;
     }
   }
+
+  /**
+   * Creates an Ethereum account and returns the public address and private key of the account
+   * @param {string} entropy
+   * @return {Object}
+   */
+  this.createAccount = (entropy) => {
+    return promisify(callback => {
+      let account;
+      this.getAccounts()
+        .then(accounts => {
+          return this.web3.eth.accounts.create(entropy);
+        })
+        .then(createdAccount => {
+          account = createdAccount;
+          return this.addAccount(account.privateKey);
+        })
+        .then(key => {
+          callback(null, account);
+        })
+        .catch(err => {
+          callback(err, null);
+        });
+    })();
+
+  }
+
   /**
    * Deploy a built contract.
    * @param {string} contractName
@@ -486,7 +526,7 @@ function Ethereum() {
           options.from = options.from || accounts[options.accountIndex] || this.account || accounts[this.accountIndex];
           const transactionOptions = Object.assign({}, options);
           transactionOptions.gas = undefined;
-          const contractInfo = this._getContractInfo(contractName);
+          const contractInfo = this.getContractInfo(contractName);
           let byteCode = this._getByteCode(contractName);
 
           var linkReferences = linker.findLinkReferences(byteCode)
@@ -664,7 +704,7 @@ function Ethereum() {
       }
     }
 
-    const contractInfo = this._getContractInfo(contractName);
+    const contractInfo = this.getContractInfo(contractName);
 
     mockContract.abi = contractInfo.abi;
     /** Checks for options based on args */

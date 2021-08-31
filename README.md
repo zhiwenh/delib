@@ -374,11 +374,25 @@ delib.options = {
 };
 ```
 
+### Create account
+**delib.createAccount(entropy)**  
+
+Creates an account. The account is added to the returned account list from `delib.getAccounts` and can be used in all transactions in delib. The accounts are stored in `web3.eth.accounts.wallet`. Returns an account object containing:
+
+address - string: Account address.
+privateKey - string: The accounts private key.
+signTransaction(tx [, callback]) - Function: Function to sign transactions.
+sign(data) - Function: Function to sign transactions.
+
+```
+delib.createAccount();
+```
+
 ### Add accounts
 **delib.addAccounts(privateKeyOrMnemonic)**  
 
 Add an account to the delib account list. The account will then be able to make transactions by setting a from option in the transaction options or
-by setting an accountIndex option. The accounts are stored in web3.eth.accounts.wallet.
+by setting an accountIndex option. The accounts are stored in `web3.eth.accounts.wallet`.
 
 ```
 delib.addAccounts('privateKey')
@@ -386,7 +400,7 @@ delib.addAccounts('privateKey')
 
 ### Get a list of all available accounts
 **delib.getAccounts()**  
-This method returns a list of all available accounts. The accounts are taken from the default web3 storage as well as web3.eth.accounts.wallet.
+This method returns a list of all available accounts. The accounts are taken from the default web3 storage as well as `web3.eth.accounts.wallet`.
 
 ```
 delib.getAccounts()
@@ -401,8 +415,7 @@ delib.getAccounts()
 ### Transfer Ether from one account to another account
 **delib.transfer(toAccount, value, options)**  
 
-Transfers Ether from one account to another account. `toAccount` is the address of the account you are trying to send Ether to, `value` is the value in wei, and options
-are the optional transaction options you can send with the transaction.
+Transfers Ether from one account to another account. `toAccount` is the address of the account you are trying to send Ether to, `value` is the value in wei, and options are the optional transaction options you can send with the transaction.
 
 ```
 delib.transfer('0x08217011BF7DeeeEECBDA8a8a61A8035ca206e99', 10, {})
@@ -962,6 +975,7 @@ Set the address of a contract to use.
     * [.changeProvider(type, path)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
     * [.balanceOf(accountOrIndex)](#Ethereum+balanceOf) ⇒ <code>Number</code>
     * [.transfer(toAccount, value, options)](#Ethereum+transfer) ⇒ <code>Object</code>
+    * [.createAccount(entropy)](#Ethereum+createAccount) ⇒ <code>Object</code>
     * [.compile(contractFiles, contractPath, buildPath)](#Ethereum+compile)
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
@@ -1102,8 +1116,7 @@ Adds an account to delib and web3 that can be to used to send transactions. Uses
 
 <a name="Ethereum+getAccounts"></a>
 #### delib.getAccounts() ⇒ <code>Array</code>
-Gets all the accounts in web3. This includes the accounts retrieved when using the web3.eth.getAccounts() method and the accounts in the
-web3.eth.accounts.wallet.
+Gets all the accounts in web3. This includes the accounts retrieved when using the web3.eth.getAccounts() method and the accounts in the web3.eth.accounts.wallet.
 
 **Returns**: <code>Array</code> - An array of account addresses.
 
@@ -1141,6 +1154,22 @@ Transfers Ether from one account to another.
 | value | <code>number</code> | In value in wei of the balance you wish to send. |
 | options | <code>Object</code> | Options to include in the transaction. |
 
+<a name="Ethereum+createAccount"></a>
+#### delib.createAccount(entropy) ⇒ <code>Object</code>
+Creates an account and returns to you an account object. Uses `web3.eth.accounts.create` to create the account.
+
+**Returns**: <code>Object</code> - The transaction response.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| entropy | <code>string</code> | A random string to increase entropy. If given it should be at least 32 characters. If none is given a random string will be generated using randomhex. |
+
+The returned object:
+
+address - string: Account address.
+privateKey - string: The accounts private key.
+signTransaction(tx [, callback]) - Function: Function to sign transactions.
+sign(data) - Function: Function to sign transactions.
 
 <a name="Ethereum+compile"></a>
 #### delib.compile(contractFiles, contractPath, buildPath)

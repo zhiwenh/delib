@@ -453,7 +453,15 @@ program
       .then(accounts => {
         console.log('Index', 'Account');
         for (let i = 0; i < accounts.length; i++) {
-          console.log(i, '   ', accounts[i]);
+          if (i < 10) {
+            console.log(i, '   ', accounts[i])
+          } else if (i >= 10 && i < 100) {
+            console.log(i, '  ', accounts[i])
+          } else if (i >= 100 && i < 1000) {
+            console.log(i, ' ', accounts[i])
+          } else {
+            console.log(i, ' ', accounts[i]);
+          }
         }
       })
       .catch(err => {
