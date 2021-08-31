@@ -4,3 +4,4 @@ built/**
 .node**
 tests/cli.js
 contracts/zeppelin
+delib.js
