@@ -25,6 +25,7 @@ const xtest = (describe, callback) => {
   console.log('  x Skipping: ', describe);
 };
 
+delib.init();
 test('Accounts should preload', t => {
   delib.init();
   delib.getAccounts()
@@ -41,7 +42,7 @@ test('Accounts should preload', t => {
     });
 });
 
-test('Transfering Ether from one account to another', t => {
+test('Transfering Ether from one account to another with gas estimate', t => {
   delib.init()
   let balance1;
 
@@ -57,7 +58,32 @@ test('Transfering Ether from one account to another', t => {
       return delib.balanceOf(1);
     })
     .then(balance2 => {
-      t.equal(balance2 - balance1, 98304, 'Expect balance of other account to have increased by 98304');
+      t.equal(balance2 - balance1, 196608, 'Expect balance of other account to have increased by 196608');
+      t.end();
+    })
+    .catch(err => {
+      console.error(err);
+      t.fail()
+    })
+})
+
+test('Transfering Ether from one account to another with no gas estimate', t => {
+  delib.init()
+  let balance1;
+
+  delib.balanceOf(1)
+    .then(res => {
+      balance1 = res;
+      return delib.web3.eth.getAccounts()
+    })
+    .then(accounts => {
+      return delib.transfer(accounts[1], 100000, {from: accounts[0], gas: 21000})
+    })
+    .then(tx => {
+      return delib.balanceOf(1);
+    })
+    .then(balance2 => {
+      t.equal(balance2 - balance1, 98304, 'Expect balance of other account to have increased by 196608');
       t.end();
     })
     .catch(err => {
@@ -67,11 +93,35 @@ test('Transfering Ether from one account to another', t => {
 })
 
 test('Adding account', t => {
-  delib.addAccount('jealous expect hundred young unlock disagree major siren surge acoustic machine catalog');
-
+  const key = delib.addAccount('jealous expect hundred young unlock disagree major siren surge acoustic machine catalog');
+  console.log(key);
   delib.getAccounts()
     .then(accounts => {
       t.equal(accounts[accounts.length - 1], '0x1008C71D0AbCd7a9ce751FE6c2782D381489258F', 'Expect accounts list to contain newly added account');
+      t.end();
+    })
+    .catch(err => {
+      console.error(err);
+      t.fail();
+    })
+});
+
+test('Creating an account', t => {
+  let length1;
+  let length2;
+
+  delib.getAccounts()
+    .then(accounts => {
+      length1 = accounts.length;
+      return delib.createAccount();
+    })
+    .then(account => {
+
+      return delib.getAccounts();
+    })
+    .then(accounts => {
+      length2 = accounts.length;
+      t.equal(length1 + 1, length2, 'Expect the length of account list after creating an account be 1 greater than before creating an account');
       t.end();
     })
     .catch(err => {
