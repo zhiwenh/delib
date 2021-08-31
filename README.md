@@ -470,6 +470,16 @@ delib.build('Test')
   });
 ```
 
+### Get the info of a contract
+**delib.getContractInfo(contractName)**
+
+Gets the info of a built contract. It returns an object containing the contracts name, abi, metadata, and bytecode.
+
+```
+const contractInfo = delib.getContractInfo('Test');
+
+```
+
 ### Deploy contracts
 **delib.deploy(contractName, args, options, links)**
 
@@ -978,6 +988,7 @@ Set the address of a contract to use.
     * [.createAccount(entropy)](#Ethereum+createAccount) ⇒ <code>Object</code>
     * [.compile(contractFiles, contractPath, buildPath)](#Ethereum+compile)
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
+    * [.getContractInfo(contractName)](#Ethereum+getContractInfo)
     * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
       * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
     * [.exec(contractName)](#Ethereum+exec) ⇒ <code>ContractInstance</code>
@@ -1194,6 +1205,16 @@ Build a Solidity contract.
 | contractFiles | <code>array</code> | Array of contract file names in the contracts folder |
 | contractPath | <code>string</code> | Optional. Directory path where contract files are located. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object |
 | buildPath | <code>string</code> | Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object. |
+
+<a name="Ethereum+getContractInfo"></a>
+#### delib.getContractInfo(contractName)
+Gets the info of a built contract.
+
+**Returns**: <code>Object</code> - An object containing a built contracts name, abi, metadata, and bytecode.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contractName | <code>string</code> | The contract's name |
 
 <a name="Ethereum+deploy"></a>
 #### delib.deploy(contractName, args, options, links) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  

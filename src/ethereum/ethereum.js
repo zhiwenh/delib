@@ -75,13 +75,13 @@ function Ethereum() {
       return this.web3;
     } else {
       this.web3 = init(rpcPath);
+      this.connectionType = 'rpc';
 
       if (this._presetAdded === false) {
         this._addPresetAccounts();
         this._presetAdded = true;
       }
 
-      this.connectionType = 'rpc';
       return this.web3;
     }
   };
@@ -100,13 +100,13 @@ function Ethereum() {
       return this.web3;
     } else {
       this.web3 = initIPC(ipcPath);
+      this.connectionType = 'ipc';
 
       if (this._presetAdded === false) {
         this._addPresetAccounts();
         this._presetAdded = true;
       }
 
-      this.connectionType = 'ipc';
       return this.web3;
     }
   };
@@ -127,13 +127,13 @@ function Ethereum() {
 
     } else {
       this.web3 = initws(wsPath);
+      this.connectionType = 'ws';
 
       if (this._presetAdded === false) {
         this._addPresetAccounts();
         this._presetAdded = true;
       }
 
-      this.connectionType = 'ws';
       return this.web3;
     }
   };
@@ -151,6 +151,7 @@ function Ethereum() {
    * @returns {Object}
    */
   this.addAccount = (privateKeyOrMnemonic) => {
+    this._checkConnectionError();
     try {
       let key;
       if (privateKeyOrMnemonic.indexOf(' ') === -1) {
@@ -171,6 +172,7 @@ function Ethereum() {
    * @returns {Array}
    */
   this.getAccounts = () => {
+    this._checkConnectionError();
     return promisify(callback => {
       const allAccounts = [];
       this.web3.eth.getAccounts()
@@ -199,6 +201,7 @@ function Ethereum() {
    * @returns {Web3}
    */
   this.changeProvider = (type, path) => {
+    this._checkConnectionError();
     if (this.web3) {
       if (type === 'rpc') {
         path = path || config.rpc.rpcPath;
@@ -378,6 +381,8 @@ function Ethereum() {
    * @return {Array}
    */
   this._addPresetAccounts = () => {
+    this._checkConnectionError();
+
     if (config.accounts.length === 0) return;
     else {
       const privateKeyAndMnemonicArr = config.accounts;
@@ -396,6 +401,8 @@ function Ethereum() {
    * @return {Object}
    */
   this.createAccount = (entropy) => {
+    this._checkConnectionError();
+
     return promisify(callback => {
       let account;
       this.getAccounts()
@@ -888,7 +895,7 @@ function Ethereum() {
    */
   this._checkConnectionError = (type) => {
     if (!this.connectionType) {
-      throw new Error ('Not connected to any provider');
+      throw new Error ('Not connected to any provider.');
     }
     type = type || this.connectionType;
     type = type.toLowerCase();

@@ -1,12 +1,6 @@
 'use strict';
 
-/**
- * These tests are done with a geth node on a private chain. To make the
- * setup easier I used an npm package that I developed called devchain.
- * Gas estimates and events on testrpc have issues.
- */
-
-process.chdir(__dirname); // So use with npm test works
+process.chdir(__dirname);
 
 const tape = require('tape');
 const tapes = require('tapes');
@@ -27,7 +21,6 @@ const xtest = (describe, callback) => {
 
 delib.init();
 test('Accounts should preload', t => {
-  delib.init();
   delib.getAccounts()
     .then(accounts => {
       t.equal(accounts[accounts.length - 3], '0xbAC3445BD79019140361B2667385b82d520d409d', 'Expect the address to be preloaded');
@@ -43,7 +36,6 @@ test('Accounts should preload', t => {
 });
 
 test('Transfering Ether from one account to another with gas estimate', t => {
-  delib.init()
   let balance1;
 
   delib.balanceOf(1)
@@ -68,7 +60,6 @@ test('Transfering Ether from one account to another with gas estimate', t => {
 })
 
 test('Transfering Ether from one account to another with no gas estimate', t => {
-  delib.init()
   let balance1;
 
   delib.balanceOf(1)
@@ -94,7 +85,6 @@ test('Transfering Ether from one account to another with no gas estimate', t => 
 
 test('Adding account', t => {
   const key = delib.addAccount('jealous expect hundred young unlock disagree major siren surge acoustic machine catalog');
-  console.log(key);
   delib.getAccounts()
     .then(accounts => {
       t.equal(accounts[accounts.length - 1], '0x1008C71D0AbCd7a9ce751FE6c2782D381489258F', 'Expect accounts list to contain newly added account');
@@ -203,7 +193,6 @@ test('Deploying Bank contract with no gas estimate', t => {
 });
 
 test('Executing Bank contract methods with gas estimate', t => {
-  delib.init();
   delib.deploy('Bank')
     .then(instance => {
       return delib.exec('Bank').estimate.deposit({
@@ -265,7 +254,6 @@ test('Executing Bank contract methods with no gas estimate', t => {
 });
 
 test('Testing deploy instance', t => {
-  delib.init();
   const gas = 100000;
 
   let contractInstance;
@@ -291,7 +279,6 @@ test('Testing deploy instance', t => {
 });
 
 test('Getting Bank contract event logs', t => {
-  delib.init();
   const gas = 100000;
 
   let instance;
@@ -355,32 +342,11 @@ test('Getting Bank contract event logs', t => {
       // return delib.events('Bank', 'withdrawEvent', 'all');
       t.end();
     })
-    // .then(logs => {
-    //   t.equal(logs.length, 3, 'Expect withdrawEvent to return 3 logs');
-    //   const filter = { _user: '0x32A1BB9ada15253e6068Bdd0204251cbE400346D' }
-    //
-    //   return delib.events('Bank', 'depositEvent', 'all', filter);
-    // })
-    // .then(logs => {
-    //   t.equal(logs.length, 2, 'Expect depositEvent to return 2 logs with the filter object');
-    //
-    //   const filter = {
-    //     fiter: {
-    //       _user: [4]
-    //     }
-    //   };
-    //
-    //   return delib.events('Bank', 'depositEvent', 'all', filter);
-    // })
-    // .then(logs => {
-    //   t.equal(logs.length, 2, 'Expect depositEvent to return 2 logs with the filter object { args: { _user: [acc0, acc1], _amount: callback for 3 } }');
-    //
-    //   t.end();
-    // })
-    // .catch(err => {
-    //   console.error(err);
-    //   t.fail();
-    // });
+    .catch(err => {
+      console.error(err);
+      t.fail();
+    })
+
 });
 
 test('Watching for Bank contract event logs', t => {
