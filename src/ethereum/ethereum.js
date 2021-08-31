@@ -152,7 +152,7 @@ function Ethereum() {
    */
   this.addAccount = (privateKeyOrMnemonic) => {
     this._checkConnectionError();
-    try {
+    return promisify(callback => {
       let key;
       if (privateKeyOrMnemonic.indexOf(' ') === -1) {
         key = this.web3.eth.accounts.wallet.add(privateKeyOrMnemonic);
@@ -161,10 +161,17 @@ function Ethereum() {
         const privateKey = wallet.privateKey;
         key = this.web3.eth.accounts.wallet.add(privateKey);
       }
-      return key;
-    } catch (error) {
-      throw error;
-    }
+
+      this.getAccounts()
+        .then(accounts => {
+          const indexOf = accounts.indexOf(key.address);
+          key['index'] = indexOf;
+          callback(null, key);
+        })
+        .catch(err => {
+          callback(err, null);
+        })
+    })()
   }
 
   /**
@@ -396,13 +403,13 @@ function Ethereum() {
   }
 
   /**
-   * Creates an Ethereum account and returns the public address and private key of the account
+   * Creates an Ethereum account and returns an account object
    * @param {string} entropy
    * @return {Object}
    */
   this.createAccount = (entropy) => {
     this._checkConnectionError();
-
+    let key;
     return promisify(callback => {
       let account;
       this.getAccounts()
@@ -413,8 +420,14 @@ function Ethereum() {
           account = createdAccount;
           return this.addAccount(account.privateKey);
         })
-        .then(key => {
-          callback(null, account);
+        .then(returnedKey => {
+          key = returnedKey;
+          return this.getAccounts()
+        })
+        .then(accounts => {
+          const indexOf = accounts.indexOf(key.address);
+          key['index'] = indexOf;
+          callback(null, key);
         })
         .catch(err => {
           callback(err, null);
@@ -902,18 +915,19 @@ function Ethereum() {
   };
 
   /**
-   * Check the status of a certain connection type and throws error if not connected
-   * @param {string} type - The connection type to test the status of. 'rpc', 'ipc'. Defaults to the current provider type.
+   * Check the status of the web3 connection
+   * @returns {bool} - Whether or not web3 is connected to a provider
    */
-  this.closeConnection = (type) => {
-    if (!this.connectionType) {
-      throw new Error ('Not connected to any provider');
-    }
-    type = type || this.connectionType;
-    type = type.toLowerCase();
-  };
-
-
-
+  this.isConnected = () => {
+    return promisify(callback => {
+      this.web3.eth.net.isListening()
+        .then(connectionStatus => {
+          callback(null, connectionStatus);
+        })
+        .catch(err => {
+          callback(null, err);
+        })
+    })()
+  }
 }
 module.exports = new Ethereum();

@@ -17,7 +17,7 @@ module.exports = {
 
   /** IPC connection options */
   ipc: {
-    host: null // Relative path to IPC host
+    host: '/Users/zhiwen/Library/Ethereum/rinkeby/geth.ipc' // Relative path to IPC host
   },
 
   ws: {

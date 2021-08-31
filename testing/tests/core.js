@@ -20,6 +20,19 @@ const xtest = (describe, callback) => {
 };
 
 delib.init();
+
+test('Connection status should be true', t => {
+  delib.isConnected()
+    .then(status => {
+      t.equal(status, true, 'Expect connection status to true')
+      t.end();
+    })
+    .catch(err => {
+      console.error(err);
+      t.fail();
+    });
+});
+
 test('Accounts should preload', t => {
   delib.getAccounts()
     .then(accounts => {
@@ -84,8 +97,10 @@ test('Transfering Ether from one account to another with no gas estimate', t => 
 })
 
 test('Adding account', t => {
-  const key = delib.addAccount('jealous expect hundred young unlock disagree major siren surge acoustic machine catalog');
-  delib.getAccounts()
+  delib.addAccount('jealous expect hundred young unlock disagree major siren surge acoustic machine catalog')
+    .then(key => {
+      return delib.getAccounts();
+    })
     .then(accounts => {
       t.equal(accounts[accounts.length - 1], '0x1008C71D0AbCd7a9ce751FE6c2782D381489258F', 'Expect accounts list to contain newly added account');
       t.end();
@@ -106,7 +121,6 @@ test('Creating an account', t => {
       return delib.createAccount();
     })
     .then(account => {
-
       return delib.getAccounts();
     })
     .then(accounts => {

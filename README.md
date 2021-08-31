@@ -76,6 +76,9 @@ You don't need to create a project to use Delib. More information is given in th
 A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options. Delib supports solc 0.4.1 - 0.8.6. If you wish to add an account with a private key or mnemonic you may do so in the config file as well. Just
 add your private key or mnemonic to the array and you can use the account to send transactions with the library and command tool.
 
+Note: In the web3 docs, which this framework uses to create and add accounts. There is a warning for web3's account methods:
+This package has NOT been audited and might potentially be unsafe. Take precautions to clear memory properly, store the private keys safely, and test transaction receiving and sending functionality properly before using in production!
+
 ```
 {
   /** Project file paths */
@@ -347,7 +350,7 @@ delib.closeWSConnection();
 
 To choose the default account to use for transactions use `delib.account`.
 
-To choose a default account index for transactions use `delib.accountIndex`. The index corresponds to the `delib.getAccounts()` array. `delib.getAccounts()` gets the accounts from the web3.eth.getAccounts() method and 'web3.eth.accounts.wallet'. By default `delib.accountIndex` is 0.xw
+To choose a default account index for transactions use `delib.accountIndex`. The index corresponds to the `delib.getAccounts()` array. `delib.getAccounts()` gets the accounts from the web3.eth.getAccounts() method and 'web3.eth.accounts.wallet'. By default `delib.accountIndex` is 0.
 
 `delib.options` contains the default options for your transactions. It contains the Ethereum transaction options as well as Delib options. These options can be passed into deploy or contract method calls, and they'll overwrite the defaults.
 
@@ -377,25 +380,45 @@ delib.options = {
 ### Create account
 **delib.createAccount(entropy)**  
 
+Note: In the web3 docs, which this framework uses to create and add accounts. There is a warning for web3's account methods:
+This package has NOT been audited and might potentially be unsafe. Take precautions to clear memory properly, store the private keys safely, and test transaction receiving and sending functionality properly before using in production!
+
 Creates an account. The account is added to the returned account list from `delib.getAccounts` and can be used in all transactions in delib. The accounts are stored in `web3.eth.accounts.wallet`. Returns an account object containing:
 
+The returned object:
+index - number: Account index used in delib.
 address - string: Account address.
 privateKey - string: The accounts private key.
 signTransaction(tx [, callback]) - Function: Function to sign transactions.
 sign(data) - Function: Function to sign transactions.
 
 ```
-delib.createAccount();
+delib.createAccount()
+  .then(key => {
+
+  })
 ```
 
 ### Add accounts
-**delib.addAccounts(privateKeyOrMnemonic)**  
+**delib.addAccount(privateKeyOrMnemonic)**  
 
-Add an account to the delib account list. The account will then be able to make transactions by setting a from option in the transaction options or
-by setting an accountIndex option. The accounts are stored in `web3.eth.accounts.wallet`.
+Note: In the web3 docs, which this framework uses to create and add accounts. There is a warning for web3's account methods:
+This package has NOT been audited and might potentially be unsafe. Take precautions to clear memory properly, store the private keys safely, and test transaction receiving and sending functionality properly before using in production!
+
+Add an account to the delib account list. The account will then be able to make transactions by setting a from option in the transaction options or by setting an accountIndex option. The accounts are stored in `web3.eth.accounts.wallet`.
+
+The returned object:
+index - number: Account index used in delib.
+address - string: Account address.
+privateKey - string: The accounts private key.
+signTransaction(tx [, callback]) - Function: Function to sign transactions.
+sign(data) - Function: Function to sign transactions.
 
 ```
-delib.addAccounts('privateKey')
+delib.addAccount('privateKey')
+  .then(key => {
+
+  })
 ```
 
 ### Get a list of all available accounts
@@ -447,8 +470,7 @@ delib.balanceOf('0x08217011BF7DeeeEECBDA8a8a61A8035ca206e99')
 ### compile contracts
 **delib.compile(contractFiles, contractPath, buildPath)**
 
-Pass in a file name or an array of file names you wish you build from your project's `contracts/` folder to your project's `built/` folder. If `contractFiles` is left blank
-will compile all contracts in contracts folder.
+Pass in a file name or an array of file names you wish you build from your project's `contracts/` folder to your project's `built/` folder. If `contractFiles` is left blank will compile all contracts in contracts folder.
 
 ```
 delib.build('Test')
@@ -805,7 +827,7 @@ If you found Delib useful please leave a star on [GitHub](https://github.com/zhi
 
 <a name=Cli+api></a>
 ## Command Tool
-* [delib](#Cli+api)
+* [Cli](#Cli+api)
     * [init](#Cli+init)
     * [compile `[files...]`](#Cli+compile)
     * [build `[files...]`](#Cli+build)
@@ -980,7 +1002,7 @@ Set the address of a contract to use.
     * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
     * [.initws(wsPath)](#Ethereum+initws) ⇒ <code>Web3</code>
     * [.closeWSConnnection()](#Ethereum+closeWSConnnection) ⇒ <code></code>
-    * [.addAccount(privateKeyOrMnemonic)](#Ethereum+addAccount) ⇒ <code>Object</code>
+    * [.addAccount(privateKeyOrMnemonic)](#Ethereum+addAccount) ⇒ <code>Promise</code> ⇒ <code>Object</code>
     * [.getAccounts()](#Ethereum+getAccounts) ⇒ <code>Array</code>
     * [.changeProvider(type, path)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
     * [.balanceOf(accountOrIndex)](#Ethereum+balanceOf) ⇒ <code>Number</code>
@@ -989,7 +1011,7 @@ Set the address of a contract to use.
     * [.compile(contractFiles, contractPath, buildPath)](#Ethereum+compile)
     * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
     * [.getContractInfo(contractName)](#Ethereum+getContractInfo)
-    * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>
+    * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>Object</code>
       * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
     * [.exec(contractName)](#Ethereum+exec) ⇒ <code>ContractInstance</code>
       * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>ContractInstance</code>
@@ -1001,22 +1023,22 @@ Set the address of a contract to use.
     * [.watchAt(contractName, contractAddress, eventName, filter, callback)](#Ethereum+watchAt) ⇒ <code>Object</code>
 
 
-<a name="Ethereum+web3"></a>
+<a name="delib+web3"></a>
 #### delib.web3
 The Web3 object being used as the current provider. Will first need to initialize a connection with `delib.init()` or `delib.initIPC()`;
 
-<a name="Ethereum+gasAdjust"></a>
+<a name="delib+gasAdjust"></a>
 #### delib.gasAdjust
 The amount to adjust gas when doing automatic gas estimates. Default is 0. It's calculated by this formula:
 ```
 gasEstimate = gasEstimate + gasEstimate * gasAdjust
 ```
 
-<a name="Ethereum+accountIndex"></a>
+<a name="delib+accountIndex"></a>
 #### delib.accountIndex
 The default index of the account used for transactions. The index uses the web3.eth.accounts array to get the account address. This can be overwritten by setting an address in `delib.options.from`, setting a `from` property in transaction options, or setting an `accountIndex` property (also an account index) in transaction options.
 
-<a name="Ethereum+options"></a>
+<a name="delib+options"></a>
 #### delib.options
 The default options for `delib` methods. This object contains the default transaction options as well as the default delib options. If `gas` is 0 or null then it will be estimated automatically for each transaction. `maxGas` is the max gas allowed when estimating gas. Leave `from` null to get the address from `delib.account` or `account`. You can pass any of these properties inside the options object for deploy or exec transactions.  
 
@@ -1037,7 +1059,7 @@ The default options for `delib` methods. This object contains the default transa
 }
 ```
 
-<a name="Ethereum+paths"></a>
+<a name="delib+paths"></a>
 #### delib.paths
 An object that contains the paths to the Solidity contracts, built contracts, and contract addresses. If using delib in a project these paths will be relative to your project root, otherwise they will be relative to your scripts. Assign paths to this object if you don't want to create a project or if you want to customize the paths.
 
@@ -1049,7 +1071,7 @@ delib.paths = {
 }
 ```
 
-<a name="Ethereum+addresses+set"></a>
+<a name="delib+addresses+set"></a>
 #### delib.addresses.set(name, address)
 Set an address for a contract to use for future transactions. It appends it to the addresses file of that particular contract, or creates it if it doesn't exist.
 
@@ -1060,7 +1082,7 @@ Set an address for a contract to use for future transactions. It appends it to t
 | name | <code>string</code> | Name of built contract |
 | address | <code>string</code> | The address of the contract |
 
-<a name="Ethereum+addresses+get"></a>
+<a name="delib+addresses+get"></a>
 #### delib.addresses.get(name, index)
 Retrieves the addresses file of a contract and gets a deployed contract address based on index. If no index parameter is given it will return the latest address, which is at the bottom of the addresses file.
 
@@ -1072,7 +1094,7 @@ Retrieves the addresses file of a contract and gets a deployed contract address 
 | index | <code>number</code> | The index of the contract address |
 
 <a name="Ethereum+addresses+getAll"></a>
-#### delib.addresses.getAll(name)
+#### delib.delib.getAll(name)
 Retrieves the addresses file of a contract and return an array of all its deployed addresses.
 
 **Returns**: <code>Array</code> - An array of deployed contract addresses.
@@ -1081,7 +1103,7 @@ Retrieves the addresses file of a contract and return an array of all its deploy
 | --- | --- | --- |
 | name | <code>string</code> | Name of built contract |
 
-<a name="Ethereum+init"></a>
+<a name="delib+init"></a>
 #### delib.init(rpcPath) ⇒ <code>Web3</code>
 Initializes a RPC connection with an Ethereum node. The RPC provider can be set in the ```delib.js``` config file or you can pass it in as arguments. This needs to be called before performing any methods that interact with an Ethereum node.
 
@@ -1091,7 +1113,7 @@ Initializes a RPC connection with an Ethereum node. The RPC provider can be set 
 | --- | --- | --- |
 | rpcPath | <code>string</code> | The path to the RPC port. For example: `http://localhost:8545`. |
 
-<a name="Ethereum+initIPC"></a>
+<a name="delib+initIPC"></a>
 #### delib.initIPC(ipcPath) ⇒ <code>Web3</code>
 Initializes an IPC connection with an Ethereum node. The IPC provider can be set in the ```delib.js``` config file or you can pass it in as an argument. This needs to be called before using IPC functionality such as creating or unlocking an account. This returns a Web3 object connected via IPC that you call web3.personal and web3.admin methods on.
 
@@ -1101,7 +1123,7 @@ Initializes an IPC connection with an Ethereum node. The IPC provider can be set
 | --- | --- | --- |
 | ipcPath | <code>string</code> | Path to the IPC provider. Example for Unix: process.env.HOME + '/Library/Ethereum/geth.ipc'. Optional. |
 
-<a name="Ethereum+initws"></a>
+<a name="delib+initws"></a>
 #### delib.initws(wsPath) ⇒ <code>Web3</code>
 Initializes a WS connection with an Ethereum node.
 
@@ -1111,21 +1133,28 @@ Initializes a WS connection with an Ethereum node.
 | --- | --- | --- |
 | wsPath | <code>string</code> | WS connection path |
 
-<a name="Ethereum+closeWSConnnection"></a>
+<a name="delib+closeWSConnnection"></a>
 #### delib.closeWSConnnection(wsPath)
 Closes the web3 websocket connection.
 
-<a name="Ethereum+addAccount"></a>
+<a name="delib+addAccount"></a>
 #### delib.addAccount(privateKeyOrMnemonic) ⇒ <code>Object</code>
 Adds an account to delib and web3 that can be to used to send transactions. Uses web3.eth.accounts.wallet.add to add the account to web3.
 
-**Returns**: <code>Object</code> - The key of the account created.
+**Returns**: <code>Promise</code> ⇒ <code>Object</code> - Returns an account object
 
 | Param | Type | Description |
 | --- | --- | --- |
 | privateKeyOrMnemonic | <code>string</code> | The private key or mnemonic of the account you wish to add |
 
-<a name="Ethereum+getAccounts"></a>
+The returned object:
+index - number: Account index used in delib.
+address - string: Account address.
+privateKey - string: The accounts private key.
+signTransaction(tx [, callback]) - Function: Function to sign transactions.
+sign(data) - Function: Function to sign transactions.
+
+<a name="delib+getAccounts"></a>
 #### delib.getAccounts() ⇒ <code>Array</code>
 Gets all the accounts in web3. This includes the accounts retrieved when using the web3.eth.getAccounts() method and the accounts in the web3.eth.accounts.wallet.
 
@@ -1176,11 +1205,12 @@ Creates an account and returns to you an account object. Uses `web3.eth.accounts
 | entropy | <code>string</code> | A random string to increase entropy. If given it should be at least 32 characters. If none is given a random string will be generated using randomhex. |
 
 The returned object:
-
+index - number: Account index used in delib.
 address - string: Account address.
 privateKey - string: The accounts private key.
 signTransaction(tx [, callback]) - Function: Function to sign transactions.
 sign(data) - Function: Function to sign transactions.
+
 
 <a name="Ethereum+compile"></a>
 #### delib.compile(contractFiles, contractPath, buildPath)
@@ -1220,7 +1250,7 @@ Gets the info of a built contract.
 #### delib.deploy(contractName, args, options, links) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  
 Deploy a built contract. If you have `delib.options` value set to 0 or pass in the option then your gas cost will be automatically estimated. The address is saved in your project's `addresses/` folder and will be used for future contract calls and transactions.
 
-**Returns**: <code>Promise</code> - The response is a Contract instance of the deployed instance. You can call methods on it.
+**Returns**: <code>Promise</code> - An object containing deployed contract details.
 
 | Param | Type | Description |
 | --- | --- | --- |
