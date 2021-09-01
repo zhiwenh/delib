@@ -984,43 +984,43 @@ Set the address of a contract to use.
 | `-a --address` | `<path>` | Relative path to contract addresses |
 
 ## Library
-* [delib](#Ethereum+api)
-    * [.web3](#Ethereum+web3)
-    * [.connectionType](#Ethereum+connectType)
-    * [.gasAdjust](#Ethereum+gasAdjust)
-    * [.options](#Ethereum+options)
-    * [.accountIndex](#Ethereum+accountIndex)
-    * [.paths](#Ethereum+paths)
-      * [.contract](#Ethereum+paths)
-      * [.built](#Ethereum+paths)
-      * [.address](#Ethereum+paths)
-    * [.addresses](#Ethereum+addresses) ⇒ <code>Array</code>
-      * [.set(name, address)](#Ethereum+addresses+set) ⇒ <code>number</code>
-      * [.get(name, index)](#Ethereum+addresses+get) ⇒ <code>string</code>
-      * [.getAll(name)](#Ethereum+addresses+getAll) ⇒ <code>Array</code>
-    * [.init(rpcPath)](#Ethereum+init) ⇒ <code>Web3</code>
-    * [.initIPC(ipcPath)](#Ethereum+initIPC) ⇒ <code>Web3</code>
-    * [.initws(wsPath)](#Ethereum+initws) ⇒ <code>Web3</code>
-    * [.closeWSConnnection()](#Ethereum+closeWSConnnection) ⇒ <code></code>
-    * [.addAccount(privateKeyOrMnemonic)](#Ethereum+addAccount) ⇒ <code>Promise</code> ⇒ <code>Object</code>
-    * [.getAccounts()](#Ethereum+getAccounts) ⇒ <code>Array</code>
-    * [.changeProvider(type, path)](#Ethereum+changeProvider) ⇒ <code>Web3</code>
-    * [.balanceOf(accountOrIndex)](#Ethereum+balanceOf) ⇒ <code>Number</code>
-    * [.transfer(toAccount, value, options)](#Ethereum+transfer) ⇒ <code>Object</code>
-    * [.createAccount(entropy)](#Ethereum+createAccount) ⇒ <code>Object</code>
-    * [.compile(contractFiles, contractPath, buildPath)](#Ethereum+compile)
-    * [.build(contractFiles, contractPath, buildPath)](#Ethereum+build)
-    * [.getContractInfo(contractName)](#Ethereum+getContractInfo)
-    * [.deploy(contractName, args, options)](#Ethereum+deploy) ⇒ <code>Promise</code> ⇒ <code>Object</code>
-      * [deploy.estimate(contractName, args, options)](#Ethereum+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
-    * [.exec(contractName)](#Ethereum+exec) ⇒ <code>ContractInstance</code>
-      * [.exec(contractName).estimate](#Ethereum+exec+estimate) ⇒ <code>ContractInstance</code>
-    * [.execAt(contractName, contractAddress)](#Ethereum+execAt) ⇒ <code>ContractInstance</code>
-      * [.execAt(contractName, contractAddress).estimate](#Ethereum+execAt+estimate) ⇒ <code>ContractInstance</code>
-    * [.events(contractName, eventName, blockOptions, filter)](#Ethereum+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
-    * [.eventsAt(contractName, contractAddress, eventName, blockOptions, filter)](#Ethereum+eventsAt) ⇒ <code>Promise</code> ⇒ <code>Array</code>
+* [delib](#delib+api)
+    * [.web3](#delib+web3)
+    * [.connectionType](#delib+connectType)
+    * [.gasAdjust](#delib+gasAdjust)
+    * [.options](#delib+options)
+    * [.accountIndex](#delib+accountIndex)
+    * [.paths](#delib+paths)
+      * [.contract](#delib+paths)
+      * [.built](#delib+paths)
+      * [.address](#delib+paths)
+    * [.addresses](#delib+addresses) ⇒ <code>Array</code>
+      * [.set(name, address)](#delib+addresses+set) ⇒ <code>number</code>
+      * [.get(name, index)](#delib+addresses+get) ⇒ <code>string</code>
+      * [.getAll(name)](#delib+addresses+getAll) ⇒ <code>Array</code>
+    * [.init(rpcPath)](#delib+init) ⇒ <code>Web3</code>
+    * [.initIPC(ipcPath)](#delib+initIPC) ⇒ <code>Web3</code>
+    * [.initws(wsPath)](#delib+initws) ⇒ <code>Web3</code>
+    * [.closeWSConnnection()](#delib+closeWSConnnection) ⇒ <code></code>
+    * [.addAccount(privateKeyOrMnemonic)](#delib+addAccount) ⇒ <code>Promise</code> ⇒ <code>Object</code>
+    * [.getAccounts()](#delib+getAccounts) ⇒ <code>Array</code>
+    * [.changeProvider(type, path)](#delib+changeProvider) ⇒ <code>Web3</code>
+    * [.balanceOf(accountOrIndex)](#delib+balanceOf) ⇒ <code>Number</code>
+    * [.transfer(toAccount, value, options)](#delib+transfer) ⇒ <code>Object</code>
+    * [.createAccount(entropy)](#delib+createAccount) ⇒ <code>Object</code>
+    * [.compile(contractFiles, contractPath, buildPath)](#delib+compile)
+    * [.build(contractFiles, contractPath, buildPath)](#delib+build)
+    * [.getContractInfo(contractName)](#delib+getContractInfo)
+    * [.deploy(contractName, args, options)](#delib+deploy) ⇒ <code>Promise</code> ⇒ <code>Object</code>
+      * [deploy.estimate(contractName, args, options)](#delib+deploy+estimate) ⇒ <code>Promise</code> ⇒ <code>number</code>
+    * [.exec(contractName)](#delib+exec) ⇒ <code>ContractInstance</code>
+      * [.exec(contractName).estimate](#delib+exec+estimate) ⇒ <code>ContractInstance</code>
+    * [.execAt(contractName, contractAddress)](#delib+execAt) ⇒ <code>ContractInstance</code>
+      * [.execAt(contractName, contractAddress).estimate](#delib+execAt+estimate) ⇒ <code>ContractInstance</code>
+    * [.events(contractName, eventName, blockOptions, filter)](#delib+events) ⇒ <code>Promise</code> ⇒ <code>Array</code>
+    * [.eventsAt(contractName, contractAddress, eventName, blockOptions, filter)](#delib+eventsAt) ⇒ <code>Promise</code> ⇒ <code>Array</code>
     * [.watch(contractName, eventName, filter, callback)](#Ethereum+watch) ⇒ <code>Object</code>
-    * [.watchAt(contractName, contractAddress, eventName, filter, callback)](#Ethereum+watchAt) ⇒ <code>Object</code>
+    * [.watchAt(contractName, contractAddress, eventName, filter, callback)](#delib+watchAt) ⇒ <code>Object</code>
 
 
 <a name="delib+web3"></a>
@@ -1161,7 +1161,7 @@ Gets all the accounts in web3. This includes the accounts retrieved when using t
 **Returns**: <code>Array</code> - An array of account addresses.
 
 
-<a name="Ethereum+changeProvider"></a>
+<a name="delib+changeProvider"></a>
 #### delib.changeProvider(type, path) ⇒ <code>Web3</code>
 Changes web3 provider.
 
@@ -1172,7 +1172,7 @@ Changes web3 provider.
 | type | <code>string</code> | Type of provider to use.
 | path | <code>string</code> | Path to the provider.
 
-<a name="Ethereum+balanceOf"></a>
+<a name="delib+balanceOf"></a>
 #### delib.balanceOf(accountOrIndex) ⇒ <code>Number</code>
 Gets the balance of an account by its address or index in the delib.getAccounts() account array.
 
@@ -1182,7 +1182,7 @@ Gets the balance of an account by its address or index in the delib.getAccounts(
 | --- | --- | --- |
 | accountOrIndex | <code>string</code> | The account address or account index of the account you wish to get the balance of. |
 
-<a name="Ethereum+transfer"></a>
+<a name="delib+transfer"></a>
 #### delib.transfer(toAccount, value, options) ⇒ <code>Object</code>
 Transfers Ether from one account to another.
 
@@ -1194,7 +1194,7 @@ Transfers Ether from one account to another.
 | value | <code>number</code> | In value in wei of the balance you wish to send. |
 | options | <code>Object</code> | Options to include in the transaction. |
 
-<a name="Ethereum+createAccount"></a>
+<a name="delib+createAccount"></a>
 #### delib.createAccount(entropy) ⇒ <code>Object</code>
 Creates an account and returns to you an account object. Uses `web3.eth.accounts.create` to create the account.
 
@@ -1212,7 +1212,7 @@ signTransaction(tx [, callback]) - Function: Function to sign transactions.
 sign(data) - Function: Function to sign transactions.
 
 
-<a name="Ethereum+compile"></a>
+<a name="delib+compile"></a>
 #### delib.compile(contractFiles, contractPath, buildPath)
 Build a Solidity contract.
 
@@ -1224,7 +1224,7 @@ Build a Solidity contract.
 | contractPath | <code>string</code> | Optional. Directory path where contract files are located. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object |
 | buildPath | <code>string</code> | Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object. |
 
-<a name="Ethereum+build"></a>
+<a name="delib+build"></a>
 #### delib.build(contractFiles, contractPath, buildPath)
 Build a Solidity contract.
 
@@ -1236,7 +1236,7 @@ Build a Solidity contract.
 | contractPath | <code>string</code> | Optional. Directory path where contract files are located. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object |
 | buildPath | <code>string</code> | Optional. Directory path where built contracts will be put. If none is given the directory path will be retrieved from `delib.js` or the `contracts.paths` object. |
 
-<a name="Ethereum+getContractInfo"></a>
+<a name="delib+getContractInfo"></a>
 #### delib.getContractInfo(contractName)
 Gets the info of a built contract.
 
@@ -1246,7 +1246,7 @@ Gets the info of a built contract.
 | --- | --- | --- |
 | contractName | <code>string</code> | The contract's name |
 
-<a name="Ethereum+deploy"></a>
+<a name="delib+deploy"></a>
 #### delib.deploy(contractName, args, options, links) ⇒ <code>Promise</code> ⇒ <code>ContractInstance</code>  
 Deploy a built contract. If you have `delib.options` value set to 0 or pass in the option then your gas cost will be automatically estimated. The address is saved in your project's `addresses/` folder and will be used for future contract calls and transactions.
 
@@ -1259,7 +1259,7 @@ Deploy a built contract. If you have `delib.options` value set to 0 or pass in t
 | options | <code>Object</code> | Transaction options. |
 | links | <code>Object</code> | Links to libraries. Property is the library file name, :, then library name. The value is the library contract address |
 
-<a name="Ethereum+deploy+estimate"></a>
+<a name="v+deploy+estimate"></a>
 #### delib.deploy.estimate(contractName, args, options) ⇒ <code>Promise</code> ⇒ <code>number</code>
 Estimate the gas usage for deploying a contract.
 
@@ -1271,7 +1271,7 @@ Estimate the gas usage for deploying a contract.
 | args | <code>Array</code> | Arguments to be passed into the deployed contract as initial parameters. |
 | options | <code>Object</code> | Transaction options. |
 
-<a name="Ethereum+exec"></a>
+<a name="delib+exec"></a>
 #### delib.exec(contractName) ⇒ <code>ContractInstance</code>
 Calls or performs a transaction on a deployed contract. Will take the address provided in the config file. If you have `delib.options` value set to 0 or pass in the option into the contract method call your gas cost will be automatically estimated.
 
@@ -1281,7 +1281,7 @@ Calls or performs a transaction on a deployed contract. Will take the address pr
 | --- | --- | --- |
 | contractName | <code>string</code> | Name of deployed contract |
 
-<a name="Ethereum+exec+estimate"></a>
+<a name="delib+exec+estimate"></a>
 #### delib.exec(contractName).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
 Calls a deployed contract and methods called on the returned contract will return an estimated gas usage value.
 
@@ -1303,7 +1303,7 @@ Calls a deployed contract at a specific address. If you have `delib.options` val
 | contractAddress | <code>string</code> | Address of the contract. |
 
 
-<a name="Ethereum+execAt+estimate"></a>
+<a name="delib+execAt+estimate"></a>
 #### delib.execAt(contractName, contractAddress).estimate ⇒ <code>Promise</code> ⇒ <code>number</code>
 Calls a deployed contract at a specified address and methods called on the contract will return the estimated gas usage.
 
@@ -1315,7 +1315,7 @@ Calls a deployed contract at a specified address and methods called on the contr
 | contractAddress | <code>string</code> | Address of the contract. |
 
 
-<a name="Ethereum+events"></a>
+<a name="delib+events"></a>
 #### delib.events(contractName, eventName, blockOptoins, filter) ⇒ <code>Promise</code>
 Gets the event logs of an event.
 
@@ -1328,7 +1328,7 @@ Gets the event logs of an event.
 | blockOptions | <code>Object</code> | An object with keys of fromBlock and toBlock. Example: {fromBlock: 100, toBlock: 200}.
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
 
-<a name="Ethereum+eventsAt"></a>
+<a name="delib+eventsAt"></a>
 #### delib.eventsAt(contractName, contractAddress, eventName, blocksBack, filter) ⇒ <code>Promise</code>
 Gets the event logs for an event.
 
@@ -1342,7 +1342,7 @@ Gets the event logs for an event.
 | blockOptions | <code>number</code> | An object with keys of fromBlock and toBlock. Example: {fromBlock: 100, toBlock: 200}.
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. |
 
-<a name="Ethereum+watch"></a>
+<a name="delib+watch"></a>
 #### delib.watch(contractName, eventName, options, callback)
 Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`.
 
@@ -1355,7 +1355,7 @@ Set up a listener to watch for new events. To stop the listener set the watch me
 | filter | <code>Object</code> | Object to filter the event logs. The filter properties can be ordinary values, an array of values, or a callback function. If it's just a value then it must match with the log's value or it's filtered. If it's an array one of the values must match. The callbacks take the log value as a parameter and it must return true. The filter's `address` property by default is the contract address. Optional: you may pass the callback in its place. Can also set a fromBlock value. If not set it will default to the current block number.|
 | callback | <code>Function</code>  | Callback to watch the events with. Takes parameters err and log. |
 
-<a name="Ethereum+watch"></a>
+<a name="delib+watch"></a>
 #### delib.watchAt(contractName, contractAddress, eventName, options, callback)
 Set up a listener to watch for new events. To stop the listener set the watch method to a variable and call `watch.stop()`. Need a websocket connection to be able to watch for events.
 
