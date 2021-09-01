@@ -76,7 +76,7 @@ You don't need to create a project to use Delib. More information is given in th
 A file called `delib.js` gets made when you create a project. It contains your project's configuration options. Use this to adjust your project file paths, connection options, and default command transaction options. Delib supports solc 0.4.1 - 0.8.6. If you wish to add an account with a private key or mnemonic you may do so in the config file as well. Just
 add your private key or mnemonic to the array and you can use the account to send transactions with the library and command tool.
 
-Note: In the web3 docs, which this framework uses to create and add accounts. There is a warning for web3's account methods:
+Note: In the web3 docs, which this framework uses to create and add accounts, there is a warning for web3's account methods:
 This package has NOT been audited and might potentially be unsafe. Take precautions to clear memory properly, store the private keys safely, and test transaction receiving and sending functionality properly before using in production!
 
 ```
@@ -380,7 +380,7 @@ delib.options = {
 ### Create account
 **delib.createAccount(entropy)**  
 
-Note: In the web3 docs, which this framework uses to create and add accounts. There is a warning for web3's account methods:
+Note: In the web3 docs, which this framework uses to create and add accounts, there is a warning for web3's account methods:
 This package has NOT been audited and might potentially be unsafe. Take precautions to clear memory properly, store the private keys safely, and test transaction receiving and sending functionality properly before using in production!
 
 Creates an account. The account is added to the returned account list from `delib.getAccounts` and can be used in all transactions in delib. The accounts are stored in `web3.eth.accounts.wallet`. Returns an account object containing:
@@ -402,7 +402,7 @@ delib.createAccount()
 ### Add accounts
 **delib.addAccount(privateKeyOrMnemonic)**  
 
-Note: In the web3 docs, which this framework uses to create and add accounts. There is a warning for web3's account methods:
+Note: In the web3 docs, which this framework uses to create and add accounts, there is a warning for web3's account methods:
 This package has NOT been audited and might potentially be unsafe. Take precautions to clear memory properly, store the private keys safely, and test transaction receiving and sending functionality properly before using in production!
 
 Add an account to the delib account list. The account will then be able to make transactions by setting a from option in the transaction options or by setting an accountIndex option. The accounts are stored in `web3.eth.accounts.wallet`.
