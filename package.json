@@ -104,5 +104,5 @@
     "tape": "^4.6.3",
     "tapes": "^4.1.0"
   },
-  "license": "MIT"
+  "license": "ISC"
 }
